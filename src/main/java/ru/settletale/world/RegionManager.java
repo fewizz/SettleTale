@@ -74,12 +74,6 @@ public class RegionManager {
 	}
 	
 	public Region getRegion(int x, int z) {
-		for(IRegionManageristener listener : listeners) {
-			Region r = listener.get(x, z);
-			if(r != null) {
-				return r;
-			}
-		}
 		return regions.get(SSMath.clamp(x, z));
 	}
 	

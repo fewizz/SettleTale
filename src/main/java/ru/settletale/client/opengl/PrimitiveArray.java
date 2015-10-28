@@ -5,16 +5,17 @@ import java.nio.ByteBuffer;
 import ru.settletale.util.FloatPrimitiveList;
 
 public class PrimitiveArray {
-	Primitive.Type type;
-	FloatPrimitiveList pl;
-	FloatPrimitiveList cl;
-	VertexInfo vert;
+	private Primitive.Type type;
+	private FloatPrimitiveList pl;
+	private FloatPrimitiveList cl;
+	private VertexInfo vert;
 	private int lastVertex = 0;
 	
 	public PrimitiveArray(Primitive.Type type) {
 		this.type = type;
 		pl = new FloatPrimitiveList(2048, Float.BYTES);
 		cl = new FloatPrimitiveList(2048, Byte.BYTES);
+		vert = new VertexInfo();
 	}
 	
 	public void endVertex() {
@@ -42,6 +43,18 @@ public class PrimitiveArray {
 		vert.r = r;
 		vert.g = g;
 		vert.b = b;
+	}
+	
+	public void color(byte r, byte g, byte b) {
+		vert.r = r;
+		vert.g = g;
+		vert.b = b;
+	}
+	
+	public void position(float x, float y, float z) {
+		vert.pX = x;
+		vert.pY = y;
+		vert.pZ = z;
 	}
 	
 	public void clear() {

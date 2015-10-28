@@ -1,10 +1,5 @@
 package ru.settletale.world;
 
-import ru.settletale.registry.Tiles;
-import ru.settletale.tile.Tile;
-import ru.settletale.tile.data.TileDataContainer;
-import ru.settletale.util.SSMath;
-
 public class World {
 	public RegionManager regionManager;
 	
@@ -20,7 +15,7 @@ public class World {
 		regionManager.update();
 	}
 	
-	public Tile getTile(int x, int z) {
+	/*public Tile getTile(int x, int z) {
 		int cx = SSMath.floor2((float)x / 16F);
 		int cz = SSMath.floor2((float)z / 16F);
 		
@@ -40,5 +35,5 @@ public class World {
 		}
 		
 		return regionManager.getRegion(cx, cz).chunkData.getContainer(x & 0xF, z & 0xF);
-	}
+	}*/
 }

@@ -2,23 +2,18 @@ package ru.settletale.client.render.world;
 
 import static org.lwjgl.opengl.GL11.*;
 
+import java.awt.Color;
 import java.nio.ByteBuffer;
 
 import com.koloboke.collect.map.hash.HashLongObjMap;
 import com.koloboke.collect.map.hash.HashLongObjMaps;
 
-import ru.settletale.Game;
 import ru.settletale.client.Camera;
 import ru.settletale.client.PlatformClient;
 import ru.settletale.client.opengl.OpenGL;
 import ru.settletale.client.opengl.Primitive.Type;
 import ru.settletale.client.opengl.PrimitiveArray;
-import ru.settletale.client.registry.TileRenderers;
-import ru.settletale.client.render.tile.ITileRenderer;
-import ru.settletale.registry.Tiles;
-import ru.settletale.tile.Tile;
 import ru.settletale.util.IRegionManageristener;
-import ru.settletale.util.SSMath;
 import ru.settletale.world.Region;
 
 public class WorldRenderer implements IRegionManageristener {
@@ -72,22 +67,32 @@ public class WorldRenderer implements IRegionManageristener {
 	}
 	
 	public static void renderRegion(Region r, PrimitiveArray array) {
-		
 		for (int x = 0; x < 16; x++) {
 			for (int z = 0; z < 16; z++) {
 				int tx = r.x * 16 + x;
 				int tz = r.z * 16 + z;
-				Tile tile = Game.getWorld().getTile(tx, tz);
-				if (tile == Tiles.air) {
-					continue;
+				
+				int tx2 = tx & 0xF;
+				int tz2 = tz & 0xF;
+				
+				Color c = r.getBiome(x, z).color;
+				array.color((byte)c.getRed(), (byte)c.getGreen(), (byte)c.getBlue());
+				
+				for(int x2 = 0; x2 < 2; x2++) {
+					for(int z2 = 0; z2 < 2; z2++) {
+						float hx = (float) x2 / 2F;
+						float hz = (float) z2 / 2F;
+						
+						array.position(tx + hx       , r.getHeight(tx2 * 2 + x2    , tz2 * 2 + z2    ), tz + hz       );
+						array.endVertex();
+						array.position(tx + hx       , r.getHeight(tx2 * 2 + x2    , tz2 * 2 + z2 + 1), tz + hz + 0.5F);
+						array.endVertex();
+						array.position(tx + hx + 0.5F, r.getHeight(tx2 * 2 + x2 + 1, tz2 * 2 + z2 + 1), tz + hz + 0.5F);
+						array.endVertex();
+						array.position(tx + hx + 0.5F, r.getHeight(tx2 * 2 + x2 + 1, tz2 * 2 + z2    ), tz + hz       );
+						array.endVertex();
+					}
 				}
-
-				ITileRenderer rend = TileRenderers.renderers[tile.id];
-				if (rend == null) {
-					continue;
-				}
-
-				rend.render(tx, tz, array);
 			}
 		}
 	}
@@ -117,13 +122,5 @@ public class WorldRenderer implements IRegionManageristener {
 			}
 		});
 		
-	}
-
-	@Override
-	public Region get(int x, int z) {
-		if(PlatformClient.isRenderThread()) {
-			return regions.get(SSMath.clamp(x, z));
-		}
-		return null;
 	}
 }

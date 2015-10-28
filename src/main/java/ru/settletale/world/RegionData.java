@@ -1,19 +1,15 @@
 package ru.settletale.world;
 
-import ru.settletale.registry.Tiles;
-import ru.settletale.tile.Tile;
-import ru.settletale.tile.data.TileDataContainer;
-
 public class RegionData {
-	private final byte[] ids;
+	/*private final byte[] ids;
 	private final TileDataContainer[] containers;
 	
 	public RegionData() {
 		ids = new byte[16 * 16];
 		containers = new TileDataContainer[16 * 16];
-	}
+	}*/
 	
-	public void set(int x, int z, Tile tile) {
+	/*public void set(int x, int z, Tile tile) {
 		this.set(x, z, tile.id);
 	}
 	
@@ -36,5 +32,5 @@ public class RegionData {
 	
 	public TileDataContainer getContainer(int x, int z) {
 		return containers[index(x, z)];
-	}
+	}*/
 }

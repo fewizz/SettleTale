@@ -17,7 +17,13 @@ public enum Climate {
 	public Color color;
 	public int chanceOfWater;
 	
+	static Climate[] climats;
+	
+	static {
+		climats = values();
+	}
+	
 	public static Climate[] all() {
-		return values();
+		return climats;
 	}
 }

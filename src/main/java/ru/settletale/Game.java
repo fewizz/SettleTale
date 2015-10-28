@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import ru.settletale.client.PlatformClient;
 import ru.settletale.registry.Biomes;
-import ru.settletale.registry.Tiles;
 import ru.settletale.server.PlatformServer;
 import ru.settletale.util.Side;
 import ru.settletale.world.World;
@@ -20,7 +19,6 @@ public class Game {
 			platform = new PlatformClient();
 		}
 		Biomes.register();
-		Tiles.register();
 		platform.start();
 		
 		/*
