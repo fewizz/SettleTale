@@ -67,20 +67,6 @@ public class CompiledRegion {
 	}
 	
 	public void render() {
-		/*GL11.glEnableClientState(GL11.GL_VERTEX_ARRAY);
-		GL11.glEnableClientState(GL11.GL_COLOR_ARRAY);
-		
-		vbo.bind();
-		GL11.glVertexPointer(3, GL11.GL_FLOAT, 0, MemoryUtil.NULL);
-		
-		cbo.bind();
-		GL11.glColorPointer(3, GL11.GL_FLOAT, 0, MemoryUtil.NULL);
-		
-		GL11.glDrawArrays(GL11.GL_QUADS, 0, numOfVerts);
-		
-		GL11.glDisableClientState(GL11.GL_VERTEX_ARRAY);
-		GL11.glDisableClientState(GL11.GL_COLOR_ARRAY);*/
-		
 		vao.bind();
 		OpenGL.debug("CR rend start");
 		GL20.glUseProgram(program.id);
