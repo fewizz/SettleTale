@@ -1,0 +1,61 @@
+apply plugin: 'java'
+apply plugin: 'eclipse'
+
+repositories {
+    jcenter()
+	
+	maven {
+          url "http://localhost:8081/nexus/content/groups/public"
+    }
+}
+
+configurations {
+	shadow
+	compile.extendsFrom shadow
+}
+
+dependencies {
+	shadow 'org.lwjgl:lwjgl:3.0.0+'
+	shadow 'org.joml:joml:1.8.2'
+	shadow 'io.netty:netty-microbench:4.1.4.Final'
+	shadow 'io.github.lukehutch:fast-classpath-scanner:2.0.1'
+	shadow 'com.koloboke:koloboke-api-jdk8:1.0.0'
+    shadow 'com.koloboke:koloboke-impl-jdk8:1.0.0'
+	shadow files('libs/lwjgl-natives.jar')
+}
+
+jar {
+
+	def str = ''
+	fileTree(dir: 'build/libs/libs/').each {
+		str += 'libs/' + it.getName() + ' ';
+	}
+	
+	manifest {
+		attributes(
+			'Main-Class': 'ru.settletale.Game',
+			'Class-Path': str
+		)
+	}
+}
+
+task copyLibs(type: Copy){
+	//copy {
+		configurations.shadow.each { dep ->
+			from dep
+		}
+		into 'build/libs/libs'
+	//}
+}
+
+jar.dependsOn copyLibs
+
+eclipse {
+	project {
+		name = 'SettleTale'
+
+	}
+	jdt {
+		sourceCompatibility = 1.8
+	}
+}
