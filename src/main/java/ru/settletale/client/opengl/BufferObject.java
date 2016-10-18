@@ -1,5 +1,6 @@
 package ru.settletale.client.opengl;
 
+import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 
 import org.lwjgl.opengl.GL15;
@@ -54,6 +55,16 @@ public class BufferObject<T extends BufferObject<?>> extends NameableAdapter {
 		unbind();
 	}
 	
+	public void data(ByteBuffer buffer, Usage usage) {
+		if(OpenGL.version >= 45) {
+			GL45.glNamedBufferData(id, buffer, usage.glCode);
+			return;
+		}
+		bind();
+		GL15.glBufferData(type, buffer, usage.glCode);
+		unbind();
+	}
+	
 	public void subdata(FloatBuffer buffer, int offset, Usage usage) {
 		if(OpenGL.version >= 45) {
 			GL45.glNamedBufferData(id, buffer, usage.glCode);
@@ -62,6 +73,11 @@ public class BufferObject<T extends BufferObject<?>> extends NameableAdapter {
 		bind();
 		GL15.glBufferData(type, buffer, usage.glCode);
 		unbind();
+	}
+	
+	public void delete() {
+		GL15.glDeleteBuffers(getID());
+		id = -1;
 	}
 	
 	public enum Usage {

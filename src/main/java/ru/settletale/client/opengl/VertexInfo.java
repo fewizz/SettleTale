@@ -1,6 +1,6 @@
 package ru.settletale.client.opengl;
 
-public class Vertex {
+public class VertexInfo {
 	public static final int SIZE = Double.BYTES * 3 + Float.BYTES * 5 + Byte.BYTES * 3;
 	
 	public double pX;

@@ -3,14 +3,14 @@ package ru.settletale.client.opengl;
 public class Primitive {
 	Type type;
 	byte lastVert = 0;
-	Vertex[] veticies;
+	VertexInfo[] veticies;
 	
 	public Primitive(Type type) {
 		this.type = type;
-		veticies = new Vertex[type.numOfVerts];
+		veticies = new VertexInfo[type.numOfVerts];
 	}
 	
-	public void vertex(Vertex vert) {
+	public void vertex(VertexInfo vert) {
 		veticies[lastVert] = vert;
 		lastVert++;
 	}

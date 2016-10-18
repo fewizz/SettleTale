@@ -1,7 +1,7 @@
 package ru.settletale.client.render.world;
 
 
-import java.nio.FloatBuffer;
+import java.nio.ByteBuffer;
 
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
@@ -39,7 +39,7 @@ public class CompiledRegion {
 		}
 	}
 	
-	public void compile(Region r, FloatBuffer poses, FloatBuffer colors) {
+	public void compile(Region r, ByteBuffer poses, ByteBuffer colors) {
 		OpenGL.debug("CR compile start");
 		vbo = new VertexBufferObject().gen();
 		cbo = new VertexBufferObject().gen();
@@ -69,12 +69,19 @@ public class CompiledRegion {
 	public void render() {
 		vao.bind();
 		OpenGL.debug("CR rend start");
-		GL20.glUseProgram(program.id);
+		program.bind();
 		OpenGL.debug("CR rend shader start");
 		GL11.glDrawArrays(GL11.GL_QUADS, 0, numOfVerts);
-		GL20.glUseProgram(0);
+		program.unbind();
 		OpenGL.debug("CR rend end");
 		vao.unbind();
+		OpenGL.debug("CR unbind vao");
+	}
+	
+	public void clear() {
+		vbo.delete();
+		cbo.delete();
+		vao.delete();
 	}
 	
 }

@@ -2,7 +2,7 @@ package ru.settletale.client.render.world;
 
 import static org.lwjgl.opengl.GL11.*;
 
-import java.nio.FloatBuffer;
+import java.nio.ByteBuffer;
 
 import com.koloboke.collect.map.hash.HashLongObjMap;
 import com.koloboke.collect.map.hash.HashLongObjMaps;
@@ -11,7 +11,7 @@ import ru.settletale.Game;
 import ru.settletale.client.Camera;
 import ru.settletale.client.PlatformClient;
 import ru.settletale.client.opengl.OpenGL;
-import ru.settletale.client.opengl.Primitive;
+import ru.settletale.client.opengl.Primitive.Type;
 import ru.settletale.client.opengl.PrimitiveArray;
 import ru.settletale.client.registry.TileRenderers;
 import ru.settletale.client.render.tile.ITileRenderer;
@@ -26,6 +26,7 @@ public class WorldRenderer implements IRegionManageristener {
 	public static final WorldRenderer INSTANCE = new WorldRenderer();
 	public static HashLongObjMap<Region> regions;
 	public static HashLongObjMap<CompiledRegion> regionsToRender;
+	public static PrimitiveArray pa = new PrimitiveArray(Type.Quad);
 
 	public static void init() {
 		glColor4f(1, 1, 1, 1);
@@ -55,13 +56,15 @@ public class WorldRenderer implements IRegionManageristener {
 			CompiledRegion cr = regionsToRender.get(r.coord);
 			
 			if(cr == null) {
-				PrimitiveArray array = new PrimitiveArray(Primitive.Type.Quad);
-				renderRegion(r, array);
+				renderRegion(r, pa);
 				
-				FloatBuffer pb = array.getPositionBuffer();
-				FloatBuffer cb = array.getColorBuffer();
+				OpenGL.debug("Fill buffers");
+				ByteBuffer pb = pa.getPositionBuffer();
+				ByteBuffer cb = pa.getColorBuffer();
 				cr = new CompiledRegion(r);
 				cr.compile(r, pb, cb);
+				OpenGL.debug("Array clear");
+				pa.clear();
 				regionsToRender.put(r.coord, cr);
 			}
 			cr.render();
@@ -110,6 +113,10 @@ public class WorldRenderer implements IRegionManageristener {
 			@Override
 			public void run() {
 				regions.remove(r.coord);
+				if(regionsToRender.containsKey(r.coord)) {
+					regionsToRender.get(r.coord).clear();
+					regionsToRender.remove(r.coord);
+				}
 			}
 		});
 		

@@ -4,12 +4,13 @@ import java.awt.Color;
 
 import ru.settletale.Game;
 import ru.settletale.client.opengl.PrimitiveArray;
-import ru.settletale.client.opengl.Vertex;
+import ru.settletale.client.opengl.VertexInfo;
 import ru.settletale.tile.data.DataContainerTerrain;
 import ru.settletale.util.SSMath;
 import ru.settletale.world.Region;
 
 public class TileRendererTerrain implements ITileRenderer {
+	public static VertexInfo vertex = new VertexInfo();
 
 	@Override
 	public void render(int x, int z, PrimitiveArray array) {
@@ -18,7 +19,6 @@ public class TileRendererTerrain implements ITileRenderer {
 		Color color = reg.getBiome(x & 0xF, z & 0xF).color;
 		DataContainerTerrain data = (DataContainerTerrain) Game.getWorld().getTileData(x, z);
 		/** 1 **/
-		Vertex vertex = new Vertex();
 		vertex.r = (byte) color.getRed();
 		vertex.g = (byte) color.getGreen();
 		vertex.b = (byte) color.getBlue();
@@ -27,7 +27,7 @@ public class TileRendererTerrain implements ITileRenderer {
 		vertex.pZ = 0.0F + z;
 		array.vertex(vertex);
 		
-		vertex = new Vertex();
+		//vertex = new Vertex();
 		vertex.r = (byte) color.getRed();
 		vertex.g = (byte) color.getGreen();
 		vertex.b = (byte) color.getBlue();
@@ -36,7 +36,7 @@ public class TileRendererTerrain implements ITileRenderer {
 		vertex.pZ = 0.5F + z;
 		array.vertex(vertex);
 		
-		vertex = new Vertex();
+		//vertex = new Vertex();
 		vertex.r = (byte) color.getRed();
 		vertex.g = (byte) color.getGreen();
 		vertex.b = (byte) color.getBlue();
@@ -45,7 +45,7 @@ public class TileRendererTerrain implements ITileRenderer {
 		vertex.pZ = 0.5F +z;
 		array.vertex(vertex);
 		
-		vertex = new Vertex();
+		//vertex = new Vertex();
 		vertex.r = (byte) color.getRed();
 		vertex.g = (byte) color.getGreen();
 		vertex.b = (byte) color.getBlue();
@@ -55,7 +55,7 @@ public class TileRendererTerrain implements ITileRenderer {
 		array.vertex(vertex);
 		
 		/** 2 **/
-		vertex = new Vertex();
+		//vertex = new Vertex();
 		vertex.r = (byte) color.getRed();
 		vertex.g = (byte) color.getGreen();
 		vertex.b = (byte) color.getBlue();
@@ -64,7 +64,7 @@ public class TileRendererTerrain implements ITileRenderer {
 		vertex.pZ = 0.0F + z;
 		array.vertex(vertex);
 		
-		vertex = new Vertex();
+		//vertex = new Vertex();
 		vertex.r = (byte) color.getRed();
 		vertex.g = (byte) color.getGreen();
 		vertex.b = (byte) color.getBlue();
@@ -73,7 +73,7 @@ public class TileRendererTerrain implements ITileRenderer {
 		vertex.pZ = 0.5F + z;
 		array.vertex(vertex);
 		
-		vertex = new Vertex();
+		//vertex = new Vertex();
 		vertex.r = (byte) color.getRed();
 		vertex.g = (byte) color.getGreen();
 		vertex.b = (byte) color.getBlue();
@@ -82,7 +82,7 @@ public class TileRendererTerrain implements ITileRenderer {
 		vertex.pZ = 0.5F + z;
 		array.vertex(vertex);
 		
-		vertex = new Vertex();
+		//vertex = new Vertex();
 		vertex.r = (byte) color.getRed();
 		vertex.g = (byte) color.getGreen();
 		vertex.b = (byte) color.getBlue();
@@ -92,7 +92,7 @@ public class TileRendererTerrain implements ITileRenderer {
 		array.vertex(vertex);
 		
 		/** 3 **/
-		vertex = new Vertex();
+		//vertex = new Vertex();
 		vertex.r = (byte) color.getRed();
 		vertex.g = (byte) color.getGreen();
 		vertex.b = (byte) color.getBlue();
@@ -101,7 +101,7 @@ public class TileRendererTerrain implements ITileRenderer {
 		vertex.pZ = 0.5F + z;
 		array.vertex(vertex);
 		
-		vertex = new Vertex();
+		//vertex = new Vertex();
 		vertex.r = (byte) color.getRed();
 		vertex.g = (byte) color.getGreen();
 		vertex.b = (byte) color.getBlue();
@@ -110,7 +110,7 @@ public class TileRendererTerrain implements ITileRenderer {
 		vertex.pZ = 1.0F + z;
 		array.vertex(vertex);
 		
-		vertex = new Vertex();
+		//vertex = new Vertex();
 		vertex.r = (byte) color.getRed();
 		vertex.g = (byte) color.getGreen();
 		vertex.b = (byte) color.getBlue();
@@ -119,7 +119,7 @@ public class TileRendererTerrain implements ITileRenderer {
 		vertex.pZ = 1.0F + z;
 		array.vertex(vertex);
 		
-		vertex = new Vertex();
+		//vertex = new Vertex();
 		vertex.r = (byte) color.getRed();
 		vertex.g = (byte) color.getGreen();
 		vertex.b = (byte) color.getBlue();
@@ -129,7 +129,7 @@ public class TileRendererTerrain implements ITileRenderer {
 		array.vertex(vertex);
 		
 		/** 4 **/
-		vertex = new Vertex();
+		//vertex = new Vertex();
 		vertex.r = (byte) color.getRed();
 		vertex.g = (byte) color.getGreen();
 		vertex.b = (byte) color.getBlue();
@@ -138,7 +138,7 @@ public class TileRendererTerrain implements ITileRenderer {
 		vertex.pZ = 0.5F + z;
 		array.vertex(vertex);
 		
-		vertex = new Vertex();
+		//vertex = new Vertex();
 		vertex.r = (byte) color.getRed();
 		vertex.g = (byte) color.getGreen();
 		vertex.b = (byte) color.getBlue();
@@ -147,7 +147,7 @@ public class TileRendererTerrain implements ITileRenderer {
 		vertex.pZ = 1.0F + z;
 		array.vertex(vertex);
 		
-		vertex = new Vertex();
+		//vertex = new Vertex();
 		vertex.r = (byte) color.getRed();
 		vertex.g = (byte) color.getGreen();
 		vertex.b = (byte) color.getBlue();
@@ -156,7 +156,7 @@ public class TileRendererTerrain implements ITileRenderer {
 		vertex.pZ = 1.0F + z;
 		array.vertex(vertex);
 		
-		vertex = new Vertex();
+		//vertex = new Vertex();
 		vertex.r = (byte) color.getRed();
 		vertex.g = (byte) color.getGreen();
 		vertex.b = (byte) color.getBlue();

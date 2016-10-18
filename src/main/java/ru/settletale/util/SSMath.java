@@ -17,4 +17,13 @@ public class SSMath {
 		}
 		return (int)f;
 	}
+	
+	public static int ceil(float f) {
+		if(f > 0) {
+			if(f % 1 != 0) {
+				return (int)(f) + 1;
+			}
+		}
+		return (int)f;
+	}
 }

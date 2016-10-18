@@ -13,6 +13,11 @@ public class VertexArrayObject extends NameableAdapter {
 		id = GL30.glGenVertexArrays();
 		return this;
 	}
+	
+	public void delete() {
+		GL30.glDeleteVertexArrays(id);
+		id = -1;
+	}
 
 	@Override
 	public void setLastBoundID(int id) {
