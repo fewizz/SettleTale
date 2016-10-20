@@ -39,15 +39,12 @@ public class WorldRenderer implements IRegionManageristener {
 	public static void render() {
 		OpenGL.debug("World rend start");
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glMatrixMode(GL_MODELVIEW);
-		glPushMatrix();
-
-		glRotatef(Camera.aX, 1, 0, 0);
-		glRotatef(Camera.aY, 0, 1, 0);
-		glTranslatef(-Camera.x, 0, -Camera.z);
 		
-		OpenGL.updateProjMatrix();
-		OpenGL.updateViewMatrix();
+		OpenGL.viewMatrix.push();
+		OpenGL.viewMatrix.rotateDeg(Camera.aX, 1, 0, 0);
+		OpenGL.viewMatrix.rotateDeg(Camera.aY, 0, 1, 0);
+		OpenGL.viewMatrix.translate(-Camera.x, 0, -Camera.z);
+		
 		OpenGL.updateTransformUniformBlock();
 		
 		OpenGL.debug("World rend after transforms");
@@ -70,7 +67,7 @@ public class WorldRenderer implements IRegionManageristener {
 			cr.render();
 		}
 
-		glPopMatrix();
+		OpenGL.viewMatrix.pop();
 		OpenGL.debug("World rend end");
 	}
 	

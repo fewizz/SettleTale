@@ -20,7 +20,7 @@ public class TickTimer {
 			return;
 		}
 		try {
-			Thread.sleep(timeToSleep / 1_000_000L, (int)((double)timeToSleep % 1_000_000D));
+			Thread.sleep(timeToSleep / 1_000_000L, (int)(timeToSleep % 1_000_000L));
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}

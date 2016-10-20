@@ -23,7 +23,6 @@ public class Display {
 					OpenGL.projMatrix.identity();
 					OpenGL.projMatrix.perspective((float)Math.toRadians(95), (float)width / (float)height, 5, 1000);
 					OpenGL.projMatrix.translate(0, 0, -100);
-					OpenGL.updateGLProjMatrix();
 				}
 				
 			});

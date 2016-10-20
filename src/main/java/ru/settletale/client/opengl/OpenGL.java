@@ -18,11 +18,13 @@ public class OpenGL {
 	public static UniformBufferObject uboMatricies;
 	public static Matrix4fv projMatrix;
 	public static Matrix4fv viewMatrix;
+	private static FloatBuffer unifromMatricies;
 
 	public static void init() {
 		debug("Init start");
 		projMatrix = new Matrix4fv();
 		viewMatrix = new Matrix4fv();
+		unifromMatricies = BufferUtils.createFloatBuffer(32);
 		uboMatricies = new UniformBufferObject().gen();
 		uboMatricies.bind();
 		GL15.glBufferData(GL31.GL_UNIFORM_BUFFER, BufferUtils.createFloatBuffer(32), GL15.GL_DYNAMIC_DRAW);
@@ -34,18 +36,6 @@ public class OpenGL {
 		debug("Init end");
 	}
 
-	public static void updateGLProjMatrix() {
-		debug("ProjMat gl start");
-		int prevMatrixMode = GL11.glGetInteger(GL11.GL_MATRIX_MODE);
-		GL11.glMatrixMode(GL11.GL_PROJECTION);
-		GL11.glLoadMatrixf(projMatrix.get());
-
-		if (prevMatrixMode != GL11.GL_PROJECTION) {
-			GL11.glMatrixMode(prevMatrixMode);
-		}
-		debug("ProjMat gl end");
-	}
-	
 	public static void updateProjMatrix() {
 		GL11.glGetFloatv(GL11.GL_PROJECTION_MATRIX, projMatrix.buffer);
 	}
@@ -53,12 +43,26 @@ public class OpenGL {
 	public static void updateViewMatrix() {
 		GL11.glGetFloatv(GL11.GL_MODELVIEW_MATRIX, viewMatrix.buffer);
 	}
+	
+	public static void updateGLProjMatrix() {
+		debug("ProjMat gl start");
+		int prevMatrixMode = GL11.glGetInteger(GL11.GL_MATRIX_MODE);
+		GL11.glMatrixMode(GL11.GL_PROJECTION);
+		projMatrix.updateBuffer();
+		GL11.glLoadMatrixf(projMatrix.buffer);
+
+		if (prevMatrixMode != GL11.GL_PROJECTION) {
+			GL11.glMatrixMode(prevMatrixMode);
+		}
+		debug("ProjMat gl end");
+	}
 
 	public static void updateGLViewMatrix() {
 		debug("ViewMat gl start");
 		int prevMatrixMode = GL11.glGetInteger(GL11.GL_MATRIX_MODE);
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
-		GL11.glLoadMatrixf(viewMatrix.get());
+		viewMatrix.updateBuffer();
+		GL11.glLoadMatrixf(viewMatrix.buffer);
 
 		if (prevMatrixMode != GL11.GL_MODELVIEW) {
 			GL11.glMatrixMode(prevMatrixMode);
@@ -68,17 +72,21 @@ public class OpenGL {
 	
 	public static void updateTransformUniformBlock() {
 		debug("UpdateTransformUniformBlock start");
-		FloatBuffer buff = BufferUtils.createFloatBuffer(32);
+		
+		unifromMatricies.clear();
+		projMatrix.updateBuffer();
+		viewMatrix.updateBuffer();
+		
 		for (int i = 0; i < 16; i++) {
-			buff.put(i, projMatrix.buffer.get(i));
+			unifromMatricies.put(i, projMatrix.buffer.get(i));
 		}
 		if (viewMatrix.buffer != null) {
 			for (int i = 0; i < 16; i++) {
-				buff.put(i + 16, viewMatrix.buffer.get(i));
+				unifromMatricies.put(i + 16, viewMatrix.buffer.get(i));
 			}
 		}
 		uboMatricies.bind();
-		GL15.glBufferSubData(GL31.GL_UNIFORM_BUFFER, 0, buff);
+		GL15.glBufferSubData(GL31.GL_UNIFORM_BUFFER, 0, unifromMatricies);
 		uboMatricies.unbind();
 		debug("UpdateTransformUniformBlock end");
 	}

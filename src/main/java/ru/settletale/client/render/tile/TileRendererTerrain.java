@@ -26,6 +26,7 @@ public class TileRendererTerrain implements ITileRenderer {
 		vertex.pY = 0.0F + data.buffer.getFloat(0 * 4);
 		vertex.pZ = 0.0F + z;
 		array.vertex(vertex);
+		array.endVertex();
 		
 		//vertex = new Vertex();
 		vertex.r = (byte) color.getRed();
@@ -35,6 +36,7 @@ public class TileRendererTerrain implements ITileRenderer {
 		vertex.pY = data.buffer.getFloat(3 * 4);
 		vertex.pZ = 0.5F + z;
 		array.vertex(vertex);
+		array.endVertex();
 		
 		//vertex = new Vertex();
 		vertex.r = (byte) color.getRed();
@@ -44,6 +46,7 @@ public class TileRendererTerrain implements ITileRenderer {
 		vertex.pY = data.buffer.getFloat(4 * 4);
 		vertex.pZ = 0.5F +z;
 		array.vertex(vertex);
+		array.endVertex();
 		
 		//vertex = new Vertex();
 		vertex.r = (byte) color.getRed();
@@ -53,6 +56,7 @@ public class TileRendererTerrain implements ITileRenderer {
 		vertex.pY = data.buffer.getFloat(1 * 4);
 		vertex.pZ = 0.0F + z;
 		array.vertex(vertex);
+		array.endVertex();
 		
 		/** 2 **/
 		//vertex = new Vertex();
@@ -63,6 +67,7 @@ public class TileRendererTerrain implements ITileRenderer {
 		vertex.pY = data.buffer.getFloat(1 * 4);
 		vertex.pZ = 0.0F + z;
 		array.vertex(vertex);
+		array.endVertex();
 		
 		//vertex = new Vertex();
 		vertex.r = (byte) color.getRed();
@@ -72,6 +77,7 @@ public class TileRendererTerrain implements ITileRenderer {
 		vertex.pY = data.buffer.getFloat(4 * 4);
 		vertex.pZ = 0.5F + z;
 		array.vertex(vertex);
+		array.endVertex();
 		
 		//vertex = new Vertex();
 		vertex.r = (byte) color.getRed();
@@ -81,6 +87,7 @@ public class TileRendererTerrain implements ITileRenderer {
 		vertex.pY = data.buffer.getFloat(5 * 4);
 		vertex.pZ = 0.5F + z;
 		array.vertex(vertex);
+		array.endVertex();
 		
 		//vertex = new Vertex();
 		vertex.r = (byte) color.getRed();
@@ -90,6 +97,7 @@ public class TileRendererTerrain implements ITileRenderer {
 		vertex.pY = data.buffer.getFloat(2 * 4);
 		vertex.pZ = 0.0F + z;
 		array.vertex(vertex);
+		array.endVertex();
 		
 		/** 3 **/
 		//vertex = new Vertex();
@@ -100,6 +108,7 @@ public class TileRendererTerrain implements ITileRenderer {
 		vertex.pY = data.buffer.getFloat(3 * 4);
 		vertex.pZ = 0.5F + z;
 		array.vertex(vertex);
+		array.endVertex();
 		
 		//vertex = new Vertex();
 		vertex.r = (byte) color.getRed();
@@ -109,6 +118,7 @@ public class TileRendererTerrain implements ITileRenderer {
 		vertex.pY = data.buffer.getFloat(6 * 4);
 		vertex.pZ = 1.0F + z;
 		array.vertex(vertex);
+		array.endVertex();
 		
 		//vertex = new Vertex();
 		vertex.r = (byte) color.getRed();
@@ -118,6 +128,7 @@ public class TileRendererTerrain implements ITileRenderer {
 		vertex.pY = data.buffer.getFloat(7 * 4);
 		vertex.pZ = 1.0F + z;
 		array.vertex(vertex);
+		array.endVertex();
 		
 		//vertex = new Vertex();
 		vertex.r = (byte) color.getRed();
@@ -127,6 +138,7 @@ public class TileRendererTerrain implements ITileRenderer {
 		vertex.pY = data.buffer.getFloat(4 * 4);
 		vertex.pZ = 0.5F + z;
 		array.vertex(vertex);
+		array.endVertex();
 		
 		/** 4 **/
 		//vertex = new Vertex();
@@ -137,6 +149,7 @@ public class TileRendererTerrain implements ITileRenderer {
 		vertex.pY = data.buffer.getFloat(4 * 4);
 		vertex.pZ = 0.5F + z;
 		array.vertex(vertex);
+		array.endVertex();
 		
 		//vertex = new Vertex();
 		vertex.r = (byte) color.getRed();
@@ -146,6 +159,7 @@ public class TileRendererTerrain implements ITileRenderer {
 		vertex.pY = data.buffer.getFloat(7 * 4);
 		vertex.pZ = 1.0F + z;
 		array.vertex(vertex);
+		array.endVertex();
 		
 		//vertex = new Vertex();
 		vertex.r = (byte) color.getRed();
@@ -155,6 +169,7 @@ public class TileRendererTerrain implements ITileRenderer {
 		vertex.pY = data.buffer.getFloat(8 * 4);
 		vertex.pZ = 1.0F + z;
 		array.vertex(vertex);
+		array.endVertex();
 		
 		//vertex = new Vertex();
 		vertex.r = (byte) color.getRed();
@@ -164,6 +179,7 @@ public class TileRendererTerrain implements ITileRenderer {
 		vertex.pY = data.buffer.getFloat(5 * 4);
 		vertex.pZ = 0.5F + z;
 		array.vertex(vertex);
+		array.endVertex();
 
 	}
 

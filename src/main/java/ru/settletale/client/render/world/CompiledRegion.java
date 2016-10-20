@@ -24,7 +24,7 @@ public class CompiledRegion {
 	VertexBufferObject cbo;
 	VertexArrayObject vao;
 	public static ShaderProgram program = null;
-	int numOfVerts = 0;
+	int vertsCount = 0;
 	
 	public CompiledRegion(Region r) {
 		this.region = r;
@@ -56,12 +56,13 @@ public class CompiledRegion {
 		GL20.glEnableVertexAttribArray(0);
 		
 		cbo.bind();
-		GL20.glVertexAttribPointer(1, 3, GL11.GL_FLOAT, false, 0, MemoryUtil.NULL);
+		GL20.glVertexAttribPointer(1, 3, GL11.GL_UNSIGNED_BYTE, true, 0, MemoryUtil.NULL);
 		GL20.glEnableVertexAttribArray(1);
 		
 		cbo.unbind();
 		
-		numOfVerts = poses.capacity() / 3;
+		vertsCount = poses.capacity() / 3;
+		
 		vao.unbind();
 		OpenGL.debug("CR compile end");
 	}
@@ -71,7 +72,7 @@ public class CompiledRegion {
 		OpenGL.debug("CR rend start");
 		program.bind();
 		OpenGL.debug("CR rend shader start");
-		GL11.glDrawArrays(GL11.GL_QUADS, 0, numOfVerts);
+		GL11.glDrawArrays(GL11.GL_QUADS, 0, vertsCount);
 		program.unbind();
 		OpenGL.debug("CR rend end");
 		vao.unbind();
