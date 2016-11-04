@@ -2,6 +2,7 @@ package ru.settletale.client.opengl;
 
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
+import org.lwjgl.opengl.GL32;
 
 import ru.settletale.client.resource.ShaderLoader;
 
@@ -32,7 +33,8 @@ public class Shader {
 	
 	public enum Type {
 		VERTEX("VERTEX_SHADER", GL20.GL_VERTEX_SHADER),
-		FRAGMENT("FRAGMENT_SHADER", GL20.GL_FRAGMENT_SHADER);
+		FRAGMENT("FRAGMENT_SHADER", GL20.GL_FRAGMENT_SHADER),
+		GEOMETRY("GEOMETRY_SHADER", GL32.GL_GEOMETRY_SHADER);
 		
 		String name;
 		int intGL;

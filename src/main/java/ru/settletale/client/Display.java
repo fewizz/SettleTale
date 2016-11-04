@@ -1,7 +1,6 @@
 package ru.settletale.client;
 
 import static org.lwjgl.opengl.GL11.*;
-
 import ru.settletale.client.opengl.OpenGL;
 
 public class Display {
@@ -23,8 +22,11 @@ public class Display {
 			public void run() {
 				glViewport(0, 0, width, height);
 				OpenGL.projMatrix.identity();
-				OpenGL.projMatrix.perspective((float) Math.toRadians(95), (float) width / (float) height, 5, 1000);
-				OpenGL.projMatrix.translate(0, 0, -100);
+				OpenGL.projMatrix.perspective((float) Math.toRadians(120), (float) width / (float) height, 1, 1000);
+				OpenGL.updateTransformUniformBlock();
+				OpenGL.uniformDisplaySize.put(0, width);
+				OpenGL.uniformDisplaySize.put(1, height);
+				OpenGL.updateDisplaySizeUniformBlock();
 			}
 
 		});

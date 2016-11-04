@@ -25,7 +25,7 @@ public class WorldRenderer implements IRegionManageristener {
 
 	public static void init() {
 		glColor4f(1, 1, 1, 1);
-		glClearColor(0.1F, 0.5F, 1F, 1.F);
+		glClearColor(0.1F, 0.5F, 1F, 1F);
 		glEnable(GL_DEPTH_TEST);
 		regions = HashLongObjMaps.newMutableMap();
 		regionsToRender = HashLongObjMaps.newMutableMap();
@@ -38,7 +38,8 @@ public class WorldRenderer implements IRegionManageristener {
 		OpenGL.viewMatrix.push();
 		OpenGL.viewMatrix.rotateDeg(Camera.aX, 1, 0, 0);
 		OpenGL.viewMatrix.rotateDeg(Camera.aY, 0, 1, 0);
-		OpenGL.viewMatrix.translate(-Camera.x, 0, -Camera.z);
+		OpenGL.viewMatrix.translate(0, -100, 0);
+		OpenGL.viewMatrix.translate(-Camera.x, -Camera.y, -Camera.z);
 		
 		OpenGL.updateTransformUniformBlock();
 		

@@ -14,6 +14,7 @@ import ru.settletale.client.opengl.OpenGL;
 import ru.settletale.client.opengl.Shader;
 import ru.settletale.client.opengl.Shader.Type;
 import ru.settletale.client.opengl.ShaderProgram;
+import ru.settletale.client.opengl.UniformBufferObject;
 import ru.settletale.client.opengl.VertexArrayObject;
 import ru.settletale.client.opengl.VertexBufferObject;
 import ru.settletale.world.Region;
@@ -23,6 +24,7 @@ public class CompiledRegion {
 	VertexBufferObject vbo;
 	VertexBufferObject cbo;
 	VertexArrayObject vao;
+	UniformBufferObject ubo;
 	public static ShaderProgram program = null;
 	int vertsCount = 0;
 	
@@ -34,6 +36,7 @@ public class CompiledRegion {
 			program = new ShaderProgram(GL20.glCreateProgram());
 			program.attachShader(Shader.gen(Type.VERTEX, "shaders/terrain_vs.shader").compile());
 			program.attachShader(Shader.gen(Type.FRAGMENT, "shaders/terrain_fs.shader").compile());
+			program.attachShader(Shader.gen(Type.GEOMETRY, "shaders/terrain_g.shader").compile());
 			program.link();
 			OpenGL.debug("CR shader end");
 		}
@@ -44,9 +47,16 @@ public class CompiledRegion {
 		vbo = new VertexBufferObject().gen();
 		cbo = new VertexBufferObject().gen();
 		vao = new VertexArrayObject().gen();
+		ubo = new UniformBufferObject().gen();
 		vao.bind();
 		
+		//ubo.bind();
+		//ubo.data(ByteBuffer.wrap(r.biomeIDs), Usage.STATIC_DRAW);
+		//ubo.unbind();
+		
 		GL30.glBindBufferBase(GL31.GL_UNIFORM_BUFFER, 0, OpenGL.uboMatricies.getID());
+		GL30.glBindBufferBase(GL31.GL_UNIFORM_BUFFER, 1, OpenGL.uboDisplaySize.getID());
+		//GL30.glBindBufferBase(GL31.GL_UNIFORM_BUFFER, 2, ubo.getID());
 
 		vbo.data(poses, BufferObject.Usage.STATIC_DRAW);
 		cbo.data(colors, BufferObject.Usage.STATIC_DRAW);

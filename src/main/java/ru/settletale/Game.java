@@ -12,6 +12,34 @@ public class Game {
 	public static IPlatform platform;
 	
 	public static void main(String[] args) throws IOException {
+		/*Matrix4f m = new Matrix4f();
+		m.identity();
+		System.out.println(m);
+		
+		Vector4f v = new Vector4f(1, 0, -1, 1);
+		
+		m.perspective(90, 1, 1, 100);
+		System.out.println(m);
+		
+		v.mul(m);
+		
+		System.out.println(v);
+		
+		m.invert();
+		
+		v.mul(m);*/
+		/*System.out.println(v);*/
+		//m.translate(0, 0, 10);
+		/*System.out.println(m);
+		
+		m.rotate((float) Math.toRadians(90), 0, 1, 0);
+		System.out.println(m);
+		
+		m.translate(0, 0, 10);
+		System.out.println(m);*/
+		
+		
+		/*return;*/
 		if(args != null && args.length == 1 && args[0].equals("--server")) {
 			platform = new PlatformServer();
 		}

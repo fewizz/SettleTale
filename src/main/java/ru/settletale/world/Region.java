@@ -4,8 +4,8 @@ import ru.settletale.registry.Biomes;
 import ru.settletale.util.SSMath;
 
 public class Region {
-	private byte[] biomeIDs;
-	private float[] heights;
+	public byte[] biomeIDs;
+	public float[] heights;
 	public int x;
 	public int z;
 	public boolean active;
