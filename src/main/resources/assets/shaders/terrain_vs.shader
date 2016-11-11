@@ -2,16 +2,20 @@
 
 layout (location = 0) in vec3 pos;
 layout (location = 1) in vec3 color;
+layout (location = 2) in vec3 normal;
 
 out vec4 color_vs;
+out vec3 normal_vs;
+out float y_vs;
 
-layout (binding = 2, std140) uniform Info
-{
-	vec3[] ;
-	float h;
-} info;
+layout (binding = 0, std140) uniform Transform {
+	mat4 projMat;
+	mat4 viewMat;
+} transf;
 
 void main(void) {
 	color_vs = vec4(color.xyz, 0);
-	gl_Position = vec4(pos.xyz, 1);
+	normal_vs = normal;
+	y_vs = pos.y;
+	gl_Position = transf.projMat * transf.viewMat * vec4(pos, 1);
 }

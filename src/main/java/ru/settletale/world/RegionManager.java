@@ -12,7 +12,7 @@ import ru.settletale.util.SSMath;
 
 public class RegionManager {
 	protected RegionGenerator regionGenerator;
-	public static final int REGIONLOAD_RADIUS = 10;
+	public static final int REGIONLOAD_RADIUS = 20;
 	public final HashLongObjMap<Region> regions;
 	public final List<IRegionManageristener> listeners;
 	
