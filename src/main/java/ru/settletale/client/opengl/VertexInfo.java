@@ -9,7 +9,7 @@ public class VertexInfo {
 	public float tX;
 	public float tY;
 	public float nX;
-	public float nY;
+	public float nY = 1;
 	public float nZ;
 	public byte r;
 	public byte g;

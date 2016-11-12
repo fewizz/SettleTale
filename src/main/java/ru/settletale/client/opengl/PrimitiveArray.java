@@ -2,19 +2,21 @@ package ru.settletale.client.opengl;
 
 import java.nio.ByteBuffer;
 
-import ru.settletale.util.FloatPrimitiveList;
+import ru.settletale.util.PrimitiveList;
 
 public class PrimitiveArray {
 	private Primitive.Type type;
-	private FloatPrimitiveList pl;
-	private FloatPrimitiveList cl;
+	private PrimitiveList pl;
+	private PrimitiveList cl;
+	private PrimitiveList nl;
 	private VertexInfo vert;
 	private int lastVertex = 0;
 	
 	public PrimitiveArray(Primitive.Type type) {
 		this.type = type;
-		pl = new FloatPrimitiveList(2048, Float.BYTES);
-		cl = new FloatPrimitiveList(2048, Byte.BYTES);
+		pl = new PrimitiveList(2048, Float.BYTES);
+		cl = new PrimitiveList(2048, Byte.BYTES);
+		nl = new PrimitiveList(2048, Float.BYTES);
 		vert = new VertexInfo();
 	}
 	
@@ -28,6 +30,10 @@ public class PrimitiveArray {
 		cl.put(vert.r, start + 0);
 		cl.put(vert.g, start + 1);
 		cl.put(vert.b, start + 2);
+		
+		nl.putFloat(vert.nX, start + 0);
+		nl.putFloat(vert.nY, start + 1);
+		nl.putFloat(vert.nZ, start + 2);
 		
 		lastVertex++;
 	}
@@ -57,9 +63,16 @@ public class PrimitiveArray {
 		vert.pZ = z;
 	}
 	
+	public void normal(float x, float y, float z) {
+		vert.nX = x;
+		vert.nY = y;
+		vert.nZ = z;
+	}
+	
 	public void clear() {
 		pl.clear();
 		cl.clear();
+		nl.clear();
 		lastVertex = 0;
 	}
 	
@@ -71,6 +84,11 @@ public class PrimitiveArray {
 	public ByteBuffer getColorBuffer() {
 		cl.updateBuffer();
 		return cl.buffer;
+	}
+	
+	public ByteBuffer getNormalBuffer() {
+		nl.updateBuffer();
+		return nl.buffer;
 	}
 	
 	public int getVertexCount() {

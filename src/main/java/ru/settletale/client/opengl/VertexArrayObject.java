@@ -32,12 +32,10 @@ public class VertexArrayObject extends NameableAdapter {
 	@Override
 	public void bindInternal() {
 		GL30.glBindVertexArray(id);
-		
 	}
 
 	@Override
 	public void unbindInternal() {
-		GL30.glBindVertexArray(id);
-		
+		GL30.glBindVertexArray(0);
 	}
 }

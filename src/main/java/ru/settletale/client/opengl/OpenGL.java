@@ -100,6 +100,8 @@ public class OpenGL {
 		GL15.glBufferSubData(GL31.GL_UNIFORM_BUFFER, 0, unifromMatricies);
 		uboMatricies.unbind();
 		
+		GL30.glBindBufferBase(GL31.GL_UNIFORM_BUFFER, 0, uboMatricies.getID());
+		
 		debug("UpdateTransformUniformBlock end");
 	}
 	
@@ -109,6 +111,8 @@ public class OpenGL {
 		uboDisplaySize.bind();
 		GL15.glBufferSubData(GL31.GL_UNIFORM_BUFFER, 0, uniformDisplaySize);
 		uboDisplaySize.unbind();
+		
+		GL30.glBindBufferBase(GL31.GL_UNIFORM_BUFFER, 1, uboDisplaySize.getID());
 		
 		debug("UpdateDisplaySizeUniformBlock end");
 	}

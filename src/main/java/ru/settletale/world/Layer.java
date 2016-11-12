@@ -22,9 +22,6 @@ public abstract class Layer {
 			return values;
 		}
 		
-		//for(int i = 0; i < values.length; i++) {
-		//	values[i] = 0;
-		//}
 		return values;
 	}
 	
@@ -32,8 +29,19 @@ public abstract class Layer {
 		return (getPRNumberBySeed(SSMath.clamp(x, z)) & 0x1) == 0;
 	}
 	
+	/** All into one method. for speed =P **/
 	public static int getPRInt(int x, int z, int border) {
-		return getPRInt(SSMath.clamp(x, z), border);
+		long number = ((long)z & 0xFFFFFFFFL) | ((long)x << 32);
+		
+		long i1 = (number & 0xFFFF) * 21354343;
+		long i2 = ((number >>> 16) & 0xFFFF) * 3854351;
+		long i3 = ((number >>> 32) & 0xFFFF) * 1635447;
+		long i4 = ((number >>> 48) & 0xFFFF) * 3543531;
+		
+		long toReturn = (((i1 * number) * i1 * i1 * i1 * i1 * i1 * i1 * i1 * RANDOM_NUMBER) + ((i2 * number) * i2 * i2 * i2 * i2 * i2 * i2 * i2 * RANDOM_NUMBER) + (i3 * i3 * i3 * i3 * i3 * i3 * i3 * i3 * RANDOM_NUMBER) + ((i4 * number) * i4 * i4 * i4 * i4 * i4 * i4 * i4 * RANDOM_NUMBER) + (number * number * number * number * number * number * number * number * RANDOM_NUMBER)) / (123135431L + (i1 + i2 + i3 + i4 + number));
+		
+		int num = (int) ((double)toReturn % (double)border);
+		return num < 0 ? -num : num;
 	}
 	
 	public static int getPRInt(long number, int border) {
@@ -47,9 +55,7 @@ public abstract class Layer {
 		long i3 = ((number >>> 32) & 0xFFFF) * 1635447;
 		long i4 = ((number >>> 48) & 0xFFFF) * 3543531;
 		
-		//return ((((i2 * 213243541L) + i3 + 15161354543L) * (i1 + i2 + i3) * (i1 + i2 + i3 + 1661464651L) * (i1 + i4) * RANDOM_NUMBER) + (i1 * i1) + ((i3 + i2 + number + i1) * i2 * i2 * i2 * RANDOM_NUMBER) + (i3 * i3 * i3 * i3 * RANDOM_NUMBER + (i3 + i2 + number + (i1 * RANDOM_NUMBER))) + (i1 * i1 * i1 * i1 * (i1 + 1635643L) * RANDOM_NUMBER)) / (13245146561L);
 		long toReturn = (((i1 * number) * i1 * i1 * i1 * i1 * i1 * i1 * i1 * RANDOM_NUMBER) + ((i2 * number) * i2 * i2 * i2 * i2 * i2 * i2 * i2 * RANDOM_NUMBER) + (i3 * i3 * i3 * i3 * i3 * i3 * i3 * i3 * RANDOM_NUMBER) + ((i4 * number) * i4 * i4 * i4 * i4 * i4 * i4 * i4 * RANDOM_NUMBER) + (number * number * number * number * number * number * number * number * RANDOM_NUMBER)) / (123135431L + (i1 + i2 + i3 + i4 + number));
-		//System.out.println(Integer.toBinaryString(toReturn));
 		return toReturn;
 	}
 }

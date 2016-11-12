@@ -7,7 +7,7 @@ import java.nio.ByteOrder;
 
 import sun.misc.Unsafe;
 
-public class FloatPrimitiveList {
+public class PrimitiveList {
 	private final int pageSize;
 	private final int pageSizeBytes;
 	private final int pageAddrSize;
@@ -24,22 +24,8 @@ public class FloatPrimitiveList {
 	public ByteBuffer buffer;
 	private long bufferAddress;
 	private long bufferFOffset;
-	
-	public static void main(String[] args) {
-		FloatPrimitiveList lst = new FloatPrimitiveList(1, 1);
-		
-		for(int i = 0; i < 64; i++) {
-			lst.put((byte)i, i);
-		}
-		
-		lst.updateBuffer();
-		
-		for(int i = 0; i < lst.length; i++) {
-			System.out.println(lst.buffer.get(i));
-		}
-	}
 
-	public FloatPrimitiveList(int pageSize, int typeBytes) {
+	public PrimitiveList(int pageSize, int typeBytes) {
 		this.pageSize = pageSize;
 		this.bytes = typeBytes;
 		this.pageSizeBytes = this.bytes * pageSize;

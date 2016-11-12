@@ -12,15 +12,12 @@ public class LayerScaleX2Random extends Layer {
 	public byte[] getValues(int x, int z, int width, int length) {
 		boolean evenX = x % 2 == 0;
 		boolean evenZ = z % 2 == 0;
-		//boolean evenW = width % 2 == 0;
-		//boolean evenL = length % 2 == 0;
-		//boolean evenEver = evenX && evenZ && evenW && evenL;
-		int widthParent = (width / 2) + 3/*(evenEver ? 2 : 3)*/;
-		int lengthParent = (length / 2) + 3/*(evenEver ? 2 : 3)*/;
+		int widthParent = (width / 2) + 3;
+		int lengthParent = (length / 2) + 3;
 		int xParent = SSMath.floor((float)x / 2F) + (x < 0 ? (evenX ? 0 : -1) : -1);
 		int zParent = SSMath.floor((float)z / 2F) + (z < 0 ? (evenZ ? 0 : -1) : -1);
 		byte[] valuesParent = parent.getValues(xParent, zParent, widthParent, lengthParent);
-		byte[] values = getByteArray(width, length);//new byte[width * length];
+		byte[] values = getByteArray(width, length);
 		
 		int index = -1;
 		
@@ -41,14 +38,18 @@ public class LayerScaleX2Random extends Layer {
 			rightIDP--;
 			centIDP--;
 			
+			boolean even = false;
+			int toAdd;
 			for(int x2 = 0; x2 < length; x2++) {
-				
 				index++;
-				upIDP += x2 % 2 != 0 ? weven : wnven;
-				downIDP += x2 % 2 != 0 ? weven : wnven;
-				leftIDP += x2 % 2 != 0 ? weven : wnven;
-				rightIDP += x2 % 2 != 0 ? weven : wnven;
-				centIDP += x2 % 2 != 0 ? weven : wnven;
+				
+				toAdd = even ? weven : wnven;
+				
+				upIDP += toAdd;
+				downIDP += toAdd;
+				leftIDP += toAdd;
+				rightIDP += toAdd;
+				centIDP += toAdd;
 				
 				int valueUpP = valuesParent[upIDP];
 				int valueDownP = valuesParent[downIDP];
@@ -73,6 +74,7 @@ public class LayerScaleX2Random extends Layer {
 				if(val == 4 || val == 5) {
 					values[index] = (byte) valueCentP;
 				}
+				even = !even;
 			}
 		}
 		

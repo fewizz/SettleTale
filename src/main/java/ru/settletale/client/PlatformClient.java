@@ -56,6 +56,7 @@ public class PlatformClient implements IPlatform {
 	}
 	
 	void initLwjgl() {
+		System.setProperty("org.lwjgl.opengl.capabilities", "static");
 		org.lwjgl.system.Library.initialize();
 	}
 	
