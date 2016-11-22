@@ -22,6 +22,10 @@ public abstract class NameableAdapter implements INameable {
 		return true;
 	}
 	
+	public boolean isBound() {
+		return id == getLastBoundID();
+	}
+	
 	@Override
 	public boolean unbind() {
 		if(getLastBoundID() == 0) {

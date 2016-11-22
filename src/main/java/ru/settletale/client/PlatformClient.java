@@ -7,19 +7,17 @@ import org.lwjgl.system.MemoryUtil;
 import static org.lwjgl.glfw.GLFW.*;
 
 import ru.settletale.IPlatform;
-import ru.settletale.Server;
 import ru.settletale.client.render.RenderThread;
 import ru.settletale.client.render.world.WorldRenderer;
 import ru.settletale.client.resource.ResourceLoader;
 import ru.settletale.util.Side;
 import ru.settletale.util.TickTimer;
-import ru.settletale.world.RegionManager;
 import ru.settletale.world.World;
 
 public class PlatformClient implements IPlatform {
-	public static float maxFPS = 60F;
+	public static int maxFPS = 75;
 	private static RenderThread renderThread;
-	Server server;
+	World world;
 	
 	@Override
 	public void start() {
@@ -30,10 +28,9 @@ public class PlatformClient implements IPlatform {
 		System.gc();
 		
 		/** Creating world **/
-		World world = new World(new RegionManager());
-		server = new Server(world);
-		server.world.regionManager.listeners.add(WorldRenderer.INSTANCE);
-		server.start();
+		World world = new World();
+		world.regionManager.listeners.add(WorldRenderer.INSTANCE);
+		world.updateThread.start();
 		/********************/
 		
 		renderThread.start(); /** Starting rendering **/
@@ -93,7 +90,7 @@ public class PlatformClient implements IPlatform {
 
 	@Override
 	public World getWorld() {
-		return server.world;
+		return world;
 	}
 	
 	public static boolean isRenderThread() {

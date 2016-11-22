@@ -1,7 +1,7 @@
 package ru.settletale.client;
 
 import static org.lwjgl.opengl.GL11.*;
-import ru.settletale.client.opengl.OpenGL;
+import ru.settletale.client.opengl.GL;
 
 public class Display {
 	public static float frameRate = 60F;
@@ -21,12 +21,12 @@ public class Display {
 			@Override
 			public void run() {
 				glViewport(0, 0, width, height);
-				OpenGL.projMatrix.identity();
-				OpenGL.projMatrix.perspective((float) Math.toRadians(120), (float) width / (float) height, 1, 1000);
-				OpenGL.updateTransformUniformBlock();
-				OpenGL.uniformDisplaySize.put(0, width);
-				OpenGL.uniformDisplaySize.put(1, height);
-				OpenGL.updateDisplaySizeUniformBlock();
+				GL.projMatrix.identity();
+				GL.projMatrix.perspective((float) Math.toRadians(120), (float) width / (float) height, 1, 1000);
+				GL.updateTransformUniformBlock();
+				GL.uniformDisplaySizeBuffer.put(0, width);
+				GL.uniformDisplaySizeBuffer.put(1, height);
+				GL.updateDisplaySizeUniformBlock();
 			}
 
 		});

@@ -29,7 +29,7 @@ public abstract class Layer {
 		return (getPRNumberBySeed(SSMath.clamp(x, z)) & 0x1) == 0;
 	}
 	
-	/** All into one method. for speed =P **/
+	// All into one method. for speed =P
 	public static int getPRInt(int x, int z, int border) {
 		long number = ((long)z & 0xFFFFFFFFL) | ((long)x << 32);
 		

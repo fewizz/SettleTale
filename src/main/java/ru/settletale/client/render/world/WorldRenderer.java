@@ -12,14 +12,13 @@ import com.koloboke.collect.map.hash.HashLongObjMaps;
 
 import ru.settletale.client.Camera;
 import ru.settletale.client.PlatformClient;
-import ru.settletale.client.opengl.OpenGL;
+import ru.settletale.client.opengl.GL;
 import ru.settletale.client.opengl.Primitive.Type;
 import ru.settletale.client.opengl.PrimitiveArray;
 import ru.settletale.util.IRegionManageristener;
 import ru.settletale.world.Region;
 
 public class WorldRenderer implements IRegionManageristener {
-	static final float scale = 1F;
 	public static final WorldRenderer INSTANCE = new WorldRenderer();
 	public static HashLongObjMap<Region> regions;
 	public static HashLongObjMap<CompiledRegion> regionsToRender;
@@ -34,18 +33,18 @@ public class WorldRenderer implements IRegionManageristener {
 	}
 
 	public static void render() {
-		OpenGL.debug("World rend start");
+		GL.debug("World rend start");
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
-		OpenGL.viewMatrix.push();
-		OpenGL.viewMatrix.rotateDeg(Camera.aX, 1, 0, 0);
-		OpenGL.viewMatrix.rotateDeg(Camera.aY, 0, 1, 0);
-		OpenGL.viewMatrix.translate(0, -100, 0);
-		OpenGL.viewMatrix.translate(-Camera.x, -Camera.y, -Camera.z);
+		GL.viewMatrix.push();
+		GL.viewMatrix.rotateDeg(Camera.aX, 1, 0, 0);
+		GL.viewMatrix.rotateDeg(Camera.aY, 0, 1, 0);
+		GL.viewMatrix.translate(0, -100, 0);
+		GL.viewMatrix.translate(-Camera.x, -Camera.y, -Camera.z);
 		
-		OpenGL.updateTransformUniformBlock();
+		GL.updateTransformUniformBlock();
 		
-		OpenGL.debug("World rend after transforms");
+		GL.debug("World rend after transforms");
 		
 		for(Region r : regions.values()) {
 			CompiledRegion cr = regionsToRender.get(r.coord);
@@ -53,21 +52,21 @@ public class WorldRenderer implements IRegionManageristener {
 			if(cr == null) {
 				renderRegion(r, pa);
 				
-				OpenGL.debug("Fill buffers");
+				GL.debug("Fill buffers");
 				ByteBuffer pb = pa.getPositionBuffer();
 				ByteBuffer cb = pa.getColorBuffer();
 				ByteBuffer nb = pa.getNormalBuffer();
 				cr = new CompiledRegion(r);
 				cr.compile(r, pb, cb, nb);
-				OpenGL.debug("Array clear");
+				GL.debug("Array clear");
 				pa.clear();
 				regionsToRender.put(r.coord, cr);
 			}
 			cr.render();
 		}
 
-		OpenGL.viewMatrix.pop();
-		OpenGL.debug("World rend end");
+		GL.viewMatrix.pop();
+		GL.debug("World rend end");
 	}
 	
 	private static void renderRegion(Region r, PrimitiveArray array) {

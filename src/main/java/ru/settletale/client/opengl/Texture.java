@@ -29,10 +29,6 @@ public class Texture extends NameableAdapter {
 		if(!wasBound)
 			unbind();
 	}
-	
-	enum Type {
-		
-	}
 
 	@Override
 	public void setLastBoundID(int id) {

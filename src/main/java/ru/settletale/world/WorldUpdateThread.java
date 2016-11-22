@@ -6,6 +6,7 @@ public class WorldUpdateThread extends Thread {
 	final World world;
 	final int countOfUpdatesPerSec;
 	public static final int DEFAULT_COUNT_OF_UPDATES_PER_TICK = 20;
+	public int ticks = 0;
 	
 	public WorldUpdateThread(World world) {
 		this.world = world;
@@ -27,6 +28,8 @@ public class WorldUpdateThread extends Thread {
 			world.update();
 			
 			timer.waitTimer();
+			
+			ticks++;
 		}
 	}
 }

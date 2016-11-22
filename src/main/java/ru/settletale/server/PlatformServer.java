@@ -5,13 +5,12 @@ import io.netty.channel.Channel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import ru.settletale.IPlatform;
-import ru.settletale.Server;
 import ru.settletale.util.Side;
 import ru.settletale.world.World;
 
 public class PlatformServer implements IPlatform {
 	ServerBootstrap boot;
-	Server server;
+	World world;
 
 	@Override
 	public void start() {
@@ -19,7 +18,8 @@ public class PlatformServer implements IPlatform {
 		boot.group(new NioEventLoopGroup(1));
 		boot.channel(NioServerSocketChannel.class);
 		boot.childHandler(new ChannelListener());
-		server.start();
+		world = new World();
+		world.updateThread.start();
 		
 		try {
 			Channel ch = boot.bind(25575).sync().channel();
@@ -40,7 +40,7 @@ public class PlatformServer implements IPlatform {
 
 	@Override
 	public World getWorld() {
-		return null;
+		return world;
 	}
 
 }

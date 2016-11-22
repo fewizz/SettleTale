@@ -8,10 +8,10 @@ import org.lwjgl.opengl.GL45;
 
 public class BufferObject<T extends BufferObject<?>> extends NameableAdapter {
 	static int lastID = -1;
-	final private int type;
+	protected int type;
 	
 	protected static int createBufferName() {
-		return OpenGL.version >= 45 ? GL45.glCreateBuffers() : GL15.glGenBuffers();
+		return GL.version >= 45 ? GL45.glCreateBuffers() : GL15.glGenBuffers();
 	}
 	
 	public BufferObject(int type) {
@@ -46,37 +46,47 @@ public class BufferObject<T extends BufferObject<?>> extends NameableAdapter {
 	}
 	
 	public void data(FloatBuffer buffer, Usage usage) {
-		if(OpenGL.version >= 45) {
-			GL45.glNamedBufferData(id, buffer, usage.glCode);
+		if(GL.version >= 45) {
+			GL45.glNamedBufferData(id, buffer, usage.glInt);
 			return;
-		}
+		}	
+
 		bind();
-		GL15.glBufferData(type, buffer, usage.glCode);
-		unbind();
+		GL15.glBufferData(type, buffer, usage.glInt);
 	}
 	
 	public void data(ByteBuffer buffer, Usage usage) {
-		if(OpenGL.version >= 45) {
-			GL45.glNamedBufferData(id, buffer, usage.glCode);
+		if(GL.version >= 45) {
+			GL45.glNamedBufferData(id, buffer, usage.glInt);
 			return;
 		}
+		
 		bind();
-		GL15.glBufferData(type, buffer, usage.glCode);
-		unbind();
+		GL15.glBufferData(type, buffer, usage.glInt);
 	}
 	
-	public void subdata(FloatBuffer buffer, int offset, Usage usage) {
-		if(OpenGL.version >= 45) {
-			GL45.glNamedBufferData(id, buffer, usage.glCode);
+	public void subdata(FloatBuffer buffer, int offset) {
+		if(GL.version >= 45) {
+			GL45.glNamedBufferSubData(id, offset, buffer);
 			return;
 		}
+
 		bind();
-		GL15.glBufferData(type, buffer, usage.glCode);
-		unbind();
+		GL15.glBufferSubData(type, offset, buffer);
+	}
+	
+	public void subdata(ByteBuffer buffer, int offset) {
+		if(GL.version >= 45) {
+			GL45.glNamedBufferSubData(id, offset, buffer);
+			return;
+		}
+		
+		bind();
+		GL15.glBufferSubData(type, offset, buffer);
 	}
 	
 	public void delete() {
-		GL15.glDeleteBuffers(getID());
+		GL15.glDeleteBuffers(id);
 		id = -1;
 	}
 	
@@ -84,10 +94,10 @@ public class BufferObject<T extends BufferObject<?>> extends NameableAdapter {
 		STATIC_DRAW(GL15.GL_STATIC_DRAW),
 		DYNAMIC_DRAW(GL15.GL_DYNAMIC_DRAW);
 		
-		final int glCode;
+		final int glInt;
 		
 		Usage(int glCode) {
-			this.glCode = glCode;
+			this.glInt = glCode;
 		}
 	}
 }

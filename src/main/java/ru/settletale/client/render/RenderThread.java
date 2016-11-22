@@ -4,10 +4,9 @@ import static org.lwjgl.glfw.GLFW.*;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import org.lwjgl.opengl.GL;
-
 import ru.settletale.client.Display;
-import ru.settletale.client.opengl.OpenGL;
+import ru.settletale.client.PlatformClient;
+import ru.settletale.client.opengl.GL;
 import ru.settletale.client.render.world.WorldRenderer;
 import ru.settletale.util.TickTimer;
 
@@ -26,7 +25,7 @@ public class RenderThread extends Thread {
 	}
 
 	void renderLoop() {
-		TickTimer timer = new TickTimer(75);
+		TickTimer timer = new TickTimer(PlatformClient.maxFPS);
 		
 		for (;;) {
 			timer.start();
@@ -52,9 +51,9 @@ public class RenderThread extends Thread {
 
 	void init() {
 		glfwMakeContextCurrent(Display.window);
-		GL.createCapabilities();
+		org.lwjgl.opengl.GL.createCapabilities();
 		glfwSwapInterval(0);
-		OpenGL.init();
+		GL.init();
 		WorldRenderer.init();
 	}
 
