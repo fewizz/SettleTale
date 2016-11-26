@@ -16,19 +16,24 @@ public class Game {
 		m.identity();
 		System.out.println(m);
 		
-		Vector4f v = new Vector4f(1, 0, -1, 1);
+		Vector4f v = new Vector4f(0, 0, -500, -500);
 		
-		m.perspective(90, 1, 1, 100);
-		System.out.println(m);
+		m.perspective(120, 1, 1, 1000);
+		System.out.println(v.mul(m.invert()));
 		
-		v.mul(m);
+		v.div(v.w);
+		v.w = 1;
+		
+		System.out.println(v);
+		
+		/*v.mul(m);
 		
 		System.out.println(v);
 		
 		m.invert();
 		
-		v.mul(m);*/
-		/*System.out.println(v);*/
+		v.mul(m);
+		System.out.println(v);
 		//m.translate(0, 0, 10);
 		/*System.out.println(m);
 		

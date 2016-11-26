@@ -47,22 +47,22 @@ public class BufferObject<T extends BufferObject<?>> extends NameableAdapter {
 	
 	public void data(FloatBuffer buffer, Usage usage) {
 		if(GL.version >= 45) {
-			GL45.glNamedBufferData(id, buffer, usage.glInt);
+			GL45.glNamedBufferData(id, buffer, usage.glCode);
 			return;
 		}	
 
 		bind();
-		GL15.glBufferData(type, buffer, usage.glInt);
+		GL15.glBufferData(type, buffer, usage.glCode);
 	}
 	
 	public void data(ByteBuffer buffer, Usage usage) {
 		if(GL.version >= 45) {
-			GL45.glNamedBufferData(id, buffer, usage.glInt);
+			GL45.glNamedBufferData(id, buffer, usage.glCode);
 			return;
 		}
 		
 		bind();
-		GL15.glBufferData(type, buffer, usage.glInt);
+		GL15.glBufferData(type, buffer, usage.glCode);
 	}
 	
 	public void subdata(FloatBuffer buffer, int offset) {
@@ -94,10 +94,10 @@ public class BufferObject<T extends BufferObject<?>> extends NameableAdapter {
 		STATIC_DRAW(GL15.GL_STATIC_DRAW),
 		DYNAMIC_DRAW(GL15.GL_DYNAMIC_DRAW);
 		
-		final int glInt;
+		final int glCode;
 		
 		Usage(int glCode) {
-			this.glInt = glCode;
+			this.glCode = glCode;
 		}
 	}
 }

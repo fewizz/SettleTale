@@ -11,13 +11,15 @@ import java.util.Map;
 import javax.imageio.ImageIO;
 
 import ru.settletale.client.opengl.Texture;
+import ru.settletale.client.opengl.Texture2D;
 
 public class TextureLoader {
-	private static final Map<String, UnregisteredTexture> textureBuffersToRegister = new HashMap<>();
-	private static final Map<String, Texture> textures = new HashMap<>();
+	private static final Map<String, Texture2D> texturesToRegister = new HashMap<>();
+	private static final Map<String, Texture<?>> textures = new HashMap<>();
 
 	static void loadTexture(String id, Path path) {
 		System.out.println("Loading texture: " + id);
+		
 		BufferedImage image = null;
 		
 		try {
@@ -46,33 +48,20 @@ public class TextureLoader {
 			}
 		}
 		
-		UnregisteredTexture utex = new UnregisteredTexture();
-		utex.buffer = buffer;
-		utex.width = width;
-		utex.height = height;
+		Texture2D tex = new Texture2D(width, height);
+		tex.buffer = buffer;
 
-		textureBuffersToRegister.put(id, utex);
+		texturesToRegister.put(id, tex);
 	}
 	
 	static void registerTextures() {
-		for(Map.Entry<String, UnregisteredTexture> entry : textureBuffersToRegister.entrySet()) {
-			UnregisteredTexture utex = entry.getValue();
-			ByteBuffer buffer = utex.buffer;
+		for(Map.Entry<String, Texture2D> entry : texturesToRegister.entrySet()) {
+			Texture2D tex = entry.getValue();
+			tex.gen();
 			
-			Texture texture = Texture.gen(utex.width, utex.height);
-			
-			texture.data(buffer);
-			
-			textures.put(entry.getKey(), texture);
-			buffer.clear();
+			textures.put(entry.getKey(), tex);
 		}
 		
-		textureBuffersToRegister.clear();
-	}
-	
-	static class UnregisteredTexture {
-		ByteBuffer buffer;
-		int width;
-		int height;
+		texturesToRegister.clear();
 	}
 }

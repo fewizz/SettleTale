@@ -7,15 +7,13 @@ import org.lwjgl.opengl.GL32;
 import ru.settletale.client.resource.ShaderLoader;
 
 public class Shader {
-	final int id;
+	int id;
 	final Type type;
 	final String file;
 	
-	protected Shader(int id, Type type, String file) {
-		this.id = id;
+	public Shader(Type type, String file) {
 		this.type = type;
 		this.file = file;
-		GL20.glShaderSource(id, ShaderLoader.shaderSources.get(file));
 	}
 	
 	public Shader compile() {
@@ -27,8 +25,10 @@ public class Shader {
 		return this;
 	}
 	
-	public static Shader gen(Type type, String file) {
-		return new Shader(GL20.glCreateShader(type.intGL), type, file);
+	public Shader gen() {
+		id = GL20.glCreateShader(type.glCode);
+		GL20.glShaderSource(id, ShaderLoader.shaderSources.get(file));
+		return this;
 	}
 	
 	public enum Type {
@@ -37,11 +37,11 @@ public class Shader {
 		GEOMETRY("GEOMETRY_SHADER", GL32.GL_GEOMETRY_SHADER);
 		
 		String name;
-		int intGL;
+		int glCode;
 		
 		Type(String name, int intGL) {
 			this.name = name;
-			this.intGL = intGL;
+			this.glCode = intGL;
 		}
 		
 	}

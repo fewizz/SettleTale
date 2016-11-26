@@ -1,4 +1,7 @@
-#version 420 core
+#version 140
+
+#extension GL_ARB_explicit_attrib_location : enable
+#extension GL_ARB_shading_language_420pack: enable
 
 layout (location = 0) in vec3 pos;
 layout (location = 1) in vec3 color;

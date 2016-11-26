@@ -6,6 +6,7 @@ import java.awt.Color;
 import java.nio.ByteBuffer;
 
 import org.joml.Vector3f;
+import org.lwjgl.opengl.GL11;
 
 import com.koloboke.collect.map.hash.HashLongObjMap;
 import com.koloboke.collect.map.hash.HashLongObjMaps;
@@ -15,6 +16,8 @@ import ru.settletale.client.PlatformClient;
 import ru.settletale.client.opengl.GL;
 import ru.settletale.client.opengl.Primitive.Type;
 import ru.settletale.client.opengl.PrimitiveArray;
+import ru.settletale.client.opengl.Shader;
+import ru.settletale.client.opengl.ShaderProgram;
 import ru.settletale.util.IRegionManageristener;
 import ru.settletale.world.Region;
 
@@ -23,18 +26,26 @@ public class WorldRenderer implements IRegionManageristener {
 	public static HashLongObjMap<Region> regions;
 	public static HashLongObjMap<CompiledRegion> regionsToRender;
 	public static PrimitiveArray pa = new PrimitiveArray(Type.Quad);
+	static ShaderProgram programSky;
 
 	public static void init() {
 		glColor4f(1, 1, 1, 1);
 		glClearColor(0.1F, 0.5F, 1F, 1F);
-		glEnable(GL_DEPTH_TEST);
 		regions = HashLongObjMaps.newMutableMap();
 		regionsToRender = HashLongObjMaps.newMutableMap();
+		programSky = new ShaderProgram().gen();
+		programSky.attachShaders(
+				new Shader(Shader.Type.VERTEX, "shaders/sky_vs.shader").gen().compile(),
+				new Shader(Shader.Type.FRAGMENT, "shaders/sky_fs.shader").gen().compile()
+				);
+		programSky.link();
 	}
 
 	public static void render() {
 		GL.debug("World rend start");
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		
+		glEnable(GL_DEPTH_TEST);
 		
 		GL.viewMatrix.push();
 		GL.viewMatrix.rotateDeg(Camera.aX, 1, 0, 0);
@@ -64,7 +75,14 @@ public class WorldRenderer implements IRegionManageristener {
 			}
 			cr.render();
 		}
-
+		
+		//GL.viewMatrix.setTranslation(0, 0, 0);
+		//GL.updateTransformUniformBlock();
+		
+		GL.bindDefaultVAO();
+		programSky.bind();
+		GL11.glDrawArrays(GL11.GL_QUADS, 0, 4);
+		
 		GL.viewMatrix.pop();
 		GL.debug("World rend end");
 	}

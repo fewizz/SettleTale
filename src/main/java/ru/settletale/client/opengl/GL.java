@@ -76,6 +76,10 @@ public class GL {
 		GL30.glBindBufferBase(buffer.type, index, buffer.id);
 	}
 	
+	public static void bindDefaultVAO() {
+		GL30.glBindVertexArray(0);
+	}
+	
 	public static void debug(String s) {
 		if(debug) {
 			int error = GL11.glGetError();

@@ -3,7 +3,6 @@ package ru.settletale.client.render.world;
 import java.nio.ByteBuffer;
 
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL20;
 
 import ru.settletale.client.opengl.BufferObject.Usage;
 import ru.settletale.client.opengl.GL;
@@ -28,9 +27,9 @@ public class CompiledRegion {
 		
 		if(program == null) {
 			GL.debug("CR shader start");
-			program = new ShaderProgram(GL20.glCreateProgram());
-			program.attachShader(Shader.gen(Type.VERTEX, "shaders/terrain_vs.shader").compile());
-			program.attachShader(Shader.gen(Type.FRAGMENT, "shaders/terrain_fs.shader").compile());
+			program = new ShaderProgram().gen();
+			program.attachShader(new Shader(Type.VERTEX, "shaders/terrain_vs.shader").gen().compile());
+			program.attachShader(new Shader(Type.FRAGMENT, "shaders/terrain_fs.shader").gen().compile());
 			program.link();
 			GL.debug("CR shader end");
 		}

@@ -6,12 +6,17 @@ import org.lwjgl.opengl.GL20;
 public class ShaderProgram extends NameableAdapter {
 	public static int lastID = -1;
 	
-	public ShaderProgram(int id) {
-		super(id);
+	public ShaderProgram() {
+		super(-1);
 	}
 	
 	public void attachShader(Shader shader) {
 		GL20.glAttachShader(id, shader.id);
+	}
+	
+	public void attachShaders(Shader... shaders) {
+		for(Shader sh : shaders) 
+			GL20.glAttachShader(id, sh.id);
 	}
 	
 	public void link() {
@@ -22,8 +27,9 @@ public class ShaderProgram extends NameableAdapter {
 		}
 	}
 	
-	public static ShaderProgram gen() {
-		return new ShaderProgram(GL20.glCreateProgram());
+	public ShaderProgram gen() {
+		this.id = GL20.glCreateProgram();
+		return this;
 	}
 
 	@Override
