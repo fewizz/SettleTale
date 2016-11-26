@@ -1,4 +1,4 @@
-package ru.settletale.world;
+package ru.settletale.world.layer;
 
 import ru.settletale.registry.Biomes;
 

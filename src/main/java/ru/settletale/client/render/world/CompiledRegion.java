@@ -8,10 +8,10 @@ import ru.settletale.client.opengl.BufferObject.Usage;
 import ru.settletale.client.opengl.GL;
 import ru.settletale.client.opengl.Shader;
 import ru.settletale.client.opengl.Shader.Type;
+import ru.settletale.world.region.Region;
 import ru.settletale.client.opengl.ShaderProgram;
 import ru.settletale.client.opengl.VertexArrayObject;
 import ru.settletale.client.opengl.VertexBufferObject;
-import ru.settletale.world.Region;
 
 public class CompiledRegion {
 	Region region;

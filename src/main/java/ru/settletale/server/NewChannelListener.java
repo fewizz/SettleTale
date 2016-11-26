@@ -3,7 +3,7 @@ package ru.settletale.server;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 
-public class ChannelListener extends ChannelInitializer<Channel> {
+public class NewChannelListener extends ChannelInitializer<Channel> {
 
 	@Override
 	protected void initChannel(Channel ch) throws Exception {

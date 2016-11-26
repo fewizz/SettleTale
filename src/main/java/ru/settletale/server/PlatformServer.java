@@ -7,6 +7,7 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import ru.settletale.IPlatform;
 import ru.settletale.util.Side;
 import ru.settletale.world.World;
+import ru.settletale.world.region.RegionManagerOnePlayer;
 
 public class PlatformServer implements IPlatform {
 	ServerBootstrap boot;
@@ -17,8 +18,8 @@ public class PlatformServer implements IPlatform {
 		boot = new ServerBootstrap();
 		boot.group(new NioEventLoopGroup(1));
 		boot.channel(NioServerSocketChannel.class);
-		boot.childHandler(new ChannelListener());
-		world = new World();
+		boot.childHandler(new NewChannelListener());
+		world = new World(new RegionManagerOnePlayer());
 		world.updateThread.start();
 		
 		try {
@@ -28,6 +29,7 @@ public class PlatformServer implements IPlatform {
 			
 			
 			ch.closeFuture().sync();
+			
 			System.out.println("Server end");
 			boot.config().childGroup().shutdownGracefully();
 		} catch (InterruptedException e) {e.printStackTrace();}

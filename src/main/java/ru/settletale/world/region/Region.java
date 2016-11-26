@@ -1,7 +1,8 @@
-package ru.settletale.world;
+package ru.settletale.world.region;
 
 import ru.settletale.registry.Biomes;
 import ru.settletale.util.SSMath;
+import ru.settletale.world.biome.Biome;
 
 public class Region {
 	public byte[] biomeIDs;

@@ -1,4 +1,4 @@
-package ru.settletale.world;
+package ru.settletale.world.layer;
 
 public class LayerScaleX2WithSmooth extends Layer {
 	public LayerScaleX2WithSmooth(Layer parent) {

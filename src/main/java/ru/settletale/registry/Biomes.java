@@ -3,15 +3,15 @@ package ru.settletale.registry;
 import java.util.ArrayList;
 import java.util.List;
 
-import ru.settletale.world.Biome;
-import ru.settletale.world.BiomeDesert;
-import ru.settletale.world.BiomeIce;
-import ru.settletale.world.BiomeJungle;
-import ru.settletale.world.BiomePlain;
-import ru.settletale.world.BiomeSea;
-import ru.settletale.world.BiomeTaiga;
-import ru.settletale.world.BiomeType;
-import ru.settletale.world.Climate;
+import ru.settletale.world.biome.Biome;
+import ru.settletale.world.biome.BiomeDesert;
+import ru.settletale.world.biome.BiomeIce;
+import ru.settletale.world.biome.BiomeJungle;
+import ru.settletale.world.biome.BiomePlain;
+import ru.settletale.world.biome.BiomeSea;
+import ru.settletale.world.biome.BiomeTaiga;
+import ru.settletale.world.biome.BiomeType;
+import ru.settletale.world.biome.Climate;
 
 public class Biomes {
 	public static final Biome[] biomes = new Biome[0xFF];

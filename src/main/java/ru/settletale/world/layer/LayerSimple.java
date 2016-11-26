@@ -1,4 +1,4 @@
-package ru.settletale.world;
+package ru.settletale.world.layer;
 
 public class LayerSimple extends Layer {
 

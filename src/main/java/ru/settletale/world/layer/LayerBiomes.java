@@ -1,8 +1,10 @@
-package ru.settletale.world;
+package ru.settletale.world.layer;
 
 import java.util.ArrayList;
 
 import ru.settletale.registry.Biomes;
+import ru.settletale.world.biome.Biome;
+import ru.settletale.world.biome.Climate;
 
 public class LayerBiomes extends Layer {
 

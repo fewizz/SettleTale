@@ -19,7 +19,7 @@ import ru.settletale.client.opengl.PrimitiveArray;
 import ru.settletale.client.opengl.Shader;
 import ru.settletale.client.opengl.ShaderProgram;
 import ru.settletale.util.IRegionManageristener;
-import ru.settletale.world.Region;
+import ru.settletale.world.region.Region;
 
 public class WorldRenderer implements IRegionManageristener {
 	public static final WorldRenderer INSTANCE = new WorldRenderer();

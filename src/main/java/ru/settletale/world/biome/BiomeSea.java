@@ -1,4 +1,4 @@
-package ru.settletale.world;
+package ru.settletale.world.biome;
 
 import java.awt.Color;
 
@@ -6,8 +6,8 @@ public class BiomeSea extends Biome {
 
 	public BiomeSea() {
 		super(Color.DARK_GRAY, BiomeType.OCEAN, Climate.CONTINENTAL, Climate.MODERATE, Climate.TROPICAL, Climate.DRY);
-		this.maxH = 22;
-		this.var = 8;
+		this.minHeight = 22;
+		this.amplitude = 8;
 	}
 
 }

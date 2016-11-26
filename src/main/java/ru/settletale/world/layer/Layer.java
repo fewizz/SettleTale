@@ -1,4 +1,4 @@
-package ru.settletale.world;
+package ru.settletale.world.layer;
 
 import ru.settletale.util.OpenSimplexNoise;
 import ru.settletale.util.SSMath;

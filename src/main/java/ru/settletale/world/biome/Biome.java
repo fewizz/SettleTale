@@ -1,4 +1,4 @@
-package ru.settletale.world;
+package ru.settletale.world.biome;
 
 import java.awt.Color;
 
@@ -9,8 +9,8 @@ public abstract class Biome {
 	public Climate[] climats;
 	public BiomeType type;
 	private Integer id;
-	public float maxH = 36F;
-	public float var = 10F;
+	public float minHeight = 36F;
+	public float amplitude = 10F;
 	
 	public Biome(Color color, BiomeType type, Climate... climats) {
 		this.climats = climats;

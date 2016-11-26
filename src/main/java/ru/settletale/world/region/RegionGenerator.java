@@ -1,7 +1,12 @@
-package ru.settletale.world;
+package ru.settletale.world.region;
 
 import ru.settletale.registry.Biomes;
 import ru.settletale.util.OpenSimplexNoise;
+import ru.settletale.world.biome.Biome;
+import ru.settletale.world.layer.Layer;
+import ru.settletale.world.layer.LayerBiomes;
+import ru.settletale.world.layer.LayerScaleX2Random;
+import ru.settletale.world.layer.LayerSmoother;
 
 public class RegionGenerator {
 	public static final int CHUNK_LEN = 16;
@@ -60,16 +65,16 @@ public class RegionGenerator {
 				float zp = cz * 16 + z;
 
 				noiseVal = (float) ((noise.eval(xp / 25F, zp / 25F) + 1F)) / 2F;
-				heightsOrgnl[indexH1] = biome.maxH + (noiseVal * biome.var);
+				heightsOrgnl[indexH1] = biome.minHeight + (noiseVal * biome.amplitude);
 
 				noiseVal = (float) ((noise.eval(xp / 25F, (zp + 0.5F) / 25F) + 1F)) / 2F;
-				heightsOrgnl[indexH2] = biome.maxH + (noiseVal * biome.var);
+				heightsOrgnl[indexH2] = biome.minHeight + (noiseVal * biome.amplitude);
 
 				noiseVal = (float) ((noise.eval((xp + 0.5F) / 25F, (zp + 0.5F) / 25F) + 1F)) / 2F;
-				heightsOrgnl[indexH3] = biome.maxH + (noiseVal * biome.var);
+				heightsOrgnl[indexH3] = biome.minHeight + (noiseVal * biome.amplitude);
 
 				noiseVal = (float) ((noise.eval((xp + 0.5F) / 25F, zp / 25F) + 1F)) / 2F;
-				heightsOrgnl[indexH4] = biome.maxH + (noiseVal * biome.var);
+				heightsOrgnl[indexH4] = biome.minHeight + (noiseVal * biome.amplitude);
 
 				if (x >= -CHUNK_EXT && x < CHUNK_LEN + CHUNK_EXT && z >= -CHUNK_EXT && z < CHUNK_LEN + CHUNK_EXT) {
 					biomeIDsNorm[(z + CHUNK_EXT) * CHUNK_LEN_EXT + (x + CHUNK_EXT)] = biomeID;
