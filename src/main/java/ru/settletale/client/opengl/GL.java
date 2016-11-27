@@ -9,7 +9,7 @@ import org.lwjgl.opengl.GL30;
 import ru.settletale.client.opengl.BufferObject.Usage;
 
 public class GL {
-	public static final boolean debug = false;
+	public static final boolean debug = true;
 	public static final boolean debugOnlyFails = true;
 	public static int version;
 	public static int versionMajor;

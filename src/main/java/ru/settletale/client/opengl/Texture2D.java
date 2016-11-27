@@ -1,5 +1,7 @@
 package ru.settletale.client.opengl;
 
+import java.nio.ByteBuffer;
+
 import org.lwjgl.opengl.GL11;
 
 public class Texture2D extends Texture<Texture2D> {
@@ -10,6 +12,11 @@ public class Texture2D extends Texture<Texture2D> {
 		super(GL11.GL_TEXTURE_2D);
 		this.width = width;
 		this.height = height;
+	}
+
+	@Override
+	public void data(ByteBuffer buffer) {
+		
 	}
 
 }

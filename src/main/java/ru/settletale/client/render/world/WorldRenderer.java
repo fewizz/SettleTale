@@ -2,7 +2,6 @@ package ru.settletale.client.render.world;
 
 import static org.lwjgl.opengl.GL11.*;
 
-import java.awt.Color;
 import java.nio.ByteBuffer;
 
 import org.joml.Vector3f;
@@ -26,6 +25,9 @@ public class WorldRenderer implements IRegionManageristener {
 	public static HashLongObjMap<Region> regions;
 	public static HashLongObjMap<CompiledRegion> regionsToRender;
 	public static PrimitiveArray pa = new PrimitiveArray(Type.Quad);
+	public static ByteBuffer idsBuffer1 = ByteBuffer.allocateDirect(16 * 16 * 4 * 4 * 4);
+	public static ByteBuffer idsBuffer2 = ByteBuffer.allocateDirect(16 * 16 * 4 * 4 * 4);
+	public static ByteBuffer idsBufferMain = ByteBuffer.allocateDirect(16 * 16 * 4 * 4);
 	static ShaderProgram programSky;
 
 	public static void init() {
@@ -65,19 +67,15 @@ public class WorldRenderer implements IRegionManageristener {
 				
 				GL.debug("Fill buffers");
 				ByteBuffer pb = pa.getPositionBuffer();
-				ByteBuffer cb = pa.getColorBuffer();
 				ByteBuffer nb = pa.getNormalBuffer();
 				cr = new CompiledRegion(r);
-				cr.compile(r, pb, cb, nb);
+				cr.compile(r, pb, idsBufferMain, nb, idsBuffer1, idsBuffer2);
 				GL.debug("Array clear");
 				pa.clear();
 				regionsToRender.put(r.coord, cr);
 			}
 			cr.render();
 		}
-		
-		//GL.viewMatrix.setTranslation(0, 0, 0);
-		//GL.updateTransformUniformBlock();
 		
 		GL.bindDefaultVAO();
 		programSky.bind();
@@ -89,6 +87,9 @@ public class WorldRenderer implements IRegionManageristener {
 	
 	private static void renderRegion(Region r, PrimitiveArray array) {
 		Vector3f[] normals = findNormals(r);
+		
+		int i = 0;
+		
 		for (int x = 0; x < 16; x++) {
 			for (int z = 0; z < 16; z++) {
 				int tx = r.x * 16 + x;
@@ -97,8 +98,15 @@ public class WorldRenderer implements IRegionManageristener {
 				int tx2 = tx & 0xF;
 				int tz2 = tz & 0xF;
 				
-				Color c = r.getBiome(x, z).color;
-				array.color((byte)c.getRed(), (byte)c.getGreen(), (byte)c.getBlue());
+				byte biomeID = (byte) r.getBiome(x, z).getBiomeID();
+				byte biomeIDl = (byte) r.getBiome(x - 1, z).getBiomeID();
+				byte biomeIDlu = (byte) r.getBiome(x - 1, z + 1).getBiomeID();
+				byte biomeIDu = (byte) r.getBiome(x, z + 1).getBiomeID();
+				byte biomeIDur = (byte) r.getBiome(x + 1, z + 1).getBiomeID();
+				byte biomeIDr = (byte) r.getBiome(x + 1, z).getBiomeID();
+				byte biomeIDrd = (byte) r.getBiome(x + 1, z - 1).getBiomeID();
+				byte biomeIDd = (byte) r.getBiome(x, z - 1).getBiomeID();
+				byte biomeIDdl = (byte) r.getBiome(x - 1, z - 1).getBiomeID();
 				
 				for(int x2 = 0; x2 < 2; x2++) {
 					for(int z2 = 0; z2 < 2; z2++) {
@@ -126,6 +134,54 @@ public class WorldRenderer implements IRegionManageristener {
 						Vector3f v4 = normals[(mx + 1) * 33 + mz];
 						array.normal(v4.x, v4.y, v4.z);
 						array.endVertex();
+						
+						idsBufferMain.put(i / 4 + 0, biomeID);
+						idsBuffer1.put(i + 0, biomeIDl);
+						idsBuffer1.put(i + 1, biomeIDlu);
+						idsBuffer1.put(i + 2, biomeIDu);
+						idsBuffer1.put(i + 3, biomeIDur);
+						
+						idsBuffer2.put(i + 0, biomeIDr);
+						idsBuffer2.put(i + 1, biomeIDrd);
+						idsBuffer2.put(i + 2, biomeIDd);
+						idsBuffer2.put(i + 3, biomeIDdl);
+						i += 4;
+						
+						idsBufferMain.put(i / 4 + 0, biomeID);
+						idsBuffer1.put(i + 0, biomeIDl);
+						idsBuffer1.put(i + 1, biomeIDlu);
+						idsBuffer1.put(i + 2, biomeIDu);
+						idsBuffer1.put(i + 3, biomeIDur);
+						
+						idsBuffer2.put(i + 0, biomeIDr);
+						idsBuffer2.put(i + 1, biomeIDrd);
+						idsBuffer2.put(i + 2, biomeIDd);
+						idsBuffer2.put(i + 3, biomeIDdl);
+						i += 4;
+						
+						idsBufferMain.put(i / 4 + 0, biomeID);
+						idsBuffer1.put(i + 0, biomeIDl);
+						idsBuffer1.put(i + 1, biomeIDlu);
+						idsBuffer1.put(i + 2, biomeIDu);
+						idsBuffer1.put(i + 3, biomeIDur);
+						
+						idsBuffer2.put(i + 0, biomeIDr);
+						idsBuffer2.put(i + 1, biomeIDrd);
+						idsBuffer2.put(i + 2, biomeIDd);
+						idsBuffer2.put(i + 3, biomeIDdl);
+						i += 4;
+						
+						idsBufferMain.put(i / 4 + 0, biomeID);
+						idsBuffer1.put(i + 0, biomeIDl);
+						idsBuffer1.put(i + 1, biomeIDlu);
+						idsBuffer1.put(i + 2, biomeIDu);
+						idsBuffer1.put(i + 3, biomeIDur);
+						
+						idsBuffer2.put(i + 0, biomeIDr);
+						idsBuffer2.put(i + 1, biomeIDrd);
+						idsBuffer2.put(i + 2, biomeIDd);
+						idsBuffer2.put(i + 3, biomeIDdl);
+						i += 4;
 					}
 				}
 			}
