@@ -73,11 +73,14 @@ void main(void) {
 
 	float h = (((pos_vs.y / 2) * (pos_vs.y / 2)) / 150.) - 1;
 	
+	color_out *= h - 0.6;
+	
 	if(h < 0.8) {
 		color_out.b = 1;
 		color_out.r *= h;
 		color_out.g *= h;
 	}
+	
 		
 	color_out *= normal_vs.y;
 }

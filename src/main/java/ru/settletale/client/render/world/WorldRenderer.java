@@ -13,8 +13,8 @@ import com.koloboke.collect.map.hash.HashLongObjMaps;
 import ru.settletale.client.Camera;
 import ru.settletale.client.PlatformClient;
 import ru.settletale.client.opengl.GL;
-import ru.settletale.client.opengl.Primitive.Type;
-import ru.settletale.client.opengl.PrimitiveArray;
+import ru.settletale.client.vertex.PrimitiveArray;
+import ru.settletale.client.vertex.PrimitiveArray.Data;
 import ru.settletale.client.opengl.Shader;
 import ru.settletale.client.opengl.ShaderProgram;
 import ru.settletale.util.IRegionManageristener;
@@ -24,7 +24,7 @@ public class WorldRenderer implements IRegionManageristener {
 	public static final WorldRenderer INSTANCE = new WorldRenderer();
 	public static HashLongObjMap<Region> regions;
 	public static HashLongObjMap<CompiledRegion> regionsToRender;
-	public static PrimitiveArray pa = new PrimitiveArray(Type.Quad);
+	public static PrimitiveArray pa = new PrimitiveArray(Data.POSITION_3F, Data.NORMAL_3F);
 	public static ByteBuffer idsBuffer1 = ByteBuffer.allocateDirect(16 * 16 * 4 * 4 * 4);
 	public static ByteBuffer idsBuffer2 = ByteBuffer.allocateDirect(16 * 16 * 4 * 4 * 4);
 	public static ByteBuffer idsBufferMain = ByteBuffer.allocateDirect(16 * 16 * 4 * 4);
@@ -86,17 +86,12 @@ public class WorldRenderer implements IRegionManageristener {
 	}
 	
 	private static void renderRegion(Region r, PrimitiveArray array) {
-		Vector3f[] normals = findNormals(r);
+		fillBuffers(r);
 		
-		int i = 0;
+		int indx = 0;
 		
 		for (int x = 0; x < 16; x++) {
 			for (int z = 0; z < 16; z++) {
-				int tx = r.x * 16 + x;
-				int tz = r.z * 16 + z;
-				
-				int tx2 = tx & 0xF;
-				int tz2 = tz & 0xF;
 				
 				byte biomeID = (byte) r.getBiome(x, z).getBiomeID();
 				byte biomeIDl = (byte) r.getBiome(x - 1, z).getBiomeID();
@@ -110,103 +105,83 @@ public class WorldRenderer implements IRegionManageristener {
 				
 				for(int x2 = 0; x2 < 2; x2++) {
 					for(int z2 = 0; z2 < 2; z2++) {
-						int mx = x * 2 + x2;
-						int mz = z * 2 + z2;
-						float hx = (float) x2 / 2F;
-						float hz = (float) z2 / 2F;
+						int nx = x * 2 + x2;
+						int nz = z * 2 + z2;
 						
-						array.position(tx + hx       , r.getHeight(tx2 * 2 + x2    , tz2 * 2 + z2    ), tz + hz       );
-						Vector3f v1 = normals[mx * 33 + mz];
-						array.normal(v1.x, v1.y, v1.z);
-						array.endVertex();
+						int i1 = nx * 33 * nz;
+						int i2 = nx * 33 * (nz + 1);
+						int i3 = (nx + 1) * 33 * (nz + 1);
+						int i4 = (nx + 1) * 33 * nz;
 						
-						array.position(tx + hx       , r.getHeight(tx2 * 2 + x2    , tz2 * 2 + z2 + 1), tz + hz + 0.5F);
-						Vector3f v2 = normals[mx * 33 + mz + 1];
-						array.normal(v2.x, v2.y, v2.z);
-						array.endVertex();
+						pa.index(i1);
+						pa.index(i2);
+						pa.index(i3);
+						pa.index(i4);
 						
-						array.position(tx + hx + 0.5F, r.getHeight(tx2 * 2 + x2 + 1, tz2 * 2 + z2 + 1), tz + hz + 0.5F);
-						Vector3f v3 = normals[(mx + 1) * 33 + mz + 1];
-						array.normal(v3.x, v3.y, v3.z);
-						array.endVertex();
+						idsBufferMain.put(indx / 4 + 0, biomeID);
+						idsBuffer1.put(indx + 0, biomeIDl);
+						idsBuffer1.put(indx + 1, biomeIDlu);
+						idsBuffer1.put(indx + 2, biomeIDu);
+						idsBuffer1.put(indx + 3, biomeIDur);
 						
-						array.position(tx + hx + 0.5F, r.getHeight(tx2 * 2 + x2 + 1, tz2 * 2 + z2    ), tz + hz       );
-						Vector3f v4 = normals[(mx + 1) * 33 + mz];
-						array.normal(v4.x, v4.y, v4.z);
-						array.endVertex();
+						idsBuffer2.put(indx + 0, biomeIDr);
+						idsBuffer2.put(indx + 1, biomeIDrd);
+						idsBuffer2.put(indx + 2, biomeIDd);
+						idsBuffer2.put(indx + 3, biomeIDdl);
+						indx += 4;
 						
-						idsBufferMain.put(i / 4 + 0, biomeID);
-						idsBuffer1.put(i + 0, biomeIDl);
-						idsBuffer1.put(i + 1, biomeIDlu);
-						idsBuffer1.put(i + 2, biomeIDu);
-						idsBuffer1.put(i + 3, biomeIDur);
+						idsBufferMain.put(indx / 4 + 0, biomeID);
+						idsBuffer1.put(indx + 0, biomeIDl);
+						idsBuffer1.put(indx + 1, biomeIDlu);
+						idsBuffer1.put(indx + 2, biomeIDu);
+						idsBuffer1.put(indx + 3, biomeIDur);
 						
-						idsBuffer2.put(i + 0, biomeIDr);
-						idsBuffer2.put(i + 1, biomeIDrd);
-						idsBuffer2.put(i + 2, biomeIDd);
-						idsBuffer2.put(i + 3, biomeIDdl);
-						i += 4;
+						idsBuffer2.put(indx + 0, biomeIDr);
+						idsBuffer2.put(indx + 1, biomeIDrd);
+						idsBuffer2.put(indx + 2, biomeIDd);
+						idsBuffer2.put(indx + 3, biomeIDdl);
+						indx += 4;
 						
-						idsBufferMain.put(i / 4 + 0, biomeID);
-						idsBuffer1.put(i + 0, biomeIDl);
-						idsBuffer1.put(i + 1, biomeIDlu);
-						idsBuffer1.put(i + 2, biomeIDu);
-						idsBuffer1.put(i + 3, biomeIDur);
+						idsBufferMain.put(indx / 4 + 0, biomeID);
+						idsBuffer1.put(indx + 0, biomeIDl);
+						idsBuffer1.put(indx + 1, biomeIDlu);
+						idsBuffer1.put(indx + 2, biomeIDu);
+						idsBuffer1.put(indx + 3, biomeIDur);
 						
-						idsBuffer2.put(i + 0, biomeIDr);
-						idsBuffer2.put(i + 1, biomeIDrd);
-						idsBuffer2.put(i + 2, biomeIDd);
-						idsBuffer2.put(i + 3, biomeIDdl);
-						i += 4;
+						idsBuffer2.put(indx + 0, biomeIDr);
+						idsBuffer2.put(indx + 1, biomeIDrd);
+						idsBuffer2.put(indx + 2, biomeIDd);
+						idsBuffer2.put(indx + 3, biomeIDdl);
+						indx += 4;
 						
-						idsBufferMain.put(i / 4 + 0, biomeID);
-						idsBuffer1.put(i + 0, biomeIDl);
-						idsBuffer1.put(i + 1, biomeIDlu);
-						idsBuffer1.put(i + 2, biomeIDu);
-						idsBuffer1.put(i + 3, biomeIDur);
+						idsBufferMain.put(indx / 4 + 0, biomeID);
+						idsBuffer1.put(indx + 0, biomeIDl);
+						idsBuffer1.put(indx + 1, biomeIDlu);
+						idsBuffer1.put(indx + 2, biomeIDu);
+						idsBuffer1.put(indx + 3, biomeIDur);
 						
-						idsBuffer2.put(i + 0, biomeIDr);
-						idsBuffer2.put(i + 1, biomeIDrd);
-						idsBuffer2.put(i + 2, biomeIDd);
-						idsBuffer2.put(i + 3, biomeIDdl);
-						i += 4;
-						
-						idsBufferMain.put(i / 4 + 0, biomeID);
-						idsBuffer1.put(i + 0, biomeIDl);
-						idsBuffer1.put(i + 1, biomeIDlu);
-						idsBuffer1.put(i + 2, biomeIDu);
-						idsBuffer1.put(i + 3, biomeIDur);
-						
-						idsBuffer2.put(i + 0, biomeIDr);
-						idsBuffer2.put(i + 1, biomeIDrd);
-						idsBuffer2.put(i + 2, biomeIDd);
-						idsBuffer2.put(i + 3, biomeIDdl);
-						i += 4;
+						idsBuffer2.put(indx + 0, biomeIDr);
+						idsBuffer2.put(indx + 1, biomeIDrd);
+						idsBuffer2.put(indx + 2, biomeIDd);
+						idsBuffer2.put(indx + 3, biomeIDdl);
+						indx += 4;
 					}
 				}
 			}
 		}
 	}
 	
-	static Vector3f[] normalsArr = new Vector3f[33 * 33];
-	static Vector3f n = new Vector3f();
+	static Vector3f normal = new Vector3f();
 	static Vector3f temp = new Vector3f();
 	static Vector3f v1 = new Vector3f();
 	static Vector3f v2 = new Vector3f();
 	static Vector3f v3 = new Vector3f();
 	
-	static {
-		for(int i = 0; i < normalsArr.length; i++) {
-			normalsArr[i] = new Vector3f();
-		}
-	}
-	
-	private static Vector3f[] findNormals(Region r) {
-		int i = 0;
+	private static void fillBuffers(Region r) {
 		
 		for(int x = 2; x < 35; x++) {
 			for(int z = 2; z < 35; z++) {
-				n.set(0, 0, 0);
+				normal.set(0, 0, 0);
 				temp.set(0, 0, 0);
 				
 				v1.set(x, r.getHeight(x, z), z);
@@ -216,36 +191,43 @@ public class WorldRenderer implements IRegionManageristener {
 				v1.sub(v2, v2);
 				v1.sub(v3, v3);
 				v2.cross(v3, temp);
-				n.add(temp);
+				normal.add(temp);
 				
 				v2.set(x + 1, r.getHeight(x + 1, z), z);
 				v3.set(x, r.getHeight(x, z - 1), z - 1);
 				v1.sub(v2, v2);
 				v1.sub(v3, v3);
 				v2.cross(v3, temp);
-				n.add(temp);
+				normal.add(temp);
 				
 				v2.set(x, r.getHeight(x, z - 1), z - 1);
 				v3.set(x - 1, r.getHeight(x - 1, z), z);
 				v1.sub(v2, v2);
 				v1.sub(v3, v3);
 				v2.cross(v3, temp);
-				n.add(temp);
+				normal.add(temp);
 				
 				v2.set(x - 1, r.getHeight(x - 1, z), z);
 				v3.set(x, r.getHeight(x, z + 1), z + 1);
 				v1.sub(v2, v2);
 				v1.sub(v3, v3);
 				v2.cross(v3, temp);
-				n.add(temp);
+				normal.add(temp);
 				
-				n.normalize();
+				normal.normalize();
 				
-				normalsArr[i].set(n.x, n.y, n.z);
-				i++;
+				float px = ((x - 2F) / 2F);
+				float pz = ((z - 2F) / 2F);
+				
+				float pxf = r.x * 16 + px;
+				float pzf = r.z * 16 + pz;
+				
+				pa.position(pxf, r.getHeight(x, z), pzf);
+				pa.normal(normal.x, normal.y, normal.z);
+				pa.endVertex();
+				
 			}
 		}
-		return normalsArr;
 	}
 
 	@Override

@@ -103,7 +103,7 @@ public class CompiledRegion {
 		vao.vertexAttribPointer(indxbo2, 4, 4, GL11.GL_UNSIGNED_BYTE, true, 0);
 		vao.enableVertexAttribArray(4);
 		
-		vertsCount = poses.capacity() / 3;
+		vertsCount = poses.limit() / (3 * Float.BYTES);
 		
 		GL.debug("CR compile end");
 	}

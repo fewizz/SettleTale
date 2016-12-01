@@ -17,8 +17,8 @@ public class RegionManagerOnePlayer extends RegionManagerAbstract {
 
 	@Override
 	public void update() {
-		int regX = SSMath.floor(Camera.x / 16F);
-		int regZ = SSMath.floor(Camera.z / 16F);
+		int regX = SSMath.floor2(Camera.x / 16F);
+		int regZ = SSMath.floor2(Camera.z / 16F);
 
 		for (Region ch : regions.values()) {
 			ch.active = false;

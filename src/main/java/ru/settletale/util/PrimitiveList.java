@@ -1,13 +1,12 @@
 package ru.settletale.util;
 
-import java.lang.reflect.Field;
-import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import sun.misc.Unsafe;
 
 public class PrimitiveList {
+	Unsafe u = Utils.u;
 	private final int pageSize;
 	private final int pageSizeBytes;
 	private final int pageAddrSize;
@@ -23,7 +22,23 @@ public class PrimitiveList {
 	
 	public ByteBuffer buffer;
 	private long bufferAddress;
-	private long bufferFOffset;
+	
+	public static void main(String[] args) {
+		PrimitiveList list = new PrimitiveList(64, Integer.BYTES);
+		
+		for(int i = 0; i < 512; i++) {
+			list.putInt(i, i);
+		}
+		list.clear();
+		for(int i = 0; i < 512; i++) {
+			list.putInt(i, i);
+		}
+		list.updateBuffer();
+		
+		for(int i = 0; i < 512; i++) {
+			System.out.println(list.buffer.getInt(i * Integer.BYTES));
+		}
+	}
 
 	public PrimitiveList(int pageSize, int typeBytes) {
 		this.pageSize = pageSize;
@@ -35,26 +50,29 @@ public class PrimitiveList {
 		this.firstAddrPage = createNewAddrPage();
 		lastAddr = firstAddrPage;
 		lastAddrInd = 0;
-		this.buffer = ByteBuffer.allocateDirect(1);
+		this.buffer = ByteBuffer.allocateDirect(pageSizeBytes);
 		this.buffer.order(ByteOrder.nativeOrder());
-		this.bufferFOffset = u.objectFieldOffset(ByteBufferUtils.addressField);
-		this.bufferAddress = u.getLong(buffer, bufferFOffset);
-		ByteBufferUtils.updateDealloc(buffer, bufferAddress, 1);
+		this.bufferAddress = DirectByteBufferUtils.getBufferAddress(this.buffer);
 	}
 
 	public void put(byte value, int index) {
 		u.putByte(getValueAdress(index, true), value);
-		setLen(index);
+		setLen(index + 1);
 	}
 	
 	public void putFloat(float value, int index) {
 		u.putFloat(getValueAdress(index, true), value);
-		setLen(index);
+		setLen(index + 1);
 	}
 	
 	public void putInt(int value, int index) {
 		u.putInt(getValueAdress(index, true), value);
-		setLen(index);
+		setLen(index + 1);
+	}
+	
+	public void putShort(short value, int index) {
+		u.putShort(getValueAdress(index, true), value);
+		setLen(index + 1);
 	}
 	
 	public byte get(int index) {
@@ -65,8 +83,12 @@ public class PrimitiveList {
 		return u.getFloat(getValueAdress(index, false));
 	}
 	
-	private void setLen(int index) {
-		length = Math.max(length, index + 1);
+	public int getInt(int index) {
+		return u.getInt(getValueAdress(index, false));
+	}
+	
+	private void setLen(int len) {
+		length = Math.max(length, len);
 	}
 	
 	private long getValueAdress(int index, boolean createNew) {
@@ -84,7 +106,7 @@ public class PrimitiveList {
 				long a = u.getAddress(addrToNext + pageAddrBytes);
 				if (a == -1) {
 					if(!createNew) {
-						return 0;
+						return -1;
 					}
 					a = createNewAddrPage();
 					u.putAddress(addrToNext + pageAddrBytes, a);
@@ -101,7 +123,7 @@ public class PrimitiveList {
 
 		if (addrToPage == -1) {
 			if(!createNew) {
-				return 0;
+				return -1;
 			}
 			addrToPage = createNewPage();
 			u.putLong(addr, addrToPage);
@@ -111,26 +133,22 @@ public class PrimitiveList {
 
 	private long createNewPage() {
 		long l = u.allocateMemory(pageSizeBytes);
-		for (int i = 0; i < pageSizeBytes; i += Long.BYTES) {
-			if(pageSizeBytes - i < Long.BYTES) { // If page power not eq long bytes count
-				for(int z = 0; z < pageSizeBytes - i; z++) {
-					u.putByte(l + i + z, (byte) 0);
-				}
-				break;
-			}
-			
-			u.putLong(l + i, 0);
-		}
+		clearPage(l);
 		return l;
+	}
+	
+	private void clearPage(long addr) {
+		u.setMemory(addr, pageSizeBytes, (byte) 0);
 	}
 
 	private long createNewAddrPage() {
 		long newAddPage = u.allocateMemory(pageAddrBytesFull);
-		for (int i = 0; i < pageAddrSize; i++) {
-			u.putLong(newAddPage + (i * Long.BYTES), -1);
-		}
-		u.putLong(newAddPage + (pageAddrSize * Long.BYTES), -1); // For next addr page
+		clearAddrPage(newAddPage);
 		return newAddPage;
+	}
+	
+	private void clearAddrPage(long addr) {
+		u.setMemory(addr, pageAddrBytesFull, (byte) -1);
 	}
 	
 	public void clear() {
@@ -138,52 +156,50 @@ public class PrimitiveList {
 		
 		for (int i = 0; i < length / pageSize / pageAddrSize; i++) {
 			if (addrToNext == -1) {
-				continue;
+				break;
 			}
 			
 			for(int x = 0; x < pageAddrSize; x++) {
-				long a = u.getAddress(addrToNext + (x * Long.BYTES));
+				long page = u.getAddress(addrToNext + (x * Long.BYTES));
 				
-				if(a == -1) {
+				if(page == -1) {
 					continue;
 				}
 				
-				u.freeMemory(a);
+				if(i != 0) //If not fist page
+					u.freeMemory(page);
+				else {
+					clearPage(page);
+				}
 			}
 			long prev = addrToNext;
 			addrToNext = u.getAddress(addrToNext + pageAddrBytes);
+			
+			if(i == 0) {
+				clearAddrPage(prev);
+				continue;
+			}
 			u.freeMemory(prev);
 		}
 		
-		firstAddrPage = createNewAddrPage();
 		lastAddr = firstAddrPage;
 		lastAddrInd = 0;
 		length = 0;
 	}
 
 	public void updateBuffer() {
-		if(buffer.capacity() < length * bytes || buffer.capacity() > length * bytes) {
-			try {
-				Field cap = Buffer.class.getDeclaredField("capacity");
-				cap.setAccessible(true);
-				cap.setInt(buffer, length * bytes);
-				u.freeMemory(bufferAddress);
-				bufferAddress = u.allocateMemory(length * bytes);
-				u.putLong(buffer, bufferFOffset, bufferAddress);
-				buffer.limit(length * bytes);
-				buffer.position(0);
-				ByteBufferUtils.updateDealloc(buffer, bufferAddress, length * bytes);
-			} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
-				e.printStackTrace();
-			}
+		int sizeBytes = length * bytes;
+		
+		if(buffer.capacity() < sizeBytes) {
+			this.bufferAddress = DirectByteBufferUtils.updateBufferSize(this.buffer, sizeBytes, bufferAddress);
 		}
+		buffer.clear();
 
 		int index = 0;
 
 		long addrToNext = firstAddrPage;
 
 		int si = SSMath.ceil((float) length / (float) pageAddrSize / (float) pageSize);
-		int lenBytes = length * bytes;
 
 		for (int i = 0; i < si; i++) {
 			if(addrToNext == -1) {
@@ -193,34 +209,22 @@ public class PrimitiveList {
 			for (int x = 0; x < pageAddrSize; x++) {
 				long addr = addrToNext + (x * Long.BYTES);
 				long addrToPage = u.getAddress(addr);
-				if (lenBytes - index <= 0) {
-					return;
+				
+				int toCopy = Math.min(pageSizeBytes, sizeBytes - index);
+				
+				if (toCopy <= 0) {
+					return; // Buffer filled
 				}
-				if (lenBytes - index < pageSizeBytes) {
-					u.copyMemory(addrToPage, bufferAddress + index, lenBytes - index);
-					return;
-				}
-				u.copyMemory(addrToPage, bufferAddress + index, pageSizeBytes);
-				index += pageSizeBytes;
+				
+				if(addrToPage == -1) 
+					u.setMemory(bufferAddress + index, toCopy, (byte) 0);
+				else 
+					u.copyMemory(addrToPage, bufferAddress + index, toCopy);
+				
+				index += toCopy;
 			}
 
 			addrToNext = u.getAddress(addrToNext + pageAddrBytes);
 		}
-	}
-
-	/** Unsafe stuff **/
-	public static Unsafe u;
-
-	static {
-		try {
-			Field f = Unsafe.class.getDeclaredField("theUnsafe");
-
-			f.setAccessible(true);
-
-			u = (Unsafe) f.get(null);
-		} catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException e) {
-			e.printStackTrace();
-		} 
-
 	}
 }
