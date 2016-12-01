@@ -2,39 +2,51 @@ package ru.settletale.client.vertex;
 
 import java.nio.ByteBuffer;
 
+import org.lwjgl.BufferUtils;
+
+import ru.settletale.util.DirectByteBufferUtils;
+
 public class PrimitiveArray {
-	private VertexInfo vert;
-	IVertexPositionStorage pos;
-	IVertexColorStorage col;
-	IVertexNormalStorage norm;
+	private final IVertexStorage[] storages;
+	ByteBuffer ib;
 	private int lastVertex = 0;
 	private int lastIndex = 0;
+	private int lastAddedStorage = 0;
 
-	public PrimitiveArray(Data... options) {
-		for (Data data : options) {
+	public PrimitiveArray(Storage... storages) {
+		ib = BufferUtils.createByteBuffer(4096);
+		ib.limit(0);
+
+		this.storages = new IVertexStorage[storages.length];
+
+		for (Storage data : storages) {
 			data.setBool(this);
 		}
-
-		vert = new VertexInfo();
 	}
 
-	public static enum Data {
-		POSITION_3F {
+	public static enum Storage {
+		FLOAT_3 {
 			@Override
 			void setBool(PrimitiveArray arr) {
-				arr.pos = new VertexPositionStorage3Float();
+				arr.addStorage(new VertexStorageFloat(3));
 			}
 		},
-		NORMAL_3F {
+		BYTE_4 {
 			@Override
 			void setBool(PrimitiveArray arr) {
-				arr.norm = new VertexNormalStorage3Float();
+				arr.addStorage(new VertexStorageByte(4));
 			}
 		},
-		COLOR_3B {
+		BYTE_3 {
 			@Override
 			void setBool(PrimitiveArray arr) {
-				arr.col = new VertexColorStorage3Byte();
+				arr.addStorage(new VertexStorageByte(3));
+			}
+		},
+		BYTE_1 {
+			@Override
+			void setBool(PrimitiveArray arr) {
+				arr.addStorage(new VertexStorageByte(1));
 			}
 		};
 
@@ -42,75 +54,68 @@ public class PrimitiveArray {
 		}
 	}
 
+	private void addStorage(IVertexStorage s) {
+		storages[lastAddedStorage++] = s;
+	}
+
+	public void data(int storage, float f1, float f2, float f3, float f4) {
+		storages[storage].data(f1, f2, f3, f4);
+	}
+
+	public void data(int storage, float f1, float f2, float f3) {
+		this.data(storage, f1, f2, f3, 0);
+	}
+
+	public void data(int storage, byte b1, byte b2, byte b3, byte b4) {
+		storages[storage].data(b1, b2, b3, b4);
+	}
+
+	public void data(int storage, byte b1) {
+		this.data(storage, b1, 0, 0, 0);
+	}
+
 	public void endVertex() {
-		if (pos != null) {
-			pos.position(vert.pX, vert.pY, vert.pZ, lastVertex);
-		}
-		if (norm != null) {
-			norm.normal(vert.nX, vert.nY, vert.nZ, lastVertex);
-		}
-		if (col != null) {
-			col.color(vert.r, vert.g, vert.b, vert.a, lastVertex);
+		for (IVertexStorage s : storages) {
+			s.dataEnd(lastVertex);
 		}
 
 		lastVertex++;
 	}
-	
+
 	public void index(int index) {
-		if (pos != null) {
-			pos.index(index, lastIndex);
-		}
-		if (norm != null) {
-			pos.index(index, lastIndex);
-		}
-		if (col != null) {
-			pos.index(index, lastIndex);
-		}
+		int id = lastIndex;
+
+		int sizeBytes = 1 * Short.BYTES;
+		id *= sizeBytes;
+
+		int limit = id + sizeBytes;
+
+		if (limit > ib.capacity())
+			ib = DirectByteBufferUtils.grow(ib, 1.5F);
+
+		ib.limit(Math.max(ib.limit(), limit));
+
+		ib.putShort(id, (short) index);
+
+		ib.position(0);
 
 		lastIndex++;
 	}
 
-	public void vertexInfo(VertexInfo vert) {
-		this.vert = vert;
+	public ByteBuffer getBuffer(int storage) {
+		return storages[storage].getBuffer();
+	}
+
+	public ByteBuffer getIndexBuffer() {
+		return ib;
 	}
 
 	public void clear() {
-		if (pos != null)
-			pos.clear();
-		if (col != null)
-			col.clear();
-		if (norm != null)
-			norm.clear();
+		for (IVertexStorage s : storages) {
+			s.clear();
+		}
 		lastVertex = 0;
 		lastIndex = 0;
-	}
-
-	public ByteBuffer getPositionBuffer() {
-		return pos.getBuffer();
-	}
-
-	public ByteBuffer getColorBuffer() {
-		return col.getBuffer();
-	}
-
-	public ByteBuffer getNormalBuffer() {
-		return norm.getBuffer();
-	}
-
-	public ByteBuffer getPositionIndexBuffer() {
-		return pos.getIndexBuffer();
-	}
-
-	public ByteBuffer getColorIndexBuffer() {
-		return col.getIndexBuffer();
-	}
-
-	public ByteBuffer getNormalIndexBuffer() {
-		return norm.getIndexBuffer();
-	}
-
-	public int getVertexCountIndexed() {
-		return this.lastVertex;
 	}
 
 	public int getVertexCount() {
@@ -119,24 +124,5 @@ public class PrimitiveArray {
 
 	public int getIndexCount() {
 		return this.lastIndex;
-	}
-	
-	public void position(float x, float y, float z) {
-		vert.pX = x;
-		vert.pY = y;
-		vert.pZ = z;
-	}
-	
-	public void normal(float x, float y, float z) {
-		vert.nX = x;
-		vert.nY = y;
-		vert.nZ = z;
-	}
-	
-	public void color(byte r, byte g, byte b, byte a) {
-		vert.r = r;
-		vert.g = g;
-		vert.b = b;
-		vert.a = a;
 	}
 }

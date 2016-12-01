@@ -2,8 +2,6 @@ package ru.settletale.client.render.world;
 
 import static org.lwjgl.opengl.GL11.*;
 
-import java.nio.ByteBuffer;
-
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
 
@@ -14,7 +12,7 @@ import ru.settletale.client.Camera;
 import ru.settletale.client.PlatformClient;
 import ru.settletale.client.opengl.GL;
 import ru.settletale.client.vertex.PrimitiveArray;
-import ru.settletale.client.vertex.PrimitiveArray.Data;
+import ru.settletale.client.vertex.PrimitiveArray.Storage;
 import ru.settletale.client.opengl.Shader;
 import ru.settletale.client.opengl.ShaderProgram;
 import ru.settletale.util.IRegionManageristener;
@@ -24,10 +22,11 @@ public class WorldRenderer implements IRegionManageristener {
 	public static final WorldRenderer INSTANCE = new WorldRenderer();
 	public static HashLongObjMap<Region> regions;
 	public static HashLongObjMap<CompiledRegion> regionsToRender;
-	public static PrimitiveArray pa = new PrimitiveArray(Data.POSITION_3F, Data.NORMAL_3F);
-	public static ByteBuffer idsBuffer1 = ByteBuffer.allocateDirect(16 * 16 * 4 * 4 * 4);
-	public static ByteBuffer idsBuffer2 = ByteBuffer.allocateDirect(16 * 16 * 4 * 4 * 4);
-	public static ByteBuffer idsBufferMain = ByteBuffer.allocateDirect(16 * 16 * 4 * 4);
+	
+	public static final int POSITION = 0;
+	public static final int NORMAL = 1;
+	
+	public static PrimitiveArray pa = new PrimitiveArray(Storage.FLOAT_3, Storage.FLOAT_3);
 	static ShaderProgram programSky;
 
 	public static void init() {
@@ -66,10 +65,8 @@ public class WorldRenderer implements IRegionManageristener {
 				renderRegion(r, pa);
 				
 				GL.debug("Fill buffers");
-				ByteBuffer pb = pa.getPositionBuffer();
-				ByteBuffer nb = pa.getNormalBuffer();
 				cr = new CompiledRegion(r);
-				cr.compile(r, pb, idsBufferMain, nb, idsBuffer1, idsBuffer2);
+				cr.compile(r, pa);
 				GL.debug("Array clear");
 				pa.clear();
 				regionsToRender.put(r.coord, cr);
@@ -88,83 +85,22 @@ public class WorldRenderer implements IRegionManageristener {
 	private static void renderRegion(Region r, PrimitiveArray array) {
 		fillBuffers(r);
 		
-		int indx = 0;
-		
 		for (int x = 0; x < 16; x++) {
 			for (int z = 0; z < 16; z++) {
-				
-				byte biomeID = (byte) r.getBiome(x, z).getBiomeID();
-				byte biomeIDl = (byte) r.getBiome(x - 1, z).getBiomeID();
-				byte biomeIDlu = (byte) r.getBiome(x - 1, z + 1).getBiomeID();
-				byte biomeIDu = (byte) r.getBiome(x, z + 1).getBiomeID();
-				byte biomeIDur = (byte) r.getBiome(x + 1, z + 1).getBiomeID();
-				byte biomeIDr = (byte) r.getBiome(x + 1, z).getBiomeID();
-				byte biomeIDrd = (byte) r.getBiome(x + 1, z - 1).getBiomeID();
-				byte biomeIDd = (byte) r.getBiome(x, z - 1).getBiomeID();
-				byte biomeIDdl = (byte) r.getBiome(x - 1, z - 1).getBiomeID();
-				
 				for(int x2 = 0; x2 < 2; x2++) {
 					for(int z2 = 0; z2 < 2; z2++) {
 						int nx = x * 2 + x2;
 						int nz = z * 2 + z2;
 						
-						int i1 = nx * 33 * nz;
-						int i2 = nx * 33 * (nz + 1);
-						int i3 = (nx + 1) * 33 * (nz + 1);
-						int i4 = (nx + 1) * 33 * nz;
+						int i1 = nx * 33 + nz;
+						int i2 = nx * 33 + (nz + 1);
+						int i3 = (nx + 1) * 33 + (nz + 1);
+						int i4 = (nx + 1) * 33 + nz;
 						
 						pa.index(i1);
 						pa.index(i2);
 						pa.index(i3);
 						pa.index(i4);
-						
-						idsBufferMain.put(indx / 4 + 0, biomeID);
-						idsBuffer1.put(indx + 0, biomeIDl);
-						idsBuffer1.put(indx + 1, biomeIDlu);
-						idsBuffer1.put(indx + 2, biomeIDu);
-						idsBuffer1.put(indx + 3, biomeIDur);
-						
-						idsBuffer2.put(indx + 0, biomeIDr);
-						idsBuffer2.put(indx + 1, biomeIDrd);
-						idsBuffer2.put(indx + 2, biomeIDd);
-						idsBuffer2.put(indx + 3, biomeIDdl);
-						indx += 4;
-						
-						idsBufferMain.put(indx / 4 + 0, biomeID);
-						idsBuffer1.put(indx + 0, biomeIDl);
-						idsBuffer1.put(indx + 1, biomeIDlu);
-						idsBuffer1.put(indx + 2, biomeIDu);
-						idsBuffer1.put(indx + 3, biomeIDur);
-						
-						idsBuffer2.put(indx + 0, biomeIDr);
-						idsBuffer2.put(indx + 1, biomeIDrd);
-						idsBuffer2.put(indx + 2, biomeIDd);
-						idsBuffer2.put(indx + 3, biomeIDdl);
-						indx += 4;
-						
-						idsBufferMain.put(indx / 4 + 0, biomeID);
-						idsBuffer1.put(indx + 0, biomeIDl);
-						idsBuffer1.put(indx + 1, biomeIDlu);
-						idsBuffer1.put(indx + 2, biomeIDu);
-						idsBuffer1.put(indx + 3, biomeIDur);
-						
-						idsBuffer2.put(indx + 0, biomeIDr);
-						idsBuffer2.put(indx + 1, biomeIDrd);
-						idsBuffer2.put(indx + 2, biomeIDd);
-						idsBuffer2.put(indx + 3, biomeIDdl);
-						indx += 4;
-						
-						idsBufferMain.put(indx / 4 + 0, biomeID);
-						idsBuffer1.put(indx + 0, biomeIDl);
-						idsBuffer1.put(indx + 1, biomeIDlu);
-						idsBuffer1.put(indx + 2, biomeIDu);
-						idsBuffer1.put(indx + 3, biomeIDur);
-						
-						idsBuffer2.put(indx + 0, biomeIDr);
-						idsBuffer2.put(indx + 1, biomeIDrd);
-						idsBuffer2.put(indx + 2, biomeIDd);
-						idsBuffer2.put(indx + 3, biomeIDdl);
-						indx += 4;
 					}
 				}
 			}
@@ -216,22 +152,25 @@ public class WorldRenderer implements IRegionManageristener {
 				
 				normal.normalize();
 				
-				float px = ((x - 2F) / 2F);
-				float pz = ((z - 2F) / 2F);
+				int nx = x - 2;
+				int nz = z - 2;
+				
+				float px = (nx / 2F);
+				float pz = (nz / 2F);
 				
 				float pxf = r.x * 16 + px;
 				float pzf = r.z * 16 + pz;
 				
-				pa.position(pxf, r.getHeight(x, z), pzf);
-				pa.normal(normal.x, normal.y, normal.z);
-				pa.endVertex();
+				pa.data(POSITION, pxf, r.getHeight(x, z), pzf);
+				pa.data(NORMAL, normal.x, normal.y, normal.z);
 				
+				pa.endVertex();
 			}
 		}
 	}
 
 	@Override
-	public void onAdded(Region r) {
+	public void onRegionAdded(Region r) {
 		PlatformClient.runInRenderThread(new Runnable() {
 			
 			@Override
@@ -242,7 +181,7 @@ public class WorldRenderer implements IRegionManageristener {
 	}
 
 	@Override
-	public void onRemoved(Region r) {
+	public void onRegionRemoved(Region r) {
 		PlatformClient.runInRenderThread(new Runnable() {
 			
 			@Override

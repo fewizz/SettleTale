@@ -41,7 +41,7 @@ public class RegionManagerOnePlayer extends RegionManagerAbstract {
 				if (regionT == null) {
 					this.regions.put(region.coord, region);
 					for (IRegionManageristener listener : listeners) {
-						listener.onAdded(region);
+						listener.onRegionAdded(region);
 					}
 				}
 				region.active = true;
@@ -52,7 +52,7 @@ public class RegionManagerOnePlayer extends RegionManagerAbstract {
 			Region region = it.next();
 			if (!region.active) {
 				for (IRegionManageristener listener : listeners) {
-					listener.onRemoved(region);
+					listener.onRegionRemoved(region);
 				}
 				it.remove();
 			}
