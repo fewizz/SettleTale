@@ -66,7 +66,7 @@ public class WorldRenderer implements IRegionManageristener {
 				
 				GL.debug("Fill buffers");
 				cr = new CompiledRegion(r);
-				cr.compile(r, pa);
+				cr.compile(pa);
 				GL.debug("Array clear");
 				pa.clear();
 				regionsToRender.put(r.coord, cr);

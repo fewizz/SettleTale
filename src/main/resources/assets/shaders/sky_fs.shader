@@ -1,13 +1,13 @@
-#version 450 core
+#version 140
+#extension GL_ARB_shading_language_420pack : enable
 
 out vec4 color;
-//in vec4 posTransf;
 
 layout (binding = 0, std140) uniform Transform
 {
 	mat4 projMat;
 	mat4 viewMat;
-} transf;
+};
 
 layout (binding = 1, std140) uniform DSize
 {
@@ -27,10 +27,10 @@ void main(void) {
 	clip.w = 1. / w.w;
 	clip.xyz = ndc.xyz * clip.w;
 	
-	vec4 front = inverse(transf.projMat) * clip;
+	vec4 front = inverse(projMat) * clip;
 	front /= length(front);
 
-	 vec4 eye = inverse(transf.viewMat) * front;
+	 vec4 eye = inverse(viewMat) * front;
 	///////////////////////////////////////
 	
 	float yo = abs(eye.y) + 1;

@@ -25,10 +25,9 @@ dependencies {
 }
 
 jar {
-
 	def str = ''
-	fileTree(dir: 'build/libs/libs/').each {
-		str += 'libs/' + it.getName() + ' ';
+	configurations.shadow.each { dep ->
+		str += 'libs/' + dep.getName() + ' ';
 	}
 	
 	manifest {
@@ -37,15 +36,6 @@ jar {
 			'Class-Path': str
 		)
 	}
-}
-
-task copyLibs(type: Copy){
-	//copy {
-		configurations.shadow.each { dep ->
-			from dep
-		}
-		into 'build/libs/libs'
-	//}
 }
 
 jar.dependsOn copyLibs

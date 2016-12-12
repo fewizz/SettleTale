@@ -29,6 +29,7 @@ public class CompiledRegion {
 
 	VertexArrayObject vao;
 	Texture2D regionTexture;
+	static ByteBuffer regionTextureTempBuffer = BufferUtils.createByteBuffer(18 * 18 * 4 * 4);
 	static ShaderProgram program = null;
 	int indexCount = 0;
 
@@ -45,9 +46,7 @@ public class CompiledRegion {
 		}
 	}
 
-	static ByteBuffer texBuff = BufferUtils.createByteBuffer(18 * 18 * 4 * 4);
-
-	public void compile(Region r, PrimitiveArray pa) {
+	public void compile(PrimitiveArray pa) {
 		GL.debug("CR compile start");
 
 		pbo = new VertexBufferObject().gen();
@@ -73,19 +72,19 @@ public class CompiledRegion {
 		regionTexture = new Texture2D(18, 18).gen();
 
 		int i = 0;
-		for (int x = -1; x < 17; x++) {
-			for (int z = -1; z < 17; z++) {
-				Color c = r.getBiome(x, z).color;
+		for (int z = -1; z < 17; z++) {
+			for (int x = -1; x < 17; x++) {
+				Color c = region.getBiome(x, z).color;
 
-				texBuff.put(i + 0, (byte) c.getRed());
-				texBuff.put(i + 1, (byte) c.getGreen());
-				texBuff.put(i + 2, (byte) c.getBlue());
-				texBuff.put(i + 3, (byte) 0xFF);
+				regionTextureTempBuffer.put(i + 0, (byte) c.getRed());
+				regionTextureTempBuffer.put(i + 1, (byte) c.getGreen());
+				regionTextureTempBuffer.put(i + 2, (byte) c.getBlue());
+				regionTextureTempBuffer.put(i + 3, (byte) 0xFF);
 
 				i += 4;
 			}
 		}
-		regionTexture.data(texBuff);
+		regionTexture.data(regionTextureTempBuffer);
 		regionTexture.setDefaultParams();
 
 		GL.debug("CR compile end");
@@ -111,6 +110,7 @@ public class CompiledRegion {
 		nbo.delete();
 		vao.delete();
 		ib.delete();
+		regionTexture.delete();
 	}
 
 }

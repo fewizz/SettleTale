@@ -8,7 +8,7 @@ import ru.settletale.util.SSMath;
 
 public class RegionManagerOnePlayer extends RegionManagerAbstract {
 	protected RegionGenerator regionGenerator;
-	public static final int REGION_LOAD_RADIUS = 20;
+	public static final int REGION_LOAD_RADIUS = 30;
 
 	public RegionManagerOnePlayer() {
 		super();
@@ -35,10 +35,11 @@ public class RegionManagerOnePlayer extends RegionManagerAbstract {
 					continue;
 				}
 
-				Region regionT = getRegion(x, z);
-				final Region region = regionT == null ? readOrGenerateRegion(x, z) : regionT;
+				Region region = getRegion(x, z);
 
-				if (regionT == null) {
+				if (region == null) {
+					region = readOrGenerateRegion(x, z);
+					
 					this.regions.put(region.coord, region);
 					for (IRegionManageristener listener : listeners) {
 						listener.onRegionAdded(region);

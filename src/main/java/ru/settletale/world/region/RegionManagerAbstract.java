@@ -21,7 +21,7 @@ public abstract class RegionManagerAbstract {
 	abstract public void update();
 	
 	public boolean regionLoaded(int x, int z) {
-		return getRegion(x, z) != null;
+		return regions.containsKey(SSMath.clamp(x, z));
 	}
 	
 	public Region getRegion(int x, int z) {

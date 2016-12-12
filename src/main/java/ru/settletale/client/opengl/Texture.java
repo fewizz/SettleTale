@@ -17,6 +17,7 @@ public abstract class Texture<T extends Texture<?>> extends NameableAdapter {
 	@SuppressWarnings("unchecked")
 	public T gen() {
 		this.id = GL11.glGenTextures();
+		setDefaultParams();
 		return (T) this;
 	}
 	
@@ -27,18 +28,16 @@ public abstract class Texture<T extends Texture<?>> extends NameableAdapter {
 		bind();
 		GL11.glTexParameteri(type, GL11.GL_TEXTURE_WRAP_S, GL11.GL_REPEAT);
 		GL11.glTexParameteri(type, GL11.GL_TEXTURE_WRAP_T, GL11.GL_REPEAT);
-		GL11.glTexParameteri(type, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
+		GL11.glTexParameteri(type, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
 		GL11.glTexParameteri(type, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
 		
 		return (T) this;
 	}
-	/*	bind();
-		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_REPEAT);
-		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_REPEAT);
-		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
-		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
-		//GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, width, height, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
-	}*/
+	
+	public void delete() {
+		GL11.glDeleteTextures(id);
+		id = -1;
+	}
 
 	@Override
 	public void setLastBoundID(int id) {
