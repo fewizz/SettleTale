@@ -55,6 +55,8 @@ public class RegionManagerOnePlayer extends RegionManagerAbstract {
 				for (IRegionManageristener listener : listeners) {
 					listener.onRegionRemoved(region);
 				}
+				
+				RegionCache.returnRegion(region);
 				it.remove();
 			}
 		}

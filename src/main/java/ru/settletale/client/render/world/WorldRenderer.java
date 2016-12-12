@@ -63,7 +63,6 @@ public class WorldRenderer implements IRegionManageristener {
 			
 			if(cr == null) {
 				renderRegion(r, pa);
-				
 				GL.debug("Fill buffers");
 				cr = new CompiledRegion(r);
 				cr.compile(pa);

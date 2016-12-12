@@ -38,6 +38,15 @@ jar {
 	}
 }
 
+task copyLibs(type: Copy){
+	copy {
+		configurations.shadow.each { dep ->
+			from dep
+		}
+		into 'build/libs/libs'
+	}
+}
+
 jar.dependsOn copyLibs
 
 eclipse {

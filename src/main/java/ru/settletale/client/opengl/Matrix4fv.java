@@ -7,7 +7,7 @@ import org.lwjgl.BufferUtils;
 
 public class Matrix4fv extends Matrix4f {
 	final FloatBuffer buffer;
-	final FloatBuffer[] stack = new FloatBuffer[128];
+	final FloatBuffer[] stack = new FloatBuffer[32];
 	int currentIndex = -1;
 	
 	public Matrix4fv() {

@@ -16,6 +16,11 @@ import ru.settletale.client.PlatformClient;
 public class ResourceLoader {
 
 	public static void init() {
+		File main = new File("assets/");
+		if(main.exists()) {
+			walkInAssetsFolder(main);
+		}
+		
 		FastClasspathScanner scanner = new FastClasspathScanner();
 		List<File> files = scanner.getUniqueClasspathElements();
 

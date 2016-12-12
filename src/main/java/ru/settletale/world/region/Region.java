@@ -13,12 +13,14 @@ public class Region {
 	public long coord;
 	
 	public Region(int x, int z) {
+		initInfo(x, z);
+	}
+	
+	public void initInfo(int x, int z) {
 		this.x = x;
 		this.z = z;
 		active = false;
 		this.coord = SSMath.clamp(x, z);
-		biomeIDs = new byte[18 * 18]; 
-		heights = new float[((18 * 2) + 1) * ((18 * 2) + 1)];
 	}
 	
 	public Biome getBiome(int x, int z) {
