@@ -26,15 +26,28 @@ public class RenderThread extends Thread {
 
 	void renderLoop() {
 		TickTimer timer = new TickTimer(PlatformClient.maxFPS);
-		
+
+		int frames = 0;
+		long start = System.nanoTime();
+
 		for (;;) {
 			timer.start();
-			
+
 			callRunnables();
 			WorldRenderer.render();
 			glfwSwapBuffers(Display.window);
-			
+
 			timer.waitTimer();
+
+			frames++;
+
+			long end = System.nanoTime();
+			if (end - start > 1_000_000_000L) {
+				start += 1_000_000_000;
+
+				System.out.println("time: " + start + ", FPS: " + frames);
+				frames = 0;
+			}
 		}
 	}
 

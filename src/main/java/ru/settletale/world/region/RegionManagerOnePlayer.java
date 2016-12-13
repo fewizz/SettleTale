@@ -8,13 +8,18 @@ import ru.settletale.util.SSMath;
 
 public class RegionManagerOnePlayer extends RegionManagerAbstract {
 	protected RegionGenerator regionGenerator;
-	public static final int REGION_LOAD_RADIUS = 30;
+	public static final int REGION_LOAD_RADIUS = 20;
 
 	public RegionManagerOnePlayer() {
 		super();
 		regionGenerator = new RegionGenerator();
 	}
 
+	@Override
+	public void start() {
+		regionGenerator.start();
+	}
+	
 	@Override
 	public void update() {
 		int regX = SSMath.floor2(Camera.x / 16F);
@@ -41,6 +46,8 @@ public class RegionManagerOnePlayer extends RegionManagerAbstract {
 					region = readOrGenerateRegion(x, z);
 					
 					this.regions.put(region.coord, region);
+					region.threads++;
+					
 					for (IRegionManageristener listener : listeners) {
 						listener.onRegionAdded(region);
 					}
@@ -52,12 +59,14 @@ public class RegionManagerOnePlayer extends RegionManagerAbstract {
 		for (Iterator<Region> it = regions.values().iterator(); it.hasNext();) {
 			Region region = it.next();
 			if (!region.active) {
+				it.remove();
+				region.threads--;
+				
 				for (IRegionManageristener listener : listeners) {
 					listener.onRegionRemoved(region);
 				}
 				
 				RegionCache.returnRegion(region);
-				it.remove();
 			}
 		}
 

@@ -1,5 +1,6 @@
 package ru.settletale.world.region;
 
+import ru.settletale.Game;
 import ru.settletale.registry.Biomes;
 import ru.settletale.util.OpenSimplexNoise;
 import ru.settletale.world.biome.Biome;
@@ -20,16 +21,21 @@ public class RegionGenerator {
 	public static final int HEIGHTS_LEN_EXT = (CHUNK_LEN_EXT * 2) + 1;
 	public static final int HEIGHTS_LEN_EXT_SMOOTH = (CHUNK_LEN_EXT_SMOOTH * 2) + 2;
 	Layer mainLayer;
-	OpenSimplexNoise noise = new OpenSimplexNoise();
+	OpenSimplexNoise noise;
 	
 	public RegionGenerator() {
-		mainLayer = LayerSmoother.getLayer(6,
+		mainLayer = LayerSmoother.getLayer(2,
 						LayerScaleX2Random.getLayer(1,
 								LayerSmoother.getLayer(2,
 										LayerScaleX2Random.getLayer(2,
 												LayerSmoother.getLayer(1,
 														LayerScaleX2Random.getLayer(4,
 																new LayerBiomes()))))));
+	}
+	
+	public void start() {
+		noise = new OpenSimplexNoise(Game.getWorld().seed);
+		Layer.seed = Game.getWorld().seed;
 	}
 	
 	/** Temp varies **/

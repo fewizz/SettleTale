@@ -5,10 +5,10 @@ import ru.settletale.util.SSMath;
 
 public abstract class Layer {
 	private byte[] values;
-	private static final long RANDOM_NUMBER = 6546213132131313131L;
+	private static final long RANDOM_NUMBER_CONST = 6546213132131313131L;
+	public static long seed = 11111111;
 	public static OpenSimplexNoise noise = new OpenSimplexNoise(1337);
 	Layer parent;
-	long seed;
 	
 	public Layer(Layer parent) {
 		this.parent = parent;
@@ -38,7 +38,7 @@ public abstract class Layer {
 		long i3 = ((number >>> 32) & 0xFFFF) * 1635447;
 		long i4 = ((number >>> 48) & 0xFFFF) * 3543531;
 		
-		long toReturn = (((i1 * number) * i1 * i1 * i1 * i1 * i1 * i1 * i1 * RANDOM_NUMBER) + ((i2 * number) * i2 * i2 * i2 * i2 * i2 * i2 * i2 * RANDOM_NUMBER) + (i3 * i3 * i3 * i3 * i3 * i3 * i3 * i3 * RANDOM_NUMBER) + ((i4 * number) * i4 * i4 * i4 * i4 * i4 * i4 * i4 * RANDOM_NUMBER) + (number * number * number * number * number * number * number * number * RANDOM_NUMBER)) / (123135431L + (i1 + i2 + i3 + i4 + number));
+		long toReturn = (((i1 * number) * i1 * i1 * i1 * i1 * i1 * i1 * i1 * RANDOM_NUMBER_CONST * seed) + ((i2 * number) * i2 * i2 * i2 * i2 * i2 * i2 * i2 * RANDOM_NUMBER_CONST * seed) + (i3 * i3 * i3 * i3 * i3 * i3 * i3 * i3 * RANDOM_NUMBER_CONST * seed) + ((i4 * number) * i4 * i4 * i4 * i4 * i4 * i4 * i4 * RANDOM_NUMBER_CONST * seed) + (number * number * number * number * number * number * number * number * RANDOM_NUMBER_CONST * seed)) / (123135431L + (i1 + i2 + i3 + i4 + number));
 		
 		int num = (int) ((double)toReturn % (double)border);
 		return num < 0 ? -num : num;
@@ -55,7 +55,7 @@ public abstract class Layer {
 		long i3 = ((number >>> 32) & 0xFFFF) * 1635447;
 		long i4 = ((number >>> 48) & 0xFFFF) * 3543531;
 		
-		long toReturn = (((i1 * number) * i1 * i1 * i1 * i1 * i1 * i1 * i1 * RANDOM_NUMBER) + ((i2 * number) * i2 * i2 * i2 * i2 * i2 * i2 * i2 * RANDOM_NUMBER) + (i3 * i3 * i3 * i3 * i3 * i3 * i3 * i3 * RANDOM_NUMBER) + ((i4 * number) * i4 * i4 * i4 * i4 * i4 * i4 * i4 * RANDOM_NUMBER) + (number * number * number * number * number * number * number * number * RANDOM_NUMBER)) / (123135431L + (i1 + i2 + i3 + i4 + number));
+		long toReturn = (((i1 * number) * i1 * i1 * i1 * i1 * i1 * i1 * i1 * RANDOM_NUMBER_CONST * seed) + ((i2 * number) * i2 * i2 * i2 * i2 * i2 * i2 * i2 * RANDOM_NUMBER_CONST * seed) + (i3 * i3 * i3 * i3 * i3 * i3 * i3 * i3 * RANDOM_NUMBER_CONST * seed) + ((i4 * number) * i4 * i4 * i4 * i4 * i4 * i4 * i4 * RANDOM_NUMBER_CONST * seed) + (number * number * number * number * number * number * number * number * RANDOM_NUMBER_CONST * seed)) / (123135431L + (i1 + i2 + i3 + i4 + number));
 		return toReturn;
 	}
 }

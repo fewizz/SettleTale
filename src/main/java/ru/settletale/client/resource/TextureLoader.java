@@ -10,12 +10,11 @@ import java.util.Map;
 
 import javax.imageio.ImageIO;
 
-import ru.settletale.client.opengl.Texture;
 import ru.settletale.client.opengl.Texture2D;
 
 public class TextureLoader {
 	private static final Map<String, Texture2D> texturesToRegister = new HashMap<>();
-	private static final Map<String, Texture<?>> textures = new HashMap<>();
+	public static final Map<String, Texture2D> textures = new HashMap<>();
 
 	static void loadTexture(String id, Path path) {
 		System.out.println("Loading texture: " + id);
@@ -57,7 +56,8 @@ public class TextureLoader {
 	static void registerTextures() {
 		for(Map.Entry<String, Texture2D> entry : texturesToRegister.entrySet()) {
 			Texture2D tex = entry.getValue();
-			tex.gen();
+			tex.gen().setDefaultParams();
+			tex.data();
 			
 			textures.put(entry.getKey(), tex);
 		}

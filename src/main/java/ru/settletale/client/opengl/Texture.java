@@ -21,7 +21,27 @@ public abstract class Texture<T extends Texture<?>> extends NameableAdapter {
 		return (T) this;
 	}
 	
-	abstract public void data(ByteBuffer buffer);
+	public void buffer(ByteBuffer buffer) {
+		this.buffer = buffer;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public T data() {
+		bind();
+		dataInternal();
+		return (T) this;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public T subData() {
+		bind();
+		dataInternal();
+		return (T) this;
+	}
+	
+	abstract protected void dataInternal();
+	
+	abstract protected void subDataInternal();
 	
 	@SuppressWarnings("unchecked")
 	public T setDefaultParams() {

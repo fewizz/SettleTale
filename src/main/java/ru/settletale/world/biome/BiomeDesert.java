@@ -6,7 +6,7 @@ public class BiomeDesert extends Biome {
 
 	public BiomeDesert() {
 		super(Color.YELLOW, BiomeType.EARTH, Climate.DRY);
-		this.minHeight = 36;
+		this.minHeight = 32;
 		this.amplitude = 5;
 	}
 

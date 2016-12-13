@@ -1,6 +1,5 @@
 package ru.settletale.client.render.world;
 
-import java.awt.Color;
 import java.nio.ByteBuffer;
 
 import org.lwjgl.BufferUtils;
@@ -13,6 +12,7 @@ import ru.settletale.client.opengl.ElementArrayBufferObject;
 import ru.settletale.client.opengl.GL;
 import ru.settletale.client.opengl.Shader;
 import ru.settletale.client.opengl.Shader.Type;
+import ru.settletale.client.resource.TextureLoader;
 import ru.settletale.world.region.Region;
 import ru.settletale.client.opengl.ShaderProgram;
 import ru.settletale.client.opengl.Texture2D;
@@ -28,7 +28,7 @@ public class CompiledRegion {
 	ElementArrayBufferObject ib;
 
 	VertexArrayObject vao;
-	Texture2D regionTexture;
+	static Texture2D regionTexture;
 	static ByteBuffer regionTextureTempBuffer = BufferUtils.createByteBuffer(18 * 18 * 4 * 4);
 	static ShaderProgram program = null;
 	int indexCount = 0;
@@ -43,6 +43,9 @@ public class CompiledRegion {
 			program.attachShader(new Shader(Type.FRAGMENT, "shaders/terrain_fs.shader").gen().compile());
 			program.link();
 			GL.debug("CR shader end");
+		}
+		if(regionTexture == null) {
+			regionTexture = TextureLoader.textures.get("textures\\grass.png");
 		}
 	}
 
@@ -69,7 +72,7 @@ public class CompiledRegion {
 
 		indexCount = pa.getIndexCount();
 
-		regionTexture = new Texture2D(18, 18).gen();
+		regionTexture = TextureLoader.textures.get("textures\\grass.png");/*new Texture2D(18, 18).gen();
 
 		int i = 0;
 		for (int z = -1; z < 17; z++) {
@@ -85,7 +88,7 @@ public class CompiledRegion {
 			}
 		}
 		regionTexture.data(regionTextureTempBuffer);
-		regionTexture.setDefaultParams();
+		regionTexture.setDefaultParams();*/
 
 		GL.debug("CR compile end");
 	}
@@ -93,7 +96,6 @@ public class CompiledRegion {
 	public void render() {
 		GL13.glActiveTexture(GL13.GL_TEXTURE0);
 		regionTexture.bind();
-
 		GL.debug("CR bind vao");
 		vao.bind();
 		GL.debug("CR rend start");
@@ -110,7 +112,6 @@ public class CompiledRegion {
 		nbo.delete();
 		vao.delete();
 		ib.delete();
-		regionTexture.delete();
 	}
 
 }

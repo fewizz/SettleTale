@@ -18,6 +18,8 @@ public abstract class RegionManagerAbstract {
 		listeners = new CopyOnWriteArrayList<>();
 	}
 	
+	public void start() {}
+	
 	abstract public void update();
 	
 	public boolean regionLoaded(int x, int z) {

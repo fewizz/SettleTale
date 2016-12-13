@@ -16,7 +16,7 @@ import ru.settletale.world.World;
 import ru.settletale.world.region.RegionManagerOnePlayer;
 
 public class PlatformClient implements IPlatform {
-	public static int maxFPS = 75;
+	public static int maxFPS = 100;
 	private static RenderThread renderThread;
 	World world;
 	
@@ -29,7 +29,7 @@ public class PlatformClient implements IPlatform {
 		System.gc();
 		
 		/** Creating world **/
-		World world = new World(new RegionManagerOnePlayer());
+		world = new World(new RegionManagerOnePlayer());
 		world.regionManager.listeners.add(WorldRenderer.INSTANCE);
 		world.updateThread.start();
 		/********************/

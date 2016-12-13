@@ -1,7 +1,5 @@
 package ru.settletale.client.opengl;
 
-import java.nio.ByteBuffer;
-
 import org.lwjgl.opengl.GL11;
 
 public class Texture2D extends Texture<Texture2D> {
@@ -15,9 +13,13 @@ public class Texture2D extends Texture<Texture2D> {
 	}
 
 	@Override
-	public void data(ByteBuffer buffer) {
-		bind();
-		GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, width, height, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
+	protected void dataInternal() {
+		GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, width, height, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, this.buffer);
+	}
+
+	@Override
+	protected void subDataInternal() {
+		GL11.glTexSubImage2D(type, 0, 0, 0, width, height, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, this.buffer);
 	}
 
 }

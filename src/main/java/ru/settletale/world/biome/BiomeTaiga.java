@@ -6,7 +6,8 @@ public class BiomeTaiga extends Biome {
 
 	public BiomeTaiga() {
 		super(Color.CYAN, BiomeType.EARTH, Climate.CONTINENTAL, Climate.MODERATE);
-		this.amplitude = 20;
+		this.amplitude = 5;
+		this.minHeight = 40;
 	}
 
 }

@@ -3,6 +3,7 @@ package ru.settletale.util;
 public class TickTimer {
 	long waitTimeNano;
 	long startTimeNano;
+	public long lastTime;
 
 	public TickTimer(int countOfTicksPerSecond) {
 		this.waitTimeNano = (long) ((1D / (double) countOfTicksPerSecond) * 1_000_000_000D);
@@ -14,7 +15,8 @@ public class TickTimer {
 	
 	public void waitTimer() {
 		long end = System.nanoTime();
-		long timeToSleep = waitTimeNano - (end - startTimeNano);
+		lastTime = end - startTimeNano;
+		long timeToSleep = waitTimeNano - lastTime;
 		
 		if(timeToSleep < 0) {
 			return;

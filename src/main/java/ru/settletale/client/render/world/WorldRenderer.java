@@ -51,7 +51,6 @@ public class WorldRenderer implements IRegionManageristener {
 		GL.viewMatrix.push();
 		GL.viewMatrix.rotateDeg(Camera.aX, 1, 0, 0);
 		GL.viewMatrix.rotateDeg(Camera.aY, 0, 1, 0);
-		GL.viewMatrix.translate(0, -100, 0);
 		GL.viewMatrix.translate(-Camera.x, -Camera.y, -Camera.z);
 		
 		GL.updateTransformUniformBlock();
@@ -62,7 +61,7 @@ public class WorldRenderer implements IRegionManageristener {
 			CompiledRegion cr = regionsToRender.get(r.coord);
 			
 			if(cr == null) {
-				renderRegion(r, pa);
+				renderRegion(r);
 				GL.debug("Fill buffers");
 				cr = new CompiledRegion(r);
 				cr.compile(pa);
@@ -81,7 +80,7 @@ public class WorldRenderer implements IRegionManageristener {
 		GL.debug("World rend end");
 	}
 	
-	private static void renderRegion(Region r, PrimitiveArray array) {
+	private static void renderRegion(Region r) {
 		fillBuffers(r);
 		
 		for (int x = 0; x < 16; x++) {
@@ -175,6 +174,7 @@ public class WorldRenderer implements IRegionManageristener {
 			@Override
 			public void run() {
 				regions.put(r.coord, r);
+				r.threads++;
 			}
 		});
 	}
@@ -189,6 +189,7 @@ public class WorldRenderer implements IRegionManageristener {
 				if(regionsToRender.containsKey(r.coord)) {
 					regionsToRender.get(r.coord).clear();
 					regionsToRender.remove(r.coord);
+					r.threads--;
 				}
 			}
 		});

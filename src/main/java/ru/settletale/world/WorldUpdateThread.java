@@ -20,6 +20,8 @@ public class WorldUpdateThread extends Thread {
 	
 	@Override
 	public void run() {
+		world.start();
+		
 		TickTimer timer = new TickTimer(countOfUpdatesPerSec);
 		
 		for(;;) {

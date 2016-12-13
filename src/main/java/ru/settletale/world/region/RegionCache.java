@@ -11,7 +11,17 @@ public class RegionCache {
 	}
 	
 	public static Region getOrCreateNewRegion(int x, int z) {
-		Region r = cache.poll();
+		Region r = null;
+		
+		while(!cache.isEmpty()) {
+			r = cache.poll();
+			
+			if(r.threads == 0) {
+				break;
+			}
+			
+			r = null;
+		}
 		
 		if(r == null) {
 			r = new Region(x, z);
