@@ -12,12 +12,11 @@ public class Texture1D extends Texture<Texture1D> {
 	
 	@Override
 	public void dataInternal() {
-		GL11.glTexImage1D(type, 0, GL11.GL_RGBA, width, 0, GL11.GL_RGBA, GL11.GL_FLOAT, this.buffer);
+		GL11.glTexImage1D(type, 0, internalFormat, width, 0, bufferFormat, bufferType, this.buffer);
 	}
 
 	@Override
 	public void subDataInternal() {
-		GL11.glTexImage1D(type, 0, GL11.GL_RGBA, width, 0, GL11.GL_RGBA, GL11.GL_FLOAT, this.buffer);
+		GL11.glTexSubImage1D(type, 0, 0, width, bufferFormat, bufferType, this.buffer);
 	}
-
 }

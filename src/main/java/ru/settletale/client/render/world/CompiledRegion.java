@@ -1,5 +1,6 @@
 package ru.settletale.client.render.world;
 
+import java.awt.Color;
 import java.nio.ByteBuffer;
 
 import org.lwjgl.BufferUtils;
@@ -13,12 +14,15 @@ import ru.settletale.client.opengl.GL;
 import ru.settletale.client.opengl.Shader;
 import ru.settletale.client.opengl.Shader.Type;
 import ru.settletale.client.resource.TextureLoader;
+import ru.settletale.world.biome.Biome;
 import ru.settletale.world.region.Region;
 import ru.settletale.client.opengl.ShaderProgram;
+import ru.settletale.client.opengl.Texture1D;
 import ru.settletale.client.opengl.Texture2D;
 import ru.settletale.client.opengl.VertexArrayObject;
 import ru.settletale.client.opengl.VertexBufferObject;
 import ru.settletale.client.vertex.PrimitiveArray;
+import ru.settletale.registry.Biomes;
 
 public class CompiledRegion {
 	Region region;
@@ -28,9 +32,11 @@ public class CompiledRegion {
 	ElementArrayBufferObject ib;
 
 	VertexArrayObject vao;
-	static Texture2D regionTexture;
-	static ByteBuffer regionTextureTempBuffer = BufferUtils.createByteBuffer(18 * 18 * 4 * 4);
-	static ShaderProgram program = null;
+	Texture2D textureIDs;
+	static Texture1D textureBiomes;
+	static Texture2D textureGrass;
+	static ByteBuffer textureIDsTempBuffer = BufferUtils.createByteBuffer(18 * 18);
+	static ShaderProgram program;
 	int indexCount = 0;
 
 	public CompiledRegion(Region region) {
@@ -44,8 +50,27 @@ public class CompiledRegion {
 			program.link();
 			GL.debug("CR shader end");
 		}
-		if(regionTexture == null) {
-			regionTexture = TextureLoader.textures.get("textures\\grass.png");
+		if (textureGrass == null) {
+			textureGrass = TextureLoader.textures.get("textures/grass.png");
+		}
+		if (textureBiomes == null) {
+			textureBiomes = new Texture1D(256).gen().internalFormat(GL11.GL_RGB).bufferFormat(GL11.GL_RGB).bufferType(GL11.GL_UNSIGNED_BYTE);
+
+			ByteBuffer bb = BufferUtils.createByteBuffer(256 * 3);
+
+			for (Biome b : Biomes.biomes) {
+				if(b == null) {
+					continue;
+				}
+				Color c = b.color;
+
+				bb.put(b.getBiomeID() * 3 + 0, (byte) c.getRed());
+				bb.put(b.getBiomeID() * 3 + 1, (byte) c.getGreen());
+				bb.put(b.getBiomeID() * 3 + 2, (byte) c.getBlue());
+			}
+
+			textureBiomes.buffer = bb;
+			textureBiomes.loadData();
 		}
 	}
 
@@ -72,31 +97,32 @@ public class CompiledRegion {
 
 		indexCount = pa.getIndexCount();
 
-		regionTexture = TextureLoader.textures.get("textures\\grass.png");/*new Texture2D(18, 18).gen();
+		textureIDs = new Texture2D(18, 18).gen().internalFormat(GL11.GL_RED).bufferFormat(GL11.GL_RED).bufferType(GL11.GL_UNSIGNED_BYTE);
 
 		int i = 0;
 		for (int z = -1; z < 17; z++) {
 			for (int x = -1; x < 17; x++) {
-				Color c = region.getBiome(x, z).color;
+				textureIDsTempBuffer.put(i, (byte) region.getBiome(x, z).getBiomeID());
 
-				regionTextureTempBuffer.put(i + 0, (byte) c.getRed());
-				regionTextureTempBuffer.put(i + 1, (byte) c.getGreen());
-				regionTextureTempBuffer.put(i + 2, (byte) c.getBlue());
-				regionTextureTempBuffer.put(i + 3, (byte) 0xFF);
-
-				i += 4;
+				i++;
 			}
 		}
-		regionTexture.data(regionTextureTempBuffer);
-		regionTexture.setDefaultParams();*/
+		textureIDs.buffer(textureIDsTempBuffer);
+		textureIDs.loadData();
 
 		GL.debug("CR compile end");
 	}
 
 	public void render() {
+		GL.debug("CR bind texture units start");
 		GL13.glActiveTexture(GL13.GL_TEXTURE0);
-		regionTexture.bind();
-		GL.debug("CR bind vao");
+		textureIDs.bind();
+		GL13.glActiveTexture(GL13.GL_TEXTURE1);
+		textureBiomes.bind();
+		GL13.glActiveTexture(GL13.GL_TEXTURE2);
+		textureGrass.bind();
+		GL.debug("CR bind texture units end");
+		
 		vao.bind();
 		GL.debug("CR rend start");
 		program.bind();
@@ -112,6 +138,7 @@ public class CompiledRegion {
 		nbo.delete();
 		vao.delete();
 		ib.delete();
+		textureIDs.delete();
 	}
 
 }

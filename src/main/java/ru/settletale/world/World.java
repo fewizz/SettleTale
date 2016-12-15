@@ -15,7 +15,7 @@ public class World {
 		regionManager = rm;
 		updateThread = new WorldUpdateThread(this);
 		random = new Random();
-		seed = random.nextLong();
+		seed = 1;//random.nextLong();
 	}
 	
 	public void start() {

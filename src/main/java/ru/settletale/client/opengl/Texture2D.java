@@ -14,12 +14,12 @@ public class Texture2D extends Texture<Texture2D> {
 
 	@Override
 	protected void dataInternal() {
-		GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, width, height, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, this.buffer);
+		GL11.glTexImage2D(type, 0, internalFormat, width, height, 0, bufferFormat, bufferType, this.buffer);
 	}
 
 	@Override
 	protected void subDataInternal() {
-		GL11.glTexSubImage2D(type, 0, 0, 0, width, height, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, this.buffer);
+		GL11.glTexSubImage2D(type, 0, 0, 0, width, height, bufferFormat, bufferType, this.buffer);
 	}
 
 }

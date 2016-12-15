@@ -10,6 +10,8 @@ import java.util.Map;
 
 import javax.imageio.ImageIO;
 
+import org.lwjgl.opengl.GL11;
+
 import ru.settletale.client.opengl.Texture2D;
 
 public class TextureLoader {
@@ -49,15 +51,16 @@ public class TextureLoader {
 		
 		Texture2D tex = new Texture2D(width, height);
 		tex.buffer = buffer;
+		tex.bufferType = GL11.GL_UNSIGNED_BYTE;
 
-		texturesToRegister.put(id, tex);
+		texturesToRegister.put(id.replace("\\", "/"), tex);
 	}
 	
 	static void registerTextures() {
 		for(Map.Entry<String, Texture2D> entry : texturesToRegister.entrySet()) {
 			Texture2D tex = entry.getValue();
 			tex.gen().setDefaultParams();
-			tex.data();
+			tex.loadData();
 			
 			textures.put(entry.getKey(), tex);
 		}

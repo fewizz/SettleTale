@@ -1,6 +1,5 @@
 package ru.settletale.client.opengl;
 
-import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL30;
 
@@ -24,12 +23,12 @@ public class Texture2DArray extends Texture<Texture2DArray> {
 
 	@Override
 	protected void dataInternal() {
-		GL12.glTexImage3D(type, 0, GL11.GL_RGBA, width, height, depth, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, this.buffer);
+		GL12.glTexImage3D(type, 0, internalFormat, width, height, depth, 0, bufferFormat, bufferType, this.buffer);
 	}
 
 	@Override
 	protected void subDataInternal() {
-		GL12.glTexSubImage3D(type, 0, 0, 0, zOffset, width, height, depth, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, this.buffer);
+		GL12.glTexSubImage3D(type, 0, 0, 0, zOffset, width, height, depth, bufferFormat, bufferType, this.buffer);
 	}
 
 }
