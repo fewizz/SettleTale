@@ -5,8 +5,8 @@ import static org.lwjgl.glfw.GLFW.*;
 public class Camera {
 	public static float x;
 	public static float z;
-	public static float y = 100;
-	public static float aX = 45;
+	public static float y = 200;
+	public static float aX = 90;
 	public static float aY = 0;
 	
 	static void update() {

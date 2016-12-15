@@ -5,7 +5,7 @@ import java.nio.ByteBuffer;
 import org.lwjgl.opengl.GL11;
 
 public abstract class Texture<T extends Texture<?>> extends NameableAdapter {
-	public static int lastID = 0;
+	static int lastID = 0;
 	public final int type;
 	public ByteBuffer buffer;
 	public int internalFormat;
@@ -54,12 +54,14 @@ public abstract class Texture<T extends Texture<?>> extends NameableAdapter {
 	public T loadData() {
 		bind();
 		dataInternal();
+		unbind();
 		return getThis();
 	}
 	
 	public T loadSubData() {
 		bind();
 		subDataInternal();
+		unbind();
 		return getThis();
 	}
 	
@@ -81,7 +83,7 @@ public abstract class Texture<T extends Texture<?>> extends NameableAdapter {
 	public void delete() {
 		unbind();
 		GL11.glDeleteTextures(id);
-		id = -1;
+		id = -2;
 	}
 
 	@Override

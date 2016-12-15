@@ -11,6 +11,9 @@ layout(binding = 1) uniform sampler1D texBiomes;
 layout(binding = 2) uniform sampler2D texTerr;
 
 void main(void) {
+	//float a = texture(texIDs, vec2(pos_vs.x / 16., pos_vs.z / 16.)).r * 20.;
+	//color_out = vec4(a, a, a, 1);//texture(texTerr, vec2(pos_vs.x / 16., pos_vs.z / 16.));//vec4(a, a, a, 1);
+	
 	float xr = pos_vs.x / 16.;
 	float zr = pos_vs.z / 16.;
 
@@ -22,8 +25,7 @@ void main(void) {
 	x *= 16.;
 	z *= 16.;
 	
-	color_out = getColor(pos_vs.x, pos_vs.z);
-	/*float ax = abs(x2);
+	float ax = abs(x2);
  	float az = abs(z2);
 	
 	float ls = -x2 * (1 - az);
@@ -70,7 +72,7 @@ void main(void) {
 		color_out.b += (h / 2) + 0.4;
 	}
 		
-	color_out *= normal_vs.y;*/
+	color_out *= normal_vs.y;
 }
 
 vec4 getColor(float x, float z) {

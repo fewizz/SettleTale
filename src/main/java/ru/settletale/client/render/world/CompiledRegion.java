@@ -35,7 +35,7 @@ public class CompiledRegion {
 	Texture2D textureIDs;
 	static Texture1D textureBiomes;
 	static Texture2D textureGrass;
-	static ByteBuffer textureIDsTempBuffer = BufferUtils.createByteBuffer(18 * 18);
+	static ByteBuffer textureIDsTempBuffer = BufferUtils.createByteBuffer(18 * 18 * 5);
 	static ShaderProgram program;
 	int indexCount = 0;
 
@@ -54,12 +54,12 @@ public class CompiledRegion {
 			textureGrass = TextureLoader.textures.get("textures/grass.png");
 		}
 		if (textureBiomes == null) {
-			textureBiomes = new Texture1D(256).gen().internalFormat(GL11.GL_RGB).bufferFormat(GL11.GL_RGB).bufferType(GL11.GL_UNSIGNED_BYTE);
+			textureBiomes = new Texture1D(256).gen().internalFormat(GL11.GL_RGB8).bufferFormat(GL11.GL_RGB).bufferType(GL11.GL_UNSIGNED_BYTE);
 
 			ByteBuffer bb = BufferUtils.createByteBuffer(256 * 3);
 
 			for (Biome b : Biomes.biomes) {
-				if(b == null) {
+				if (b == null) {
 					continue;
 				}
 				Color c = b.color;
@@ -83,6 +83,7 @@ public class CompiledRegion {
 		ib = new ElementArrayBufferObject().gen();
 
 		vao = new VertexArrayObject().gen();
+		vao.bind();
 
 		pbo.data(pa.getBuffer(WorldRenderer.POSITION), Usage.STATIC_DRAW);
 		nbo.data(pa.getBuffer(WorldRenderer.NORMAL), Usage.STATIC_DRAW);
@@ -94,6 +95,7 @@ public class CompiledRegion {
 
 		vao.vertexAttribPointer(nbo, 1, 3, GL11.GL_FLOAT, false, 0);
 		vao.enableVertexAttribArray(1);
+		vao.unbind();
 
 		indexCount = pa.getIndexCount();
 
@@ -102,11 +104,13 @@ public class CompiledRegion {
 		int i = 0;
 		for (int z = -1; z < 17; z++) {
 			for (int x = -1; x < 17; x++) {
-				textureIDsTempBuffer.put(i, (byte) region.getBiome(x, z).getBiomeID());
-
+				textureIDsTempBuffer.put(i + 0, (byte) region.getBiome(x, z).getBiomeID());
 				i++;
 			}
+			i += 2; // WTF?
 		}
+
+		GL.debug("CR compile texture");
 		textureIDs.buffer(textureIDsTempBuffer);
 		textureIDs.loadData();
 
@@ -114,6 +118,10 @@ public class CompiledRegion {
 	}
 
 	public void render() {
+		program.bind();
+		GL.debug("CR rend shader start");
+		vao.bind();
+
 		GL.debug("CR bind texture units start");
 		GL13.glActiveTexture(GL13.GL_TEXTURE0);
 		textureIDs.bind();
@@ -121,12 +129,10 @@ public class CompiledRegion {
 		textureBiomes.bind();
 		GL13.glActiveTexture(GL13.GL_TEXTURE2);
 		textureGrass.bind();
+
 		GL.debug("CR bind texture units end");
-		
-		vao.bind();
+
 		GL.debug("CR rend start");
-		program.bind();
-		GL.debug("CR rend shader start");
 		ib.bind();
 		GL11.glDrawElements(GL11.GL_QUADS, indexCount, GL11.GL_UNSIGNED_SHORT, MemoryUtil.NULL);
 		GL.debug("CR rend end");

@@ -5,8 +5,12 @@ public class TickTimer {
 	long startTimeNano;
 	public long lastTime;
 
-	public TickTimer(int countOfTicksPerSecond) {
+	public TickTimer(float countOfTicksPerSecond) {
 		this.waitTimeNano = (long) ((1D / (double) countOfTicksPerSecond) * 1_000_000_000D);
+	}
+	
+	public TickTimer(int countOfTicksPerSecond) {
+		this((float)countOfTicksPerSecond);
 	}
 	
 	public void start() {

@@ -70,6 +70,7 @@ public class WorldRenderer implements IRegionManageristener {
 				regionsToRender.put(r.coord, cr);
 			}
 			cr.render();
+
 		}
 		
 		GL.bindDefaultVAO();
@@ -189,8 +190,8 @@ public class WorldRenderer implements IRegionManageristener {
 				if(regionsToRender.containsKey(r.coord)) {
 					regionsToRender.get(r.coord).clear();
 					regionsToRender.remove(r.coord);
-					r.threads--;
 				}
+				r.threads--;
 			}
 		});
 		

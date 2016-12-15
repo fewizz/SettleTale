@@ -16,7 +16,7 @@ import ru.settletale.world.World;
 import ru.settletale.world.region.RegionManagerOnePlayer;
 
 public class PlatformClient implements IPlatform {
-	public static int maxFPS = 100;
+	public static float maxFPS = 100F;
 	private static RenderThread renderThread;
 	World world;
 	
@@ -67,8 +67,8 @@ public class PlatformClient implements IPlatform {
 		glfwWindowHint(GLFW_VISIBLE, GLFW_TRUE);
 		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
-		Display.window = glfwCreateWindow(720, 480, "Settle Tale", MemoryUtil.NULL, MemoryUtil.NULL);
-		Display.onWindowResize(720, 480);
+		Display.window = glfwCreateWindow(1000, 800, "Settle Tale", MemoryUtil.NULL, MemoryUtil.NULL);
+		Display.onWindowResize(1000, 800);
 		if (Display.window == MemoryUtil.NULL)
 			throw new RuntimeException("Failed to create the GLFW window");
 		

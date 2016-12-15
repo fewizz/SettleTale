@@ -11,7 +11,7 @@ public class RegionCache {
 	}
 	
 	public static Region getOrCreateNewRegion(int x, int z) {
-		Region r = null;
+		/*Region r = null;
 		
 		while(!cache.isEmpty()) {
 			r = cache.poll();
@@ -30,7 +30,7 @@ public class RegionCache {
 			r.initInfo(x, z);
 		}
 		
-		return r;
+		return r;*/return new Region(x, z);
 	}
 	
 	public static void returnRegion(Region r) {
