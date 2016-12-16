@@ -25,7 +25,7 @@ public class RegionGenerator {
 	
 	public RegionGenerator() {
 		mainLayer = LayerSmoother.getLayer(2,
-						LayerScaleX2Random.getLayer(1,
+						LayerScaleX2Random.getLayer(2,
 								LayerSmoother.getLayer(2,
 										LayerScaleX2Random.getLayer(2,
 												LayerSmoother.getLayer(1,
@@ -44,7 +44,7 @@ public class RegionGenerator {
 	static float[] heightsOrgnl = new float[HEIGHTS_LEN_EXT_SMOOTH * HEIGHTS_LEN_EXT_SMOOTH];
 
 	public Region generateRegion(int cx, int cz) {
-		Region reg = RegionCache.getOrCreateNewRegion(cx, cz);//new Region(cx, cz);
+		Region reg = RegionCache.getOrCreateNewRegion(cx, cz);
 		biomeIDs = mainLayer.getValues((cx * 16) - SMOOTH_EXT, (cz * 16) - SMOOTH_EXT, CHUNK_LEN_EXT_SMOOTH + 1, CHUNK_LEN_EXT_SMOOTH + 1);
 		biomeIDsNorm = new byte[CHUNK_LEN_EXT * CHUNK_LEN_EXT];
 		float[] heights = new float[HEIGHTS_LEN_EXT * HEIGHTS_LEN_EXT];

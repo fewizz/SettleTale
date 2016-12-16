@@ -31,6 +31,12 @@ public class PrimitiveArray {
 				arr.addStorage(new VertexStorageFloat(3));
 			}
 		},
+		FLOAT_1 {
+			@Override
+			void setBool(PrimitiveArray arr) {
+				arr.addStorage(new VertexStorageFloat(1));
+			}
+		},
 		BYTE_4 {
 			@Override
 			void setBool(PrimitiveArray arr) {
@@ -62,6 +68,10 @@ public class PrimitiveArray {
 		storages[storage].data(f1, f2, f3, f4);
 	}
 
+	public void data(int storage, float f1) {
+		this.data(storage, f1, 0, 0, 0);
+	}
+	
 	public void data(int storage, float f1, float f2, float f3) {
 		this.data(storage, f1, f2, f3, 0);
 	}

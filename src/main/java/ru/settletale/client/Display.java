@@ -22,7 +22,7 @@ public class Display {
 			public void run() {
 				glViewport(0, 0, width, height);
 				GL.projMatrix.identity();
-				GL.projMatrix.perspective((float) Math.toRadians(120), (float) width / (float) height, 1, 1000);
+				GL.projMatrix.perspective((float) Math.toRadians(120), (float) width / (float) height, 0.5F, 1000);
 				GL.updateTransformUniformBlock();
 				GL.uniformDisplaySizeBuffer.put(0, width);
 				GL.uniformDisplaySizeBuffer.put(1, height);

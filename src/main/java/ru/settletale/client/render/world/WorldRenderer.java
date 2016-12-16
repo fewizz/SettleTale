@@ -26,7 +26,7 @@ public class WorldRenderer implements IRegionManageristener {
 	public static final int POSITION = 0;
 	public static final int NORMAL = 1;
 	
-	public static PrimitiveArray pa = new PrimitiveArray(Storage.FLOAT_3, Storage.FLOAT_3);
+	public static PrimitiveArray pa = new PrimitiveArray(Storage.FLOAT_3, Storage.FLOAT_1);
 	static ShaderProgram programSky;
 
 	public static void init() {
@@ -161,7 +161,7 @@ public class WorldRenderer implements IRegionManageristener {
 				float pzf = r.z * 16 + pz;
 				
 				pa.data(POSITION, pxf, r.getHeight(x, z), pzf);
-				pa.data(NORMAL, normal.x, normal.y, normal.z);
+				pa.data(NORMAL, normal.y);
 				
 				pa.endVertex();
 			}

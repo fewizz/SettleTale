@@ -52,9 +52,6 @@ public class RenderThread extends Thread {
 	}
 
 	private void callRunnables() {
-		if (runnableQueue.size() == 0) {
-			return;
-		}
 		for (Runnable run : runnableQueue) {
 			run.run();
 			runnableQueue.remove();

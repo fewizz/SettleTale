@@ -4,9 +4,9 @@
 #extension GL_ARB_shading_language_420pack : enable
 
 layout (location = 0) in vec3 pos;
-layout (location = 1) in vec3 normal;
+layout (location = 1) in float normal;
 
-out vec3 normal_vs;
+out float normal_vs;
 out vec3 pos_vs;
 
 layout (binding = 0, std140) uniform Transform {

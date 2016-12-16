@@ -25,18 +25,17 @@ import ru.settletale.client.vertex.PrimitiveArray;
 import ru.settletale.registry.Biomes;
 
 public class CompiledRegion {
+	static Texture1D textureBiomes;
+	static Texture2D textureGrass;
+	static ByteBuffer textureIDsTempBuffer = BufferUtils.createByteBuffer(18 * 20);
+	static ShaderProgram program;
+	
 	Region region;
 	VertexBufferObject pbo;
 	VertexBufferObject nbo;
-
 	ElementArrayBufferObject ib;
-
 	VertexArrayObject vao;
 	Texture2D textureIDs;
-	static Texture1D textureBiomes;
-	static Texture2D textureGrass;
-	static ByteBuffer textureIDsTempBuffer = BufferUtils.createByteBuffer(18 * 18 * 5);
-	static ShaderProgram program;
 	int indexCount = 0;
 
 	public CompiledRegion(Region region) {
@@ -93,7 +92,7 @@ public class CompiledRegion {
 		vao.vertexAttribPointer(pbo, 0, 3, GL11.GL_FLOAT, false, 0);
 		vao.enableVertexAttribArray(0);
 
-		vao.vertexAttribPointer(nbo, 1, 3, GL11.GL_FLOAT, false, 0);
+		vao.vertexAttribPointer(nbo, 1, 1, GL11.GL_FLOAT, false, 0);
 		vao.enableVertexAttribArray(1);
 		vao.unbind();
 

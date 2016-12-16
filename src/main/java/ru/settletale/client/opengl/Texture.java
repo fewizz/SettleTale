@@ -72,11 +72,23 @@ public abstract class Texture<T extends Texture<?>> extends NameableAdapter {
 	public T setDefaultParams() {
 		bind();
 		
-		GL11.glTexParameteri(type, GL11.GL_TEXTURE_WRAP_S, GL11.GL_REPEAT);
-		GL11.glTexParameteri(type, GL11.GL_TEXTURE_WRAP_T, GL11.GL_REPEAT);
-		GL11.glTexParameteri(type, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
-		GL11.glTexParameteri(type, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
+		parameter(GL11.GL_TEXTURE_WRAP_S, GL11.GL_REPEAT);
+		parameter(GL11.GL_TEXTURE_WRAP_T, GL11.GL_REPEAT);
+		parameter(GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
+		parameter(GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
 		
+		return getThis();
+	}
+	
+	public T parameter(int pname, int param) {
+		bind();
+		GL11.glTexParameteri(type, pname, param);
+		return getThis();
+	}
+	
+	public T parameter(int pname, float param) {
+		bind();
+		GL11.glTexParameterf(type, pname, param);
 		return getThis();
 	}
 	

@@ -11,7 +11,7 @@ public class LayerSmoother extends Layer {
 		int parentWidth = width + 2;
 		int parentLength = length + 2;
 		byte[] valuesParent = parent.getValues(x - 1, z - 1, parentWidth, parentLength);
-		byte[] values = getByteArray(width, length);//new byte[width * length];
+		byte[] values = getByteArray(width, length);
 		
 		int index = -1;
 		for(int z2 = 1; z2 < parentLength - 1; z2++) {		
