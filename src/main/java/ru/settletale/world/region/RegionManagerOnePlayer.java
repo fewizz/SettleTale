@@ -8,7 +8,7 @@ import ru.settletale.util.SSMath;
 
 public class RegionManagerOnePlayer extends RegionManagerAbstract {
 	protected RegionGenerator regionGenerator;
-	public static final int REGION_LOAD_RADIUS = 40;
+	public static final int REGION_LOAD_RADIUS = 20;
 
 	public RegionManagerOnePlayer() {
 		super();

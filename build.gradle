@@ -15,13 +15,13 @@ configurations {
 }
 
 dependencies {
-	shadow 'org.lwjgl:lwjgl:3.0.0+'
-	shadow 'org.joml:joml:1.8.2'
+	//shadow 'org.lwjgl:lwjgl:3.1.0+'
+	shadow 'org.joml:joml:1.9.0'
 	shadow 'io.netty:netty-microbench:4.1.4.Final'
 	shadow 'io.github.lukehutch:fast-classpath-scanner:2.0.1'
 	shadow 'com.koloboke:koloboke-api-jdk8:1.0.0'
     shadow 'com.koloboke:koloboke-impl-jdk8:1.0.0'
-	shadow files('libs/lwjgl-natives.jar')
+	shadow files(file('libs/').listFiles())
 }
 
 jar {

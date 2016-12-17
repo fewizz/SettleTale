@@ -4,71 +4,48 @@
 out vec4 color_out;
 in float normal_vs;
 in vec3 pos_vs;
-vec4 getColor(int x, int z, float scale);
+vec3 getColor(vec2 v);
 
 layout(binding = 0) uniform sampler2D texIDs;
 layout(binding = 1) uniform sampler1D texBiomes;
 layout(binding = 2) uniform sampler2D texTerr;
 
-void main(void) {
-	float xr = pos_vs.x / 16.;
-	float zr = pos_vs.z / 16.;
+float rand(vec2 p) {
+	return fract(sin(dot(p,vec2(419.2,371.9))) * 833458.57832);
+}
 
-	float x2 = pos_vs.x - floor(pos_vs.x); // 31.1 - 31 = 0.1
-	float z2 = pos_vs.z - floor(pos_vs.z);
+vec3 iqnoise(vec2 pos) {
+	vec2 cell = floor(pos);
+	vec2 cellOffset = fract(pos);
 	
-	float xp = xr - floor(xr);
-	float zp = zr - floor(zr);
-	xp *= 16.;
-	zp *= 16.;
-	x2-=0.5;
-	z2-=0.5;
+	vec3 value = vec3(0);
+	float accum = 0.0;
 	
-	int x = int(xp);
-	int z = int(zp);
-	
-	float ax = abs(x2);
- 	float az = abs(z2);
-	
-	float ls = -x2 * (1 - az);
- 	float lus = -x2 * z2;
- 	float us = (1 - ax) * z2;
- 	float urs = x2 * z2;
- 	float rs = x2 * (1 - az);
- 	float rds = x2 * -z2;
- 	float ds = (1 - ax) * -z2;
- 	float dls = -x2 * -z2;
- 	
- 	if(x2 < 0) {
- 		urs = 0;
- 		rs = 0;
- 		rds = 0;
- 	}
- 	if(x2 > 0) {
- 		lus = 0;
- 		ls = 0;
- 		dls = 0;
- 	}
- 	if(z2 < 0) {
- 		lus = 0;
- 		us = 0;
- 		urs = 0;
- 	}
- 	if(z2 > 0) {
- 		rds = 0;
- 		ds = 0;
- 		dls = 0;
- 	}
- 	
- 	color_out = getColor(x - 1, z, ls) + getColor(x - 1, z + 1, lus) + getColor(x, z + 1, us) + getColor(x + 1, z + 1, urs) +
- 				getColor(x + 1, z, rs) + getColor(x + 1, z - 1, rds) + getColor(x, z - 1, ds) + getColor(x - 1, z - 1, dls);
- 				
- 	color_out += getColor(x, z, ((1 - ax) * (1 - az)));
+	for(int x=-1; x<=1; x++ )
+	for(int y=-1; y<=1; y++ )
+	{
+		vec2 samplePos = vec2(float(y), float(x));
+
+		float centerDistance = length(samplePos - cellOffset);
+
+		float sample = 1.0 - smoothstep(0.0, /*1.414*/1.2, centerDistance);
+
+		vec3 color = getColor(cell + samplePos);
+		value += color * sample;
+		accum += sample;
+	}
+
+	return value/accum;
+}
+
+void main(void) {
+	vec2 pos = fract(pos_vs.xz / 16.) * 16.;
+	vec3 color = iqnoise(pos);
+ 	color_out = vec4(color, 1);
 
 	float h = (((pos_vs.y / 2) * (pos_vs.y / 2)) / 150.) - 1;
 	
-	color_out *= texture(texTerr, vec2(xr, zr));
-	color_out *= h - 0.1;
+	color_out *= texture(texTerr, pos);
 	
 	if(h < 0.8) {
 		color_out.b += (h / 2) + 0.4;
@@ -77,9 +54,6 @@ void main(void) {
 	color_out *= normal_vs;
 }
 
-vec4 getColor(int x, int z, float scale) {
-	if(scale == 0) {
-		return vec4(0.0);
-	}
-	return texelFetch(	texBiomes, int(texelFetch(texIDs, ivec2(x + 1, z + 1), 0).r * 255.), 0) * scale;
+vec3 getColor(vec2 v) {
+	return texelFetch(	texBiomes, int(texelFetch(texIDs, ivec2(v + 1), 0).r * 255.), 0).rgb;
 }
