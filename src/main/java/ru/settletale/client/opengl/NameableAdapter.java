@@ -1,15 +1,22 @@
 package ru.settletale.client.opengl;
 
-public abstract class NameableAdapter implements INameable {
+public abstract class NameableAdapter<T> implements INameable<T> {
 	protected int id = -1;
 	
-	public NameableAdapter(int id) {
-		this.id = id;
+	@Override
+	public T gen() {
+		id = internalGet();
+		return getThis();
 	}
 	
 	@Override
 	public int getID() {
 		return id;
+	}
+	
+	@SuppressWarnings("unchecked")
+	protected T getThis() {
+		return (T) this;
 	}
 	
 	@Override
@@ -38,6 +45,7 @@ public abstract class NameableAdapter implements INameable {
 	
 	public abstract void setLastBoundID(int id);
 	public abstract int getLastBoundID();
+	public abstract int internalGet();
 	public abstract void bindInternal();
 	public abstract void unbindInternal();
 }

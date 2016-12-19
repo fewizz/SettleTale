@@ -22,12 +22,12 @@ public class Texture2DArray extends Texture<Texture2DArray> {
 	}
 
 	@Override
-	protected void dataInternal() {
+	protected void internalLoadData() {
 		GL12.glTexImage3D(type, 0, internalFormat, width, height, depth, 0, bufferFormat, bufferType, this.buffer);
 	}
 
 	@Override
-	protected void subDataInternal() {
+	protected void internalLoadSubData() {
 		GL12.glTexSubImage3D(type, 0, 0, 0, zOffset, width, height, depth, bufferFormat, bufferType, this.buffer);
 	}
 

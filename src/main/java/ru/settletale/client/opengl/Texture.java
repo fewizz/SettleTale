@@ -1,39 +1,31 @@
 package ru.settletale.client.opengl;
 
-import java.nio.ByteBuffer;
-
 import org.lwjgl.opengl.GL11;
 
-public abstract class Texture<T extends Texture<?>> extends NameableAdapter {
+public abstract class Texture<T> extends NameableDataContainerAdapter<T> {
 	static int lastID = 0;
 	public final int type;
-	public ByteBuffer buffer;
 	public int internalFormat;
 	public int bufferFormat;
 	public int bufferType;
 	
 	public Texture(int type) {
-		super(-1);
 		this.type = type; 
 		internalFormat = GL11.GL_RGBA;
 		bufferFormat = GL11.GL_RGBA;
 		bufferType = GL11.GL_FLOAT;
 	}
 	
-	@SuppressWarnings("unchecked")
-	private T getThis() {
-		return (T) this;
-	}
-	
+	@Override
 	public T gen() {
-		this.id = GL11.glGenTextures();
+		super.gen();
 		setDefaultParams();
 		return getThis();
 	}
 	
-	public T buffer(ByteBuffer buffer) {
-		this.buffer = buffer;
-		return getThis();
+	@Override
+	public int internalGet() {
+		return GL11.glGenTextures();
 	}
 	
 	public T internalFormat(int internalFormat) {
@@ -51,23 +43,27 @@ public abstract class Texture<T extends Texture<?>> extends NameableAdapter {
 		return getThis();
 	}
 	
+	@Override
 	public T loadData() {
 		bind();
-		dataInternal();
+		internalLoadData();
 		unbind();
+		
 		return getThis();
 	}
 	
+	@Override
 	public T loadSubData() {
 		bind();
-		subDataInternal();
+		internalLoadSubData();
 		unbind();
+		
 		return getThis();
 	}
 	
-	abstract protected void dataInternal();
+	abstract protected void internalLoadData();
 	
-	abstract protected void subDataInternal();
+	abstract protected void internalLoadSubData();
 	
 	public T setDefaultParams() {
 		bind();

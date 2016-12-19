@@ -2,7 +2,7 @@ package ru.settletale.client.vertex;
 
 import java.nio.ByteBuffer;
 
-import org.lwjgl.BufferUtils;
+import org.lwjgl.system.MemoryUtil;
 
 import ru.settletale.util.DirectByteBufferUtils;
 
@@ -14,8 +14,14 @@ public class PrimitiveArray {
 	private int lastAddedStorage = 0;
 
 	public PrimitiveArray(Storage... storages) {
-		ib = BufferUtils.createByteBuffer(4096);
-		ib.limit(0);
+		this(true, storages);
+	}
+	
+	public PrimitiveArray(boolean indexed, Storage... storages) {
+		if(indexed) {
+			ib = MemoryUtil.memAlloc(4096);
+			ib.limit(0);
+		}
 
 		this.storages = new IVertexStorage[storages.length];
 
@@ -25,6 +31,12 @@ public class PrimitiveArray {
 	}
 
 	public static enum Storage {
+		FLOAT_4 {
+			@Override
+			void setBool(PrimitiveArray arr) {
+				arr.addStorage(new VertexStorageFloat(4));
+			}
+		},
 		FLOAT_3 {
 			@Override
 			void setBool(PrimitiveArray arr) {
@@ -92,7 +104,7 @@ public class PrimitiveArray {
 		lastVertex++;
 	}
 
-	public void index(int index) {
+	public void index(int vertexIndex) {
 		int id = lastIndex;
 
 		int sizeBytes = 1 * Short.BYTES;
@@ -101,11 +113,11 @@ public class PrimitiveArray {
 		int limit = id + sizeBytes;
 
 		if (limit > ib.capacity())
-			ib = DirectByteBufferUtils.grow(ib, 1.5F);
+			DirectByteBufferUtils.growBuffer(ib, 1.5F);
 
 		ib.limit(Math.max(ib.limit(), limit));
 
-		ib.putShort(id, (short) index);
+		ib.putShort(id, (short) vertexIndex);
 
 		ib.position(0);
 

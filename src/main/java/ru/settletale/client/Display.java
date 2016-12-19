@@ -24,8 +24,6 @@ public class Display {
 				GL.projMatrix.identity();
 				GL.projMatrix.perspective((float) Math.toRadians(120), (float) width / (float) height, 0.5F, 1000);
 				GL.updateTransformUniformBlock();
-				GL.uniformDisplaySizeBuffer.put(0, width);
-				GL.uniformDisplaySizeBuffer.put(1, height);
 				GL.updateDisplaySizeUniformBlock();
 			}
 

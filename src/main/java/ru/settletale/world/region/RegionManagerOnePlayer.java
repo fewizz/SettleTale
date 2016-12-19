@@ -3,7 +3,7 @@ package ru.settletale.world.region;
 import java.util.Iterator;
 
 import ru.settletale.client.Camera;
-import ru.settletale.util.IRegionManageristener;
+import ru.settletale.util.IRegionManagerListener;
 import ru.settletale.util.SSMath;
 
 public class RegionManagerOnePlayer extends RegionManagerAbstract {
@@ -48,7 +48,7 @@ public class RegionManagerOnePlayer extends RegionManagerAbstract {
 					this.regions.put(region.coord, region);
 					region.threads++;
 					
-					for (IRegionManageristener listener : listeners) {
+					for (IRegionManagerListener listener : listeners) {
 						listener.onRegionAdded(region);
 					}
 				}
@@ -62,7 +62,7 @@ public class RegionManagerOnePlayer extends RegionManagerAbstract {
 				it.remove();
 				region.threads--;
 				
-				for (IRegionManageristener listener : listeners) {
+				for (IRegionManagerListener listener : listeners) {
 					listener.onRegionRemoved(region);
 				}
 				

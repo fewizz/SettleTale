@@ -6,12 +6,12 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import com.koloboke.collect.map.hash.HashLongObjMap;
 import com.koloboke.collect.map.hash.HashLongObjMaps;
 
-import ru.settletale.util.IRegionManageristener;
+import ru.settletale.util.IRegionManagerListener;
 import ru.settletale.util.SSMath;
 
 public abstract class RegionManagerAbstract {
 	public final HashLongObjMap<Region> regions;
-	public final List<IRegionManageristener> listeners;
+	public final List<IRegionManagerListener> listeners;
 	
 	public RegionManagerAbstract() {
 		regions = HashLongObjMaps.newMutableMap();

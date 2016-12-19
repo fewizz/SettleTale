@@ -84,10 +84,10 @@ public class CompiledRegion {
 		vao = new VertexArrayObject().gen();
 		vao.bind();
 
-		pbo.data(pa.getBuffer(WorldRenderer.POSITION), Usage.STATIC_DRAW);
-		nbo.data(pa.getBuffer(WorldRenderer.NORMAL), Usage.STATIC_DRAW);
+		pbo.buffer(pa.getBuffer(WorldRenderer.POSITION)).usage(Usage.STATIC_DRAW).loadData();
+		nbo.buffer(pa.getBuffer(WorldRenderer.NORMAL)).usage(Usage.STATIC_DRAW).loadData();
 
-		ib.data(pa.getIndexBuffer(), Usage.STATIC_DRAW);
+		ib.buffer(pa.getIndexBuffer()).usage(Usage.STATIC_DRAW).loadData();
 
 		vao.vertexAttribPointer(pbo, 0, 3, GL11.GL_FLOAT, false, 0);
 		vao.enableVertexAttribArray(0);

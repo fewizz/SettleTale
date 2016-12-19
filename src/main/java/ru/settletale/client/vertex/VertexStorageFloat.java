@@ -28,7 +28,7 @@ public class VertexStorageFloat extends VertexStorageAbstarct implements IVertex
 		int limit = id + sizeBytes;
 		
 		if(limit > buff.capacity())
-			buff = DirectByteBufferUtils.grow(buff, 1.5F);
+			DirectByteBufferUtils.growBuffer(buff, 1.5F);
 		
 		buff.limit(Math.max(buff.limit(), limit));
 		

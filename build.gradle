@@ -2,11 +2,12 @@ apply plugin: 'java'
 apply plugin: 'eclipse'
 
 repositories {
-    jcenter()
+	mavenCentral()
+	jcenter()
 	
 	maven {
-          url "http://localhost:8081/nexus/content/groups/public"
-    }
+		url "http://localhost:8081/nexus/content/groups/public"
+	}
 }
 
 configurations {
@@ -15,12 +16,14 @@ configurations {
 }
 
 dependencies {
-	//shadow 'org.lwjgl:lwjgl:3.1.0+'
+	shadow 'org.lwjgl:lwjgl:3.1.0'
+	shadow 'org.lwjgl:lwjgl-glfw:3.1.0'
+	shadow 'org.lwjgl:lwjgl-opengl:3.1.0'
 	shadow 'org.joml:joml:1.9.0'
 	shadow 'io.netty:netty-microbench:4.1.4.Final'
 	shadow 'io.github.lukehutch:fast-classpath-scanner:2.0.1'
 	shadow 'com.koloboke:koloboke-api-jdk8:1.0.0'
-    shadow 'com.koloboke:koloboke-impl-jdk8:1.0.0'
+	shadow 'com.koloboke:koloboke-impl-jdk8:1.0.0'
 	shadow files(file('libs/').listFiles())
 }
 

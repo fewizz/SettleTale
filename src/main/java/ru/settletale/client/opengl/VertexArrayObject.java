@@ -5,16 +5,12 @@ import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL45;
 import org.lwjgl.system.MemoryUtil;
 
-public class VertexArrayObject extends NameableAdapter {
+public class VertexArrayObject extends NameableAdapter<VertexArrayObject> {
 	public static int lastID = 0;
 	
-	public VertexArrayObject() {
-		super(-1);
-	}
-	
-	public VertexArrayObject gen() {
-		id = GL30.glGenVertexArrays();
-		return this;
+	@Override
+	public int internalGet() {
+		return GL30.glGenVertexArrays();
 	}
 	
 	public void vertexAttribPointer(BufferObject<?> buffer, int index, int size, int type, boolean normalized, int stride) {

@@ -15,10 +15,10 @@ import ru.settletale.client.vertex.PrimitiveArray;
 import ru.settletale.client.vertex.PrimitiveArray.Storage;
 import ru.settletale.client.opengl.Shader;
 import ru.settletale.client.opengl.ShaderProgram;
-import ru.settletale.util.IRegionManageristener;
+import ru.settletale.util.IRegionManagerListener;
 import ru.settletale.world.region.Region;
 
-public class WorldRenderer implements IRegionManageristener {
+public class WorldRenderer implements IRegionManagerListener {
 	public static final WorldRenderer INSTANCE = new WorldRenderer();
 	public static HashLongObjMap<Region> regions;
 	public static HashLongObjMap<CompiledRegion> regionsToRender;
@@ -61,8 +61,9 @@ public class WorldRenderer implements IRegionManageristener {
 			CompiledRegion cr = regionsToRender.get(r.coord);
 			
 			if(cr == null) {
-				renderRegion(r);
 				GL.debug("Fill buffers");
+				renderRegion(r);
+				GL.debug("Fill VBOs");
 				cr = new CompiledRegion(r);
 				cr.compile(pa);
 				GL.debug("Array clear");
@@ -83,6 +84,8 @@ public class WorldRenderer implements IRegionManageristener {
 	
 	private static void renderRegion(Region r) {
 		fillBuffers(r);
+		
+		GL.debug("Fill buffers0");
 		
 		for (int x = 0; x < 16; x++) {
 			for (int z = 0; z < 16; z++) {

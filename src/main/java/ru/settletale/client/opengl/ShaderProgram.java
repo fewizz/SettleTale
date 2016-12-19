@@ -3,11 +3,12 @@ package ru.settletale.client.opengl;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 
-public class ShaderProgram extends NameableAdapter {
+public class ShaderProgram extends NameableAdapter<ShaderProgram> {
 	public static int lastID = -1;
 	
-	public ShaderProgram() {
-		super(-1);
+	@Override
+	public int internalGet() {
+		return GL20.glCreateProgram();
 	}
 	
 	public void attachShader(Shader shader) {
@@ -25,11 +26,6 @@ public class ShaderProgram extends NameableAdapter {
 			System.err.println("Program not compiled!");
 			System.err.println(GL20.glGetProgramInfoLog(id));
 		}
-	}
-	
-	public ShaderProgram gen() {
-		this.id = GL20.glCreateProgram();
-		return this;
 	}
 
 	@Override
