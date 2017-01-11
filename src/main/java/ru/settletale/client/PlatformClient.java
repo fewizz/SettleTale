@@ -9,7 +9,7 @@ import static org.lwjgl.glfw.GLFW.*;
 import ru.settletale.IPlatform;
 import ru.settletale.client.render.RenderThread;
 import ru.settletale.client.render.world.WorldRenderer;
-import ru.settletale.client.resource.ResourceLoader;
+import ru.settletale.client.resource.ResourceManager;
 import ru.settletale.util.Side;
 import ru.settletale.util.TickTimer;
 import ru.settletale.world.World;
@@ -25,7 +25,7 @@ public class PlatformClient implements IPlatform {
 		renderThread = new RenderThread();
 		initLwjgl();
 		initGlfw();
-		ResourceLoader.init();
+		ResourceManager.init();
 		System.gc();
 		
 		/** Creating world **/

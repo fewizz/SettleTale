@@ -1,10 +1,8 @@
 package ru.settletale.client.resource;
 
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,59 +10,72 @@ import javax.imageio.ImageIO;
 
 import org.lwjgl.opengl.GL11;
 
+import ru.settletale.client.PlatformClient;
 import ru.settletale.client.opengl.Texture2D;
 
-public class TextureLoader {
+public class TextureLoader extends ResourceLoaderAbstract {
 	private static final Map<String, Texture2D> texturesToRegister = new HashMap<>();
 	public static final Map<String, Texture2D> textures = new HashMap<>();
 
-	static void loadTexture(String id, Path path) {
-		System.out.println("Loading texture: " + id);
-		
+	@Override
+	public String getRequiredExtension() {
+		return "png";
+	}
+	
+	@Override
+	public void loadResource(ResourceFile resourceFile) {
+		System.out.println("Loading texture: " + resourceFile.key);
+
 		BufferedImage image = null;
-		
+
 		try {
-			File fileToRead = new File(path.toString() + "/", id);
-			image = ImageIO.read(fileToRead);
+			image = ImageIO.read(resourceFile.fullPath);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
+
 		int width = image.getWidth();
 		int height = image.getHeight();
 		int size = width * height;
 		ByteBuffer buffer = ByteBuffer.allocateDirect(size * 4);
-		
+
 		int index = 0;
-		for(int y = 0; y < height; y++) {
-			for(int x = 0; x < width; x++) {
+		for (int y = 0; y < height; y++) {
+			for (int x = 0; x < width; x++) {
 				int color = image.getRGB(x, height - y - 1);
 				int r = (color >>> 16) & 0xFF;
 				int g = (color >>> 8) & 0xFF;
 				int b = color & 0xFF;
 				int a = (color >>> 24) & 0xFF;
-				
+
 				buffer.putInt(index, (r << 24) | (g << 16) | (b << 8) | a);
 				index += 4;
 			}
 		}
-		
+
 		Texture2D tex = new Texture2D(width, height);
 		tex.buffer = buffer;
 		tex.bufferType = GL11.GL_UNSIGNED_BYTE;
 
-		texturesToRegister.put(id.replace("\\", "/"), tex);
+		texturesToRegister.put(resourceFile.key, tex);
 	}
-	
+
+	@Override
+	public void onResourcesLoaded() {
+		PlatformClient.runInRenderThread(() -> {
+			TextureLoader.registerTextures();
+		});
+	}
+
 	static void registerTextures() {
-		for(Map.Entry<String, Texture2D> entry : texturesToRegister.entrySet()) {
+		for (Map.Entry<String, Texture2D> entry : texturesToRegister.entrySet()) {
 			Texture2D tex = entry.getValue();
 			tex.gen().setDefaultParams();
 			tex.loadData();
-			
+
 			textures.put(entry.getKey(), tex);
 		}
-		
+
 		texturesToRegister.clear();
 	}
 }

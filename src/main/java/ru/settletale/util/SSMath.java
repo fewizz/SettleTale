@@ -26,4 +26,22 @@ public class SSMath {
 		}
 		return (int)f;
 	}
+	
+	public static float fract(float x) {
+		return (float) (x - Math.floor(x));
+	}
+	
+	public static float dot(float x1, float y1, float x2, float y2) {
+		return x1 * y1 + x2 * y2;
+	}
+	
+	public static float smoothstep(float edge0, float edge1, float x) {
+		float t;
+	    t = clamp((x - edge0) / (edge1 - edge0), 0, 1);
+	    return t * t * (3 - 2 * t);
+	}
+	
+	public static float clamp(float x, float min, float max) {
+		return Math.max(min, Math.min(x, max));
+	}
 }

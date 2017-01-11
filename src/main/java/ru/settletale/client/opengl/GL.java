@@ -5,13 +5,14 @@ import org.lwjgl.opengl.GL30;
 import org.lwjgl.system.MemoryStack;
 
 import ru.settletale.client.Display;
+import ru.settletale.client.opengl.BufferObject.Usage;
 import ru.settletale.client.opengl.Shader.Type;
 import ru.settletale.client.vertex.PrimitiveArray;
 import ru.settletale.client.vertex.PrimitiveArray.Storage;
 
 public class GL {
-	public static final boolean debug = false;
-	public static final boolean debugOnlyFails = false;
+	public static final boolean debug = true;
+	public static final boolean debugOnlyFails = true;
 	public static int version;
 	public static int versionMajor;
 	public static int versionMinor;
@@ -29,7 +30,7 @@ public class GL {
 	static VertexBufferObject positionBuffer;
 	static VertexBufferObject colorBuffer;
 	static int drawingMode;
-	static int prevVertexCount = 100; // Not true, but...)))
+	static int vertexCount;
 	static byte r = (byte) 0xFF;
 	static byte g = (byte) 0xFF;
 	static byte b = (byte) 0xFF;
@@ -57,8 +58,9 @@ public class GL {
 		program.link();
 		
 		vao = new VertexArrayObject().gen();
-		positionBuffer = new VertexBufferObject().gen();
-		colorBuffer = new VertexBufferObject().gen();
+		
+		positionBuffer = new VertexBufferObject().gen().usage(Usage.DYNAMIC_DRAW);
+		colorBuffer = new VertexBufferObject().gen().usage(Usage.DYNAMIC_DRAW);
 		
 		debug("Init end");
 	}
@@ -97,7 +99,23 @@ public class GL {
 
 	public static void begin(int mode) {
 		drawingMode = mode;
+		vertexCount = 0;
 		pa.clear();
+	}
+	
+	public static void end() {
+		positionBuffer.buffer(pa.getBuffer(POSITION)).loadData();
+		colorBuffer.buffer(pa.getBuffer(COLOR)).loadData();
+		
+		vao.vertexAttribPointer(positionBuffer, 0, 3, GL11.GL_FLOAT, false, 0);
+		vao.enableVertexAttribArray(0);
+		
+		vao.vertexAttribPointer(colorBuffer, 1, 4, GL11.GL_UNSIGNED_BYTE, true, 0);
+		vao.enableVertexAttribArray(1);
+		
+		program.bind();
+		vao.bind();
+		GL11.glDrawArrays(drawingMode, 0, vertexCount);
 	}
 
 	public static void color(float r, float g, float b, float a) {
@@ -111,6 +129,7 @@ public class GL {
 		pa.data(POSITION, x, y, z);
 		pa.data(COLOR, r, g, b, a);
 		pa.endVertex();
+		vertexCount++;
 	}
 
 	public static void debug(String s) {

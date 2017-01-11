@@ -51,6 +51,8 @@ public class CompiledRegion {
 		}
 		if (textureGrass == null) {
 			textureGrass = TextureLoader.textures.get("textures/grass.png");
+			textureGrass.parameter(GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
+			textureGrass.parameter(GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
 		}
 		if (textureBiomes == null) {
 			textureBiomes = new Texture1D(256).gen().internalFormat(GL11.GL_RGB8).bufferFormat(GL11.GL_RGB).bufferType(GL11.GL_UNSIGNED_BYTE);

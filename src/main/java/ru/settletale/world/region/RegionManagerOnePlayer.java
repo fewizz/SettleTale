@@ -24,10 +24,8 @@ public class RegionManagerOnePlayer extends RegionManagerAbstract {
 	public void update() {
 		int regX = SSMath.floor2(Camera.x / 16F);
 		int regZ = SSMath.floor2(Camera.z / 16F);
-
-		for (Region ch : regions.values()) {
-			ch.active = false;
-		}
+		
+		regions.forEach((long key, Region obj) -> obj.active = false);
 
 		for (int x = -REGION_LOAD_RADIUS + regX; x <= REGION_LOAD_RADIUS + regX; x++) {
 			for (int z = -REGION_LOAD_RADIUS + regZ; z <= REGION_LOAD_RADIUS + regZ; z++) {
@@ -70,9 +68,7 @@ public class RegionManagerOnePlayer extends RegionManagerAbstract {
 			}
 		}
 
-		for (Region chunk : regions.values()) {
-			chunk.update();
-		}
+		regions.forEach((long key, Region region) -> region.update());
 	}
 
 	private Region readOrGenerateRegion(int x, int z) {

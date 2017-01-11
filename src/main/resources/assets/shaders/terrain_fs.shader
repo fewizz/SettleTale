@@ -45,7 +45,7 @@ void main(void) {
 
 	float h = (((pos_vs.y / 2) * (pos_vs.y / 2)) / 150.) - 1;
 	
-	color_out *= texture(texTerr, pos);
+	color_out *= texture(texTerr, pos / 2);
 	
 	if(h < 0.8) {
 		color_out.b += (h / 2) + 0.4;

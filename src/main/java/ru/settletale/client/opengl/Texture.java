@@ -66,8 +66,6 @@ public abstract class Texture<T> extends NameableDataContainerAdapter<T> {
 	abstract protected void internalLoadSubData();
 	
 	public T setDefaultParams() {
-		bind();
-		
 		parameter(GL11.GL_TEXTURE_WRAP_S, GL11.GL_REPEAT);
 		parameter(GL11.GL_TEXTURE_WRAP_T, GL11.GL_REPEAT);
 		parameter(GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);

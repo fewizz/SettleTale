@@ -1,36 +1,40 @@
 package ru.settletale.client.resource;
 
-import java.io.File;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
-public class ShaderLoader {
+public class ShaderLoader extends ResourceLoaderAbstract {
 	public static final Map<String, String> shaderSources = new HashMap<>();
+
+	@Override
+	public String getRequiredExtension() {
+		return "shader";
+	}
 	
-	public static void loadShader(String id, Path path) {
-		System.out.println("Loading shader: " + id);
-		Path pathFull = new File(path.toString() + "/" + id).toPath();
+	@Override
+	public void loadResource(ResourceFile resourceFile) {
+		System.out.println("Loading shader: " + resourceFile.key);
 		
-		List<String> list = new ArrayList<>();
-		
-		try {
-			list = Files.lines(pathFull).collect(Collectors.toList());
-		} catch (IOException e) {
-			e.printStackTrace();
+		try(FileReader fr = new FileReader(resourceFile.fullPath); BufferedReader reader = new BufferedReader(fr)) {
+			StringBuilder text = new StringBuilder();
+
+			for (;;) {
+				String line = null;
+				line = reader.readLine();
+
+				if (line == null) {
+					break;
+				}
+
+				text.append(line).append("\n");
+			}
+
+			shaderSources.put(resourceFile.key, text.toString());
+		} catch (IOException e1) {
+			e1.printStackTrace();
 		}
-		
-		StringBuilder text = new StringBuilder();
-		
-		for(String line : list) {
-			text.append(line).append("\n");
-		}
-		
-		shaderSources.put(id.replace("\\", "/"), text.toString());
 	}
 }
