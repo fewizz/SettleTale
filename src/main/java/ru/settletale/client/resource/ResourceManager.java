@@ -48,7 +48,7 @@ public class ResourceManager {
 				continue;
 			}
 
-			File fileAssets = new File(file.getAbsolutePath(), "/assets");
+			File fileAssets = new File(file.getAbsolutePath(), "/assets/");
 
 			if (!fileAssets.exists()) {
 				continue;

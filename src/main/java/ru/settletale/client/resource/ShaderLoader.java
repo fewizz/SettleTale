@@ -22,8 +22,7 @@ public class ShaderLoader extends ResourceLoaderAbstract {
 			StringBuilder text = new StringBuilder();
 
 			for (;;) {
-				String line = null;
-				line = reader.readLine();
+				String line = reader.readLine();
 
 				if (line == null) {
 					break;

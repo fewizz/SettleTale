@@ -60,7 +60,7 @@ public class LayerScaleX2Random extends Layer {
 				valueDownP = valuesParent[downIDP];
 				valueRightP = valuesParent[rightIDP];
 
-				if (valueUpP == valueCentP && valueDownP == valueCentP && valueLeftP == valueCentP && valueRightP == valueCentP) {
+				if (valueUpP == valueCentP && valueDownP == valueCentP && valueRightP == valueCentP) {
 					values[index] = (byte) valueCentP;
 				}
 				else {
