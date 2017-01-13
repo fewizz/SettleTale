@@ -3,15 +3,15 @@ package ru.settletale.client.resource;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import ru.settletale.client.Font;
 import ru.settletale.client.FontChar;
 import ru.settletale.client.FontPage;
 
 public class FontLoader extends ResourceLoaderAbstract {
-	final List<Font> fontList = new ArrayList<>();
+	public static final Map<String, Font> fontMap = new HashMap<>();
 	
 	@Override
 	public String getRequiredExtension() {
@@ -20,6 +20,8 @@ public class FontLoader extends ResourceLoaderAbstract {
 
 	@Override
 	public void loadResource(ResourceFile resourceFile) {
+		System.out.println("Loading font: " + resourceFile.key);
+		
 		Font font = new Font();
 
 		try (FileReader fr = new FileReader(resourceFile.fullPath); BufferedReader reader = new BufferedReader(fr)) {
@@ -31,7 +33,7 @@ public class FontLoader extends ResourceLoaderAbstract {
 					break;
 				}
 
-				String[] lines = line.split(" ");
+				String[] lines = line.replaceAll(" +", " ").split(" ");
 				
 				switch(lines[0]) {
 					case "info" :
@@ -57,8 +59,21 @@ public class FontLoader extends ResourceLoaderAbstract {
 			e.printStackTrace();
 		}
 		
-		fontList.add(font);
+		fontMap.put(resourceFile.key, font);
 
+	}
+	
+	@Override
+	public void onResourcesLoadedPost() {
+		fontMap.forEach((key, f) -> {
+			for(FontPage page : f.pages) {
+				page.texture = TextureLoader.textures.get(page.textureName);
+				
+				if(page.texture == null) {
+					throw new Error("Texture for font " + f.name + " not found!");
+				}
+			}
+		});
 	}
 	
 	static String getValue(String str) {
@@ -81,13 +96,14 @@ public class FontLoader extends ResourceLoaderAbstract {
 	static void readCommon(Font font, String[] strings) {
 		font.pageCount = getValueInt(strings[5]);
 		font.pages = new FontPage[font.pageCount];
+		font.base = getValueInt(strings[1]);
 	}
 
 	static void readPage(Font font, String[] strings) {
 		FontPage page = new FontPage();
 		
 		page.id = getValueInt(strings[1]);
-		page.texture = getValueString(strings[2]);
+		page.textureName = getValueString(strings[2]);
 
 		font.pages[page.id] = page;
 
@@ -99,7 +115,7 @@ public class FontLoader extends ResourceLoaderAbstract {
 	
 	static void readChar(Font font, String[] strings) {
 		FontChar fc = new FontChar();
-		fc.id = (short) getValueInt(strings[1]);
+		fc.id = (char) getValueInt(strings[1]);
 		fc.x = getValueInt(strings[2]);
 		fc.y = getValueInt(strings[3]);
 		fc.width = getValueInt(strings[4]);
@@ -107,9 +123,6 @@ public class FontLoader extends ResourceLoaderAbstract {
 		fc.xOffset = getValueInt(strings[6]);
 		fc.yOffset = getValueInt(strings[7]);
 		fc.xAdvance = getValueInt(strings[8]);
-		fc.page = (byte) getValueInt(strings[9]);
-		
-		FontPage page = font.getPage(fc.page);
-		page.addChar(fc);
+		font.getPage(getValueInt(strings[9])).addChar(fc);
 	}
 }

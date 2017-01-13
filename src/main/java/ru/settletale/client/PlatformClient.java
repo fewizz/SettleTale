@@ -67,21 +67,21 @@ public class PlatformClient implements IPlatform {
 		glfwWindowHint(GLFW_VISIBLE, GLFW_TRUE);
 		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
-		Display.window = glfwCreateWindow(1000, 800, "Settle Tale", MemoryUtil.NULL, MemoryUtil.NULL);
+		Display.windowID = glfwCreateWindow(1000, 800, "Settle Tale", MemoryUtil.NULL, MemoryUtil.NULL);
 		Display.onWindowResize(1000, 800);
-		if (Display.window == MemoryUtil.NULL)
+		if (Display.windowID == MemoryUtil.NULL)
 			throw new RuntimeException("Failed to create the GLFW window");
 		
-		glfwSetKeyCallback(Display.window, new KeyListener());
-		glfwSetFramebufferSizeCallback(Display.window, new WindowResizeListener());
+		glfwSetKeyCallback(Display.windowID, new KeyListener());
+		glfwSetFramebufferSizeCallback(Display.windowID, new WindowResizeListener());
 
 		GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-		glfwSetWindowPos(Display.window, (vidmode.width() - Display.width) / 2, (vidmode.height() - Display.height) / 2);
-		glfwShowWindow(Display.window);
+		glfwSetWindowPos(Display.windowID, (vidmode.width() - Display.width) / 2, (vidmode.height() - Display.height) / 2);
+		glfwShowWindow(Display.windowID);
 	}
 	
 	public static void runInRenderThread(Runnable runnable) {
-		renderThread.run(runnable);
+		renderThread.addTask(runnable);
 	}
 
 	@Override
@@ -92,10 +92,6 @@ public class PlatformClient implements IPlatform {
 	@Override
 	public World getWorld() {
 		return world;
-	}
-	
-	public static boolean isRenderThread() {
-		return Thread.currentThread() == renderThread;
 	}
 
 }

@@ -14,7 +14,7 @@ public class PrimitiveArray {
 	private int lastAddedStorage = 0;
 
 	public PrimitiveArray(Storage... storages) {
-		this(true, storages);
+		this(false, storages);
 	}
 	
 	public PrimitiveArray(boolean indexed, Storage... storages) {
@@ -41,6 +41,12 @@ public class PrimitiveArray {
 			@Override
 			void setBool(PrimitiveArray arr) {
 				arr.addStorage(new VertexStorageFloat(3));
+			}
+		},
+		FLOAT_2 {
+			@Override
+			void setBool(PrimitiveArray arr) {
+				arr.addStorage(new VertexStorageFloat(2));
 			}
 		},
 		FLOAT_1 {
@@ -86,6 +92,10 @@ public class PrimitiveArray {
 	
 	public void data(int storage, float f1, float f2, float f3) {
 		this.data(storage, f1, f2, f3, 0);
+	}
+	
+	public void data(int storage, float f1, float f2) {
+		this.data(storage, f1, f2, 0, 0);
 	}
 
 	public void data(int storage, byte b1, byte b2, byte b3, byte b4) {

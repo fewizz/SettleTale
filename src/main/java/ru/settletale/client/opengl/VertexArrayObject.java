@@ -25,7 +25,16 @@ public class VertexArrayObject extends NameableAdapter<VertexArrayObject> {
 			return;
 		}
 		bind();
-		GL20.glEnableVertexAttribArray(0);
+		GL20.glEnableVertexAttribArray(index);
+	}
+	
+	public void disableVertexAttribArray(int index) {
+		if(GL.version >= 45) {
+			GL45.glDisableVertexArrayAttrib(id, index);
+			return;
+		}
+		bind();
+		GL20.glDisableVertexAttribArray(index);
 	}
 	
 	public void delete() {

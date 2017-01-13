@@ -1,22 +1,26 @@
 package ru.settletale.client;
 
-import com.koloboke.collect.map.hash.HashShortObjMap;
-import com.koloboke.collect.map.hash.HashShortObjMaps;
+import com.koloboke.collect.map.hash.HashCharObjMap;
+import com.koloboke.collect.map.hash.HashCharObjMaps;
+
+import ru.settletale.client.opengl.Texture2D;
 
 public class FontPage {
 	public int id;
-	public String texture;
-	final HashShortObjMap<FontChar> charMap;
+	public String textureName;
+	final HashCharObjMap<FontChar> charMap;
+	public Texture2D texture;
 	
 	public FontPage() {
-		charMap = HashShortObjMaps.newMutableMap();
+		charMap = HashCharObjMaps.newMutableMap();
 	}
 	
 	public void addChar(FontChar ch) {
 		charMap.put(ch.id, ch);
+		ch.page = this;
 	}
 	
-	public FontChar getChar(short id) {
+	public FontChar getChar(char id) {
 		return charMap.get(id);
 	}
 }

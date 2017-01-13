@@ -15,6 +15,8 @@ import ru.settletale.client.vertex.PrimitiveArray;
 import ru.settletale.client.vertex.PrimitiveArray.Storage;
 import ru.settletale.client.opengl.Shader;
 import ru.settletale.client.opengl.ShaderProgram;
+import ru.settletale.client.render.Drawer;
+import ru.settletale.client.resource.FontLoader;
 import ru.settletale.util.IRegionManagerListener;
 import ru.settletale.world.region.Region;
 
@@ -26,7 +28,7 @@ public class WorldRenderer implements IRegionManagerListener {
 	public static final int POSITION = 0;
 	public static final int NORMAL = 1;
 
-	public static PrimitiveArray pa = new PrimitiveArray(Storage.FLOAT_3, Storage.FLOAT_1);
+	public static PrimitiveArray pa = new PrimitiveArray(true, Storage.FLOAT_3, Storage.FLOAT_1);
 	static ShaderProgram programSky;
 
 	public static void init() {
@@ -42,7 +44,7 @@ public class WorldRenderer implements IRegionManagerListener {
 	public static void render() {
 		GL.debug("World rend start");
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+		
 		glEnable(GL_DEPTH_TEST);
 
 		GL.viewMatrix.push();
@@ -74,28 +76,17 @@ public class WorldRenderer implements IRegionManagerListener {
 		GL.bindDefaultVAO();
 		programSky.bind();
 		GL11.glDrawArrays(GL11.GL_QUADS, 0, 4);
-
-		Vector3f v1 = new Vector3f(-10, 0, -10);
-		Vector3f v2 = new Vector3f(-10, 0, 10);
-		Vector3f v3 = new Vector3f(10, 0, 10);
-		Vector3f ray = RayTracingTest.getInterception(v1, v2, v3, null, null);
-
-		GL.begin(GL11.GL_TRIANGLES);
-		GL.color(1, 0, 0, 1);
-		GL.vertex(v1.x, v1.y + 60, v1.z);
-		GL.vertex(v2.x, v2.y + 60, v2.z);
-		GL.vertex(v3.x, v3.y + 60, v3.z);
-		GL.end();
-
+		
+		FontLoader.fontMap.get("fonts/font.fnt").render("aaaa!", 0, 50);
 		GL11.glLineWidth(10);
-
-		GL.begin(GL11.GL_LINES);
-		GL.color(1, 1, 1, 1);
-		GL.vertex(0, 60, 0);
-		GL.vertex(ray.x, ray.y, ray.z);
-		GL.end();
-
+		Drawer.begin(GL_LINES);
+		Drawer.color(1, 0, 0, 1);
+		Drawer.vertex(0, 50, 0);
+		Drawer.vertex(100, 50, 0);
+		Drawer.draw();
+		
 		GL.viewMatrix.pop();
+		
 		GL.debug("World rend end");
 	}
 

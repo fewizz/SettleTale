@@ -21,6 +21,9 @@ public abstract class NameableAdapter<T> implements INameable<T> {
 	
 	@Override
 	public boolean bind() {
+		if(id == -1) {
+			throw new Error("Object is not generated!");
+		}
 		if(getLastBoundID() == id) {
 			return false;
 		}

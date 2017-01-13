@@ -18,6 +18,15 @@ public class RenderThread extends Thread {
 		runnableQueue = new ConcurrentLinkedQueue<>();
 	}
 
+	void init() {
+		glfwMakeContextCurrent(Display.windowID);
+		org.lwjgl.opengl.GL.createCapabilities();
+		glfwSwapInterval(0);
+		GL.init();
+		Drawer.init();
+		WorldRenderer.init();
+	}
+	
 	@Override
 	public void run() {
 		init();
@@ -35,7 +44,7 @@ public class RenderThread extends Thread {
 
 			callRunnables();
 			WorldRenderer.render();
-			glfwSwapBuffers(Display.window);
+			glfwSwapBuffers(Display.windowID);
 
 			timer.waitTimer();
 
@@ -59,15 +68,7 @@ public class RenderThread extends Thread {
 
 	}
 
-	void init() {
-		glfwMakeContextCurrent(Display.window);
-		org.lwjgl.opengl.GL.createCapabilities();
-		glfwSwapInterval(0);
-		GL.init();
-		WorldRenderer.init();
-	}
-
-	public void run(Runnable runnable) {
+	public void addTask(Runnable runnable) {
 		runnableQueue.add(runnable);
 	}
 }

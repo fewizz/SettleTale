@@ -14,7 +14,6 @@ import ru.settletale.client.PlatformClient;
 import ru.settletale.client.opengl.Texture2D;
 
 public class TextureLoader extends ResourceLoaderAbstract {
-	private static final Map<String, Texture2D> texturesToRegister = new HashMap<>();
 	public static final Map<String, Texture2D> textures = new HashMap<>();
 
 	@Override
@@ -57,25 +56,21 @@ public class TextureLoader extends ResourceLoaderAbstract {
 		tex.buffer = buffer;
 		tex.bufferType = GL11.GL_UNSIGNED_BYTE;
 
-		texturesToRegister.put(resourceFile.key, tex);
+		textures.put(resourceFile.key, tex);
 	}
 
 	@Override
-	public void onResourcesLoaded() {
+	public void onResourcesLoadedPre() {
 		PlatformClient.runInRenderThread(() -> {
 			TextureLoader.registerTextures();
 		});
 	}
 
 	static void registerTextures() {
-		for (Map.Entry<String, Texture2D> entry : texturesToRegister.entrySet()) {
+		for (Map.Entry<String, Texture2D> entry : textures.entrySet()) {
 			Texture2D tex = entry.getValue();
 			tex.gen().setDefaultParams();
 			tex.loadData();
-
-			textures.put(entry.getKey(), tex);
 		}
-
-		texturesToRegister.clear();
 	}
 }

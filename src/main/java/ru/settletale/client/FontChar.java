@@ -1,8 +1,7 @@
 package ru.settletale.client;
 
 public class FontChar {
-	public short id;
-	public byte page;
+	public char id;
 	public float x;
 	public float y;
 	public float width;
@@ -10,4 +9,5 @@ public class FontChar {
 	public float xOffset;
 	public float yOffset;
 	public float xAdvance;
+	public FontPage page;
 }

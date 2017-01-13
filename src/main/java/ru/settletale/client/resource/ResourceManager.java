@@ -23,6 +23,7 @@ public class ResourceManager {
 		
 		resourceLoaders.add(new TextureLoader());
 		resourceLoaders.add(new ShaderLoader());
+		resourceLoaders.add(new FontLoader());
 
 		resourceLoaders.forEach((ResourceLoaderAbstract rla) -> rla.onResourceManagerStart());
 		startResourceScanning();
@@ -31,7 +32,8 @@ public class ResourceManager {
 				rla.loadResource(resourceFile);
 			}
 		}));
-		resourceLoaders.forEach((ResourceLoaderAbstract rla) -> rla.onResourcesLoaded());
+		resourceLoaders.forEach((ResourceLoaderAbstract rla) -> rla.onResourcesLoadedPre());
+		resourceLoaders.forEach((ResourceLoaderAbstract rla) -> rla.onResourcesLoadedPost());
 	}
 
 	static void startResourceScanning() {
