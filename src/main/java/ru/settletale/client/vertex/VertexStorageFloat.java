@@ -2,7 +2,7 @@ package ru.settletale.client.vertex;
 
 import ru.settletale.util.DirectByteBufferUtils;
 
-public class VertexStorageFloat extends VertexStorageAbstarct implements IVertexStorage {
+public class VertexStorageFloat extends VertexStorageAbstarct {
 	float f1;
 	float f2;
 	float f3;

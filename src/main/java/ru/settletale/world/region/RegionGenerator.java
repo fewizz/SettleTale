@@ -3,8 +3,8 @@ package ru.settletale.world.region;
 import ru.settletale.Game;
 import ru.settletale.registry.Biomes;
 import ru.settletale.util.OpenSimplexNoise;
-import ru.settletale.world.biome.Biome;
-import ru.settletale.world.layer.Layer;
+import ru.settletale.world.biome.BiomeAbstract;
+import ru.settletale.world.layer.LayerAbstract;
 import ru.settletale.world.layer.LayerBiomes;
 import ru.settletale.world.layer.LayerScaleX2Random;
 import ru.settletale.world.layer.LayerSmoother;
@@ -20,7 +20,7 @@ public class RegionGenerator {
 	public static final int CHUNK_LEN_EXT_SMOOTH = CHUNK_LEN_EXT + (SMOOTH * 2);
 	public static final int HEIGHTS_LEN_EXT = (CHUNK_LEN_EXT * 2) + 1;
 	public static final int HEIGHTS_LEN_EXT_SMOOTH = (CHUNK_LEN_EXT_SMOOTH * 2) + 2;
-	Layer mainLayer;
+	LayerAbstract mainLayer;
 	OpenSimplexNoise noise;
 	
 	public RegionGenerator() {
@@ -35,7 +35,7 @@ public class RegionGenerator {
 	
 	public void start() {
 		noise = new OpenSimplexNoise(Game.getWorld().seed);
-		Layer.seed = Game.getWorld().seed;
+		LayerAbstract.seed = Game.getWorld().seed;
 	}
 	
 	/** Temp varies **/
@@ -63,7 +63,7 @@ public class RegionGenerator {
 				int indexH4 = indexH1++;
 
 				byte biomeID = biomeIDs[index];
-				Biome biome = Biomes.getBiomeByID(biomeID);
+				BiomeAbstract biome = Biomes.getBiomeByID(biomeID);
 
 				float noiseVal;
 

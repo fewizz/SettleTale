@@ -5,7 +5,7 @@ import java.nio.FloatBuffer;
 
 import org.lwjgl.system.MemoryUtil;
 
-public abstract class NameableDataContainerAdapter<T> extends NameableAdapter<T> implements IBufferContainer<T> {
+public abstract class NameableDataContainerAbstract<T> extends NameableAbstract<T> implements IBufferContainer<T> {
 	public ByteBuffer buffer;
 
 	public T buffer(ByteBuffer buffer) {

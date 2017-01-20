@@ -3,10 +3,10 @@ package ru.settletale.world.layer;
 import java.util.ArrayList;
 
 import ru.settletale.registry.Biomes;
-import ru.settletale.world.biome.Biome;
+import ru.settletale.world.biome.BiomeAbstract;
 import ru.settletale.world.biome.Climate;
 
-public class LayerBiomes extends Layer {
+public class LayerBiomes extends LayerAbstract {
 
 	public LayerBiomes() {
 		super(new LayerClimate());
@@ -24,7 +24,7 @@ public class LayerBiomes extends Layer {
 				Climate climate = Climate.all()[valuesParent[id]];
 				
 				boolean earth = getPRInt(x + x2, z + z2, 100) >= climate.chanceOfWater;
-				ArrayList<Biome> biomesByClimate;
+				ArrayList<BiomeAbstract> biomesByClimate;
 				
 				if(earth) {
 					biomesByClimate = Biomes.getEarthBiomesByClimate(climate);

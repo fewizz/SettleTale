@@ -9,18 +9,19 @@ import com.koloboke.collect.map.hash.HashLongObjMap;
 import com.koloboke.collect.map.hash.HashLongObjMaps;
 
 import ru.settletale.client.Camera;
-import ru.settletale.client.PlatformClient;
 import ru.settletale.client.opengl.GL;
 import ru.settletale.client.vertex.PrimitiveArray;
 import ru.settletale.client.vertex.PrimitiveArray.Storage;
 import ru.settletale.client.opengl.Shader;
 import ru.settletale.client.opengl.ShaderProgram;
 import ru.settletale.client.render.Drawer;
+import ru.settletale.client.render.GLThread;
+import ru.settletale.client.render.IRenderable;
 import ru.settletale.client.resource.FontLoader;
 import ru.settletale.util.IRegionManagerListener;
 import ru.settletale.world.region.Region;
 
-public class WorldRenderer implements IRegionManagerListener {
+public class WorldRenderer implements IRegionManagerListener, IRenderable{
 	public static final WorldRenderer INSTANCE = new WorldRenderer();
 	public static HashLongObjMap<Region> regions;
 	public static HashLongObjMap<CompiledRegion> regionsToRender;
@@ -34,6 +35,9 @@ public class WorldRenderer implements IRegionManagerListener {
 	public static void init() {
 		glColor4f(1, 1, 1, 1);
 		glClearColor(0.1F, 0.5F, 1F, 1F);
+		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		regions = HashLongObjMaps.newMutableMap();
 		regionsToRender = HashLongObjMaps.newMutableMap();
 		programSky = new ShaderProgram().gen();
@@ -41,15 +45,14 @@ public class WorldRenderer implements IRegionManagerListener {
 		programSky.link();
 	}
 
-	public static void render() {
+	@Override
+	public void render() {
 		GL.debug("World rend start");
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		
-		glEnable(GL_DEPTH_TEST);
 
 		GL.viewMatrix.push();
-		GL.viewMatrix.rotateDeg(Camera.aX, 1, 0, 0);
-		GL.viewMatrix.rotateDeg(Camera.aY, 0, 1, 0);
+		GL.viewMatrix.rotateDeg(Camera.rotationX, 1, 0, 0);
+		GL.viewMatrix.rotateDeg(Camera.rotationY, 0, 1, 0);
 		GL.viewMatrix.translate(-Camera.x, -Camera.y, -Camera.z);
 
 		GL.updateTransformUniformBlock();
@@ -181,7 +184,7 @@ public class WorldRenderer implements IRegionManagerListener {
 
 	@Override
 	public void onRegionAdded(Region r) {
-		PlatformClient.runInRenderThread(() -> {
+		GLThread.addTask(() -> {
 			regions.put(r.coord, r);
 			r.threads++;
 		});
@@ -190,7 +193,7 @@ public class WorldRenderer implements IRegionManagerListener {
 
 	@Override
 	public void onRegionRemoved(Region r) {
-		PlatformClient.runInRenderThread(() -> {
+		GLThread.addTask(() -> {
 			regions.remove(r.coord);
 			if (regionsToRender.containsKey(r.coord)) {
 				regionsToRender.get(r.coord).clear();

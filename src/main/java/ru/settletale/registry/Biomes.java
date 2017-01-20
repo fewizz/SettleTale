@@ -3,7 +3,7 @@ package ru.settletale.registry;
 import java.util.ArrayList;
 import java.util.List;
 
-import ru.settletale.world.biome.Biome;
+import ru.settletale.world.biome.BiomeAbstract;
 import ru.settletale.world.biome.BiomeDesert;
 import ru.settletale.world.biome.BiomeIce;
 import ru.settletale.world.biome.BiomeJungle;
@@ -14,18 +14,18 @@ import ru.settletale.world.biome.BiomeType;
 import ru.settletale.world.biome.Climate;
 
 public class Biomes {
-	public static final Biome[] biomes = new Biome[0xFF];
+	public static final BiomeAbstract[] biomes = new BiomeAbstract[0xFF];
 	@SuppressWarnings("unchecked")
-	private static final List<Biome>[] biomesEarthByClimate = new ArrayList[Climate.all().length];
+	private static final List<BiomeAbstract>[] biomesEarthByClimate = new ArrayList[Climate.all().length];
 	@SuppressWarnings("unchecked")
-	private static final List<Biome>[] biomesOceanByClimate = new ArrayList[Climate.all().length];
+	private static final List<BiomeAbstract>[] biomesOceanByClimate = new ArrayList[Climate.all().length];
 	private static int lastBiomeID = 0;
-	public static Biome sea;
-	public static Biome plain;
-	public static Biome jungle;
-	public static Biome ice;
-	public static Biome desert;
-	public static Biome taiga;
+	public static BiomeAbstract sea;
+	public static BiomeAbstract plain;
+	public static BiomeAbstract jungle;
+	public static BiomeAbstract ice;
+	public static BiomeAbstract desert;
+	public static BiomeAbstract taiga;
 
 	public static void register() {
 		registerBiome(sea = new BiomeSea());
@@ -36,7 +36,7 @@ public class Biomes {
 		registerBiome(taiga = new BiomeTaiga());
 	}
 
-	private static void registerBiome(Biome biome) {
+	private static void registerBiome(BiomeAbstract biome) {
 		biomes[lastBiomeID] = biome;
 		lastBiomeID++;
 		
@@ -45,7 +45,7 @@ public class Biomes {
 		}
 	}
 
-	public static int getBiomeID(Biome biome) {
+	public static int getBiomeID(BiomeAbstract biome) {
 		for (int i = 0; i < biomes.length; i++) {
 			if (biomes[i] == biome)
 				return i;
@@ -60,8 +60,8 @@ public class Biomes {
 		return -1;
 	}
 
-	public static Biome getBiomeByID(int id) {
-		Biome biome = biomes[id];
+	public static BiomeAbstract getBiomeByID(int id) {
+		BiomeAbstract biome = biomes[id];
 
 		if (biome != null) {
 			return biome;
@@ -76,30 +76,30 @@ public class Biomes {
 		return null;
 	}
 
-	public static void addBiomeByCliamte(Biome biome, Climate climate) {
+	public static void addBiomeByCliamte(BiomeAbstract biome, Climate climate) {
 		int id = climate.ordinal();
 
 		if (biome.type == BiomeType.EARTH) {
 			if (biomesEarthByClimate[id] == null) {
-				biomesEarthByClimate[id] = new ArrayList<Biome>();
+				biomesEarthByClimate[id] = new ArrayList<BiomeAbstract>();
 			}
 
 			biomesEarthByClimate[id].add(biome);
 		}
 		if (biome.type == BiomeType.OCEAN) {
 			if (biomesOceanByClimate[id] == null) {
-				biomesOceanByClimate[id] = new ArrayList<Biome>();
+				biomesOceanByClimate[id] = new ArrayList<BiomeAbstract>();
 			}
 
 			biomesOceanByClimate[id].add(biome);
 		}
 	}
 
-	public static ArrayList<Biome> getEarthBiomesByClimate(Climate climate) {
-		return (ArrayList<Biome>) biomesEarthByClimate[climate.ordinal()];
+	public static ArrayList<BiomeAbstract> getEarthBiomesByClimate(Climate climate) {
+		return (ArrayList<BiomeAbstract>) biomesEarthByClimate[climate.ordinal()];
 	}
 	
-	public static ArrayList<Biome> getOceanBiomesByClimate(Climate climate) {
-		return (ArrayList<Biome>) biomesOceanByClimate[climate.ordinal()];
+	public static ArrayList<BiomeAbstract> getOceanBiomesByClimate(Climate climate) {
+		return (ArrayList<BiomeAbstract>) biomesOceanByClimate[climate.ordinal()];
 	}
 }

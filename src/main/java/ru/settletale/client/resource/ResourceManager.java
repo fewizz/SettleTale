@@ -11,56 +11,41 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Stream;
 
-import io.github.lukehutch.fastclasspathscanner.FastClasspathScanner;
+import ru.settletale.event.Event;
+import ru.settletale.event.EventManager;
 
 public class ResourceManager {
-	static List<ResourceFile> resourceFiles;
-	static List<ResourceLoaderAbstract> resourceLoaders;
+	static final List<ResourceFile> resourceFiles = new ArrayList<>();
+	static final List<ResourceLoaderAbstract> resourceLoaders = new ArrayList<>();
 
-	public static void init() {
-		resourceFiles = new ArrayList<>();
-		resourceLoaders = new ArrayList<>();
-		
+	public static void loadResources() {
 		resourceLoaders.add(new TextureLoader());
 		resourceLoaders.add(new ShaderLoader());
 		resourceLoaders.add(new FontLoader());
 
-		resourceLoaders.forEach((ResourceLoaderAbstract rla) -> rla.onResourceManagerStart());
+		resourceLoaders.forEach(rla -> rla.onResourceManagerStart());
 		startResourceScanning();
 		resourceFiles.forEach(resourceFile -> resourceLoaders.forEach(rla -> {
-			if(resourceFile.isEqualExtension(rla.getRequiredExtension())) {
+			if (resourceFile.isEqualExtension(rla.getRequiredExtension())) {
 				rla.loadResource(resourceFile);
 			}
 		}));
-		resourceLoaders.forEach((ResourceLoaderAbstract rla) -> rla.onResourcesLoadedPre());
-		resourceLoaders.forEach((ResourceLoaderAbstract rla) -> rla.onResourcesLoadedPost());
+		resourceLoaders.forEach(rla -> rla.onResourcesLoadedPre());
+		resourceLoaders.forEach(rla -> rla.onResourcesLoadedPost());
+		
+		EventManager.fireEvent(Event.ResourceManagerLoaded);
 	}
 
-	static void startResourceScanning() {
-		File main = new File("assets/");
-		if (main.exists()) {
-			scanFolder(main);
-		}
-
-		FastClasspathScanner scanner = new FastClasspathScanner();
-		List<File> files = scanner.getUniqueClasspathElements();
-
-		for (File file : files) {
-			if (!file.exists() || !file.isDirectory()) {
-				continue;
-			}
-
-			File fileAssets = new File(file.getAbsolutePath(), "/assets/");
-
-			if (!fileAssets.exists()) {
-				continue;
-			}
-
-			scanFolder(fileAssets);
-		}
+	private static void startResourceScanning() {
+		scanFolder(new File("assets/"));
+		scanFolder(new File("bin/assets/"));
 	}
 
 	private static void scanFolder(File file) {
+		if (!file.exists() || !file.isDirectory()) {
+			return;
+		}
+
 		Path assetsPath = file.toPath().toAbsolutePath();
 		int assetsIndex = assetsPath.getNameCount();
 

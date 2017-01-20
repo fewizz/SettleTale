@@ -2,7 +2,7 @@ package ru.settletale.world.biome;
 
 import java.awt.Color;
 
-public class BiomeTaiga extends Biome {
+public class BiomeTaiga extends BiomeAbstract {
 
 	public BiomeTaiga() {
 		super(Color.CYAN, BiomeType.EARTH, Climate.CONTINENTAL, Climate.MODERATE);

@@ -3,7 +3,7 @@ package ru.settletale.client.opengl;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 
-public class ShaderProgram extends NameableAdapter<ShaderProgram> {
+public class ShaderProgram extends NameableAbstract<ShaderProgram> {
 	public static int lastID = -1;
 	
 	@Override

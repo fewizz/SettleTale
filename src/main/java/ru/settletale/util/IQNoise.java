@@ -1,6 +1,6 @@
 package ru.settletale.util;
 
-import ru.settletale.world.layer.Layer;
+import ru.settletale.world.layer.LayerAbstract;
 
 public class IQNoise {
 
@@ -45,7 +45,7 @@ public class IQNoise {
 	}
 
 	public static float rand(float x, float y) {
-		return Layer.getPRInt((int)x, (int)y, 200000) / 100000F - 1F;//(float) SSMath.fract(SSMath.dot(x * (x / 5F) * 34.3453F, y * 57.43634F, 14.2453425F * (x + 8.3453F), 81.9452345F * (y + 8.4354F)) * 20.56348356F) * 2F - 1F;
+		return LayerAbstract.getPRInt((int)x, (int)y, 200000) / 100000F - 1F;//(float) SSMath.fract(SSMath.dot(x * (x / 5F) * 34.3453F, y * 57.43634F, 14.2453425F * (x + 8.3453F), 81.9452345F * (y + 8.4354F)) * 20.56348356F) * 2F - 1F;
 	}
 
 }

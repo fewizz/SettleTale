@@ -5,7 +5,7 @@ import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL45;
 import org.lwjgl.system.MemoryUtil;
 
-public class VertexArrayObject extends NameableAdapter<VertexArrayObject> {
+public class VertexArrayObject extends NameableAbstract<VertexArrayObject> {
 	public static int lastID = 0;
 	
 	@Override

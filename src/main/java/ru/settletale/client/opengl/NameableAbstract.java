@@ -1,6 +1,6 @@
 package ru.settletale.client.opengl;
 
-public abstract class NameableAdapter<T> implements INameable<T> {
+public abstract class NameableAbstract<T> implements INameable<T> {
 	protected int id = -1;
 	
 	@Override

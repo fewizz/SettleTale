@@ -3,6 +3,9 @@ package ru.settletale.client;
 import org.lwjgl.opengl.GL11;
 
 import ru.settletale.client.opengl.GL;
+import ru.settletale.client.opengl.Shader;
+import ru.settletale.client.opengl.ShaderProgram;
+import ru.settletale.client.opengl.Shader.Type;
 import ru.settletale.client.render.Drawer;
 
 public class Font {
@@ -12,12 +15,20 @@ public class Font {
 	public int pageCount;
 	public float base;
 	public FontPage[] pages;
+	static ShaderProgram program;
 
 	public FontPage getPage(int index) {
 		return pages[index];
 	}
 
 	public void render(String text, float x, float y) {
+		if(program == null) {
+			program = new ShaderProgram().gen();
+			program.attachShader(new Shader(Type.VERTEX, "shaders/font_vs.shader").gen().compile());
+			program.attachShader(new Shader(Type.FRAGMENT, "shaders/font_fs.shader").gen().compile());
+			program.link();
+		}
+		
 		float wTotal = x;
 
 		for (int i = 0; i < text.length(); i++) {
@@ -50,7 +61,7 @@ public class Font {
 			Drawer.vertex(fch.xOffset + wTotal + fch.width, base - fch.yOffset - fch.height + y, 0);
 			
 			GL.debug("Font predraw");
-			Drawer.draw();
+			Drawer.draw(program);
 			
 			GL.debug("Font end");
 

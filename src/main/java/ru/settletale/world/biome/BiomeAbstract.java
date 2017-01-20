@@ -4,7 +4,7 @@ import java.awt.Color;
 
 import ru.settletale.registry.Biomes;
 
-public abstract class Biome {
+public abstract class BiomeAbstract {
 	public Color color;
 	public Climate[] climats;
 	public BiomeType type;
@@ -12,7 +12,7 @@ public abstract class Biome {
 	public float minHeight = 36F;
 	public float amplitude = 10F;
 	
-	public Biome(Color color, BiomeType type, Climate... climats) {
+	public BiomeAbstract(Color color, BiomeType type, Climate... climats) {
 		this.climats = climats;
 		this.type = type;
 		this.color = color;

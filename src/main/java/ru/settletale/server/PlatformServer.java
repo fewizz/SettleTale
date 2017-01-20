@@ -4,15 +4,19 @@ import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import ru.settletale.IPlatform;
+import ru.settletale.PlatformAbstract;
 import ru.settletale.util.Side;
 import ru.settletale.world.World;
 import ru.settletale.world.region.RegionManagerOnePlayer;
 
-public class PlatformServer implements IPlatform {
+public class PlatformServer extends PlatformAbstract {
 	ServerBootstrap boot;
-	World world;
 
+	@Override
+	public Side getSide() {
+		return Side.SERVER;
+	}
+	
 	@Override
 	public void start() {
 		boot = new ServerBootstrap();
@@ -33,16 +37,6 @@ public class PlatformServer implements IPlatform {
 			System.out.println("Server end");
 			boot.config().childGroup().shutdownGracefully();
 		} catch (InterruptedException e) {e.printStackTrace();}
-	}
-
-	@Override
-	public Side getSide() {
-		return Side.SERVER;
-	}
-
-	@Override
-	public World getWorld() {
-		return world;
 	}
 
 }

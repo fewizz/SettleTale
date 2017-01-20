@@ -52,6 +52,7 @@ void main(void) {
 	}
 		
 	color_out *= normal_vs;
+	color_out.w = 1;
 }
 
 vec3 getColor(vec2 v) {

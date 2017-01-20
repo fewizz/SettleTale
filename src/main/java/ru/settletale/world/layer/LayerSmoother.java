@@ -1,8 +1,8 @@
 package ru.settletale.world.layer;
 
-public class LayerSmoother extends Layer {
+public class LayerSmoother extends LayerAbstract {
 
-	public LayerSmoother(Layer parent) {
+	public LayerSmoother(LayerAbstract parent) {
 		super(parent);
 	}
 
@@ -102,7 +102,7 @@ public class LayerSmoother extends Layer {
 		return values;
 	}
 
-	public static LayerSmoother getLayer(int countToSmooth, Layer parent) {
+	public static LayerSmoother getLayer(int countToSmooth, LayerAbstract parent) {
 		LayerSmoother smoother = new LayerSmoother(parent);
 		
 		for(int i = 0; i < countToSmooth - 1; i++) {

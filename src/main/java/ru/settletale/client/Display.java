@@ -2,9 +2,10 @@ package ru.settletale.client;
 
 import static org.lwjgl.opengl.GL11.*;
 import ru.settletale.client.opengl.GL;
+import ru.settletale.client.render.GLThread;
 
 public class Display {
-	public static float frameRate = 60F;
+	public static float frameRate = 100F;
 	public static int width = -1;
 	public static int height = -1;
 	public static long windowID;
@@ -16,7 +17,7 @@ public class Display {
 		Display.width = w;
 		Display.height = h;
 
-		PlatformClient.runInRenderThread(() -> {
+		GLThread.addTask(() -> {
 			glViewport(0, 0, width, height);
 			GL.projMatrix.identity();
 			GL.projMatrix.perspective((float) Math.toRadians(120), (float) width / (float) height, 0.5F, 1000);

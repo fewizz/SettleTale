@@ -2,7 +2,7 @@ package ru.settletale.client.opengl;
 
 import org.lwjgl.opengl.GL11;
 
-public class Texture2D extends Texture<Texture2D> {
+public class Texture2D extends TextureAbstract<Texture2D> {
 	public final int width;
 	public final int height;
 

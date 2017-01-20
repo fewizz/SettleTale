@@ -2,9 +2,9 @@ package ru.settletale.world.layer;
 
 import ru.settletale.util.SSMath;
 
-public class LayerScaleX2Random extends Layer {
+public class LayerScaleX2Random extends LayerAbstract {
 
-	public LayerScaleX2Random(Layer parent) {
+	public LayerScaleX2Random(LayerAbstract parent) {
 		super(parent);
 	}
 
@@ -89,7 +89,7 @@ public class LayerScaleX2Random extends Layer {
 		return values;
 	}
 
-	public static LayerScaleX2Random getLayer(int count, Layer parent) {
+	public static LayerScaleX2Random getLayer(int count, LayerAbstract parent) {
 		LayerScaleX2Random layer = new LayerScaleX2Random(parent);
 
 		for (int i = 0; i < count - 1; i++) {

@@ -3,7 +3,7 @@ package ru.settletale.client.opengl;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL45;
 
-public class BufferObject<T> extends NameableDataContainerAdapter<T> {
+public class BufferObject<T> extends NameableDataContainerAbstract<T> {
 	static int lastID = -1;
 	protected int type;
 	Usage usage;

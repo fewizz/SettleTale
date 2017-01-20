@@ -3,14 +3,14 @@ package ru.settletale.world.layer;
 import ru.settletale.util.OpenSimplexNoise;
 import ru.settletale.util.SSMath;
 
-public abstract class Layer {
+public abstract class LayerAbstract {
 	private byte[] values;
 	private static final long RANDOM_NUMBER_CONST = 6546213132131313131L;
-	public static long seed = 11111111;
+	public static long seed;
 	public static OpenSimplexNoise noise = new OpenSimplexNoise(1337);
-	Layer parent;
+	LayerAbstract parent;
 	
-	public Layer(Layer parent) {
+	public LayerAbstract(LayerAbstract parent) {
 		this.parent = parent;
 	}
 	

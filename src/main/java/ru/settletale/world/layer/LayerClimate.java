@@ -1,6 +1,6 @@
 package ru.settletale.world.layer;
 
-public class LayerClimate extends Layer {
+public class LayerClimate extends LayerAbstract {
 
 	public LayerClimate() {
 		super(null);

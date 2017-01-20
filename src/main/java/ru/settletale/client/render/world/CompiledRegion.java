@@ -14,7 +14,7 @@ import ru.settletale.client.opengl.GL;
 import ru.settletale.client.opengl.Shader;
 import ru.settletale.client.opengl.Shader.Type;
 import ru.settletale.client.resource.TextureLoader;
-import ru.settletale.world.biome.Biome;
+import ru.settletale.world.biome.BiomeAbstract;
 import ru.settletale.world.region.Region;
 import ru.settletale.client.opengl.ShaderProgram;
 import ru.settletale.client.opengl.Texture1D;
@@ -59,7 +59,7 @@ public class CompiledRegion {
 
 			ByteBuffer bb = BufferUtils.createByteBuffer(256 * 3);
 
-			for (Biome b : Biomes.biomes) {
+			for (BiomeAbstract b : Biomes.biomes) {
 				if (b == null) {
 					continue;
 				}

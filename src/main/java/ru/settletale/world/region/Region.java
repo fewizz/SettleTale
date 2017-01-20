@@ -2,7 +2,7 @@ package ru.settletale.world.region;
 
 import ru.settletale.registry.Biomes;
 import ru.settletale.util.SSMath;
-import ru.settletale.world.biome.Biome;
+import ru.settletale.world.biome.BiomeAbstract;
 
 public class Region {
 	public byte[] biomeIDs;
@@ -24,7 +24,7 @@ public class Region {
 		this.coord = SSMath.clamp(x, z);
 	}
 	
-	public Biome getBiome(int x, int z) {
+	public BiomeAbstract getBiome(int x, int z) {
 		return Biomes.getBiomeByID( biomeIDs[(z + 1) * 18 + x + 1] );
 	}
 	

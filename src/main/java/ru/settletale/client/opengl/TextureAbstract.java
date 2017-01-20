@@ -2,14 +2,14 @@ package ru.settletale.client.opengl;
 
 import org.lwjgl.opengl.GL11;
 
-public abstract class Texture<T> extends NameableDataContainerAdapter<T> {
+public abstract class TextureAbstract<T> extends NameableDataContainerAbstract<T> {
 	static int lastID = 0;
 	public final int type;
 	public int internalFormat;
 	public int bufferFormat;
 	public int bufferType;
 	
-	public Texture(int type) {
+	public TextureAbstract(int type) {
 		this.type = type; 
 		internalFormat = GL11.GL_RGBA;
 		bufferFormat = GL11.GL_RGBA;

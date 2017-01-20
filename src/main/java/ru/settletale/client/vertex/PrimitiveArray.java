@@ -7,7 +7,7 @@ import org.lwjgl.system.MemoryUtil;
 import ru.settletale.util.DirectByteBufferUtils;
 
 public class PrimitiveArray {
-	private final IVertexStorage[] storages;
+	private final VertexStorageAbstarct[] storages;
 	ByteBuffer ib;
 	private int lastVertex = 0;
 	private int lastIndex = 0;
@@ -23,7 +23,7 @@ public class PrimitiveArray {
 			ib.limit(0);
 		}
 
-		this.storages = new IVertexStorage[storages.length];
+		this.storages = new VertexStorageAbstarct[storages.length];
 
 		for (Storage data : storages) {
 			data.setBool(this);
@@ -78,7 +78,7 @@ public class PrimitiveArray {
 		}
 	}
 
-	private void addStorage(IVertexStorage s) {
+	private void addStorage(VertexStorageAbstarct s) {
 		storages[lastAddedStorage++] = s;
 	}
 
@@ -107,7 +107,7 @@ public class PrimitiveArray {
 	}
 
 	public void endVertex() {
-		for (IVertexStorage s : storages) {
+		for (VertexStorageAbstarct s : storages) {
 			s.dataEnd(lastVertex);
 		}
 
@@ -143,7 +143,7 @@ public class PrimitiveArray {
 	}
 
 	public void clear() {
-		for (IVertexStorage s : storages) {
+		for (VertexStorageAbstarct s : storages) {
 			s.clear();
 		}
 		lastVertex = 0;

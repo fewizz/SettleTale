@@ -10,8 +10,8 @@ import javax.imageio.ImageIO;
 
 import org.lwjgl.opengl.GL11;
 
-import ru.settletale.client.PlatformClient;
 import ru.settletale.client.opengl.Texture2D;
+import ru.settletale.client.render.GLThread;
 
 public class TextureLoader extends ResourceLoaderAbstract {
 	public static final Map<String, Texture2D> textures = new HashMap<>();
@@ -55,22 +55,11 @@ public class TextureLoader extends ResourceLoaderAbstract {
 		Texture2D tex = new Texture2D(width, height);
 		tex.buffer = buffer;
 		tex.bufferType = GL11.GL_UNSIGNED_BYTE;
+		
+		GLThread.addTask(() -> {
+			tex.gen().setDefaultParams().loadData();
+		});
 
 		textures.put(resourceFile.key, tex);
-	}
-
-	@Override
-	public void onResourcesLoadedPre() {
-		PlatformClient.runInRenderThread(() -> {
-			TextureLoader.registerTextures();
-		});
-	}
-
-	static void registerTextures() {
-		for (Map.Entry<String, Texture2D> entry : textures.entrySet()) {
-			Texture2D tex = entry.getValue();
-			tex.gen().setDefaultParams();
-			tex.loadData();
-		}
 	}
 }

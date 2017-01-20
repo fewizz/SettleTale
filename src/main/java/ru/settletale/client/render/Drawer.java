@@ -6,7 +6,7 @@ import org.lwjgl.opengl.GL13;
 import ru.settletale.client.opengl.GL;
 import ru.settletale.client.opengl.Shader;
 import ru.settletale.client.opengl.ShaderProgram;
-import ru.settletale.client.opengl.Texture;
+import ru.settletale.client.opengl.TextureAbstract;
 import ru.settletale.client.opengl.VertexArrayObject;
 import ru.settletale.client.opengl.VertexBufferObject;
 import ru.settletale.client.opengl.BufferObject.Usage;
@@ -25,7 +25,7 @@ public class Drawer {
 	static VertexBufferObject positionBuffer;
 	static VertexBufferObject colorBuffer;
 	static VertexBufferObject uvBuffer;
-	static Texture<?> texture;
+	static TextureAbstract<?> texture;
 	static int drawingMode;
 	static int vertexCount;
 	static boolean useTexture = false;
@@ -118,7 +118,7 @@ public class Drawer {
 		vertexCount++;
 	}
 
-	public static void texture(Texture<?> texture) {
+	public static void texture(TextureAbstract<?> texture) {
 		Drawer.texture = texture;
 		useTexture = true;
 	}
