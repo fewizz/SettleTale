@@ -4,13 +4,12 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 
 import ru.settletale.client.opengl.GL;
-import ru.settletale.client.opengl.Shader;
 import ru.settletale.client.opengl.ShaderProgram;
 import ru.settletale.client.opengl.TextureAbstract;
 import ru.settletale.client.opengl.VertexArrayObject;
 import ru.settletale.client.opengl.VertexBufferObject;
 import ru.settletale.client.opengl.BufferObject.Usage;
-import ru.settletale.client.opengl.Shader.Type;
+import ru.settletale.client.resource.ShaderLoader;
 import ru.settletale.client.vertex.PrimitiveArray;
 import ru.settletale.client.vertex.PrimitiveArray.Storage;
 
@@ -18,7 +17,7 @@ public class Drawer {
 	static final int POSITION = 0;
 	static final int COLOR = 1;
 	static final int UV = 2;
-	static PrimitiveArray pa;
+	static final PrimitiveArray PRIMITIVE_ARRAY = new PrimitiveArray(Storage.FLOAT_3, Storage.BYTE_4, Storage.FLOAT_2);
 	static ShaderProgram program;
 	static ShaderProgram programTex;
 	static VertexArrayObject vao;
@@ -37,14 +36,13 @@ public class Drawer {
 	static byte a = (byte) 0xFF;
 
 	public static void init() {
-		pa = new PrimitiveArray(Storage.FLOAT_3, Storage.BYTE_4, Storage.FLOAT_2);
 		program = new ShaderProgram().gen();
-		program.attachShader(new Shader(Type.VERTEX, "shaders/default_vs.shader").gen().compile());
-		program.attachShader(new Shader(Type.FRAGMENT, "shaders/default_fs.shader").gen().compile());
+		program.attachShader(ShaderLoader.SHADERS.get("shaders/default.vs"));
+		program.attachShader(ShaderLoader.SHADERS.get("shaders/default.fs"));
 		program.link();
 		programTex = new ShaderProgram().gen();
-		programTex.attachShader(new Shader(Type.VERTEX, "shaders/default_vs_tex1.shader").gen().compile());
-		programTex.attachShader(new Shader(Type.FRAGMENT, "shaders/default_fs_tex1.shader").gen().compile());
+		programTex.attachShader(ShaderLoader.SHADERS.get("shaders/default_tex1.vs"));
+		programTex.attachShader(ShaderLoader.SHADERS.get("shaders/default_tex1.fs"));
 		programTex.link();
 
 		vao = new VertexArrayObject().gen();
@@ -59,7 +57,7 @@ public class Drawer {
 		vertexCount = 0;
 		useTexture = false;
 		texture = null;
-		pa.clear();
+		PRIMITIVE_ARRAY.clear();
 	}
 
 	public static void draw() {
@@ -68,8 +66,8 @@ public class Drawer {
 	public static void draw(ShaderProgram program) {
 		GL.debug("Drawer start", true);
 
-		positionBuffer.buffer(pa.getBuffer(POSITION)).loadData();
-		colorBuffer.buffer(pa.getBuffer(COLOR)).loadData();
+		positionBuffer.buffer(PRIMITIVE_ARRAY.getBuffer(POSITION)).loadData();
+		colorBuffer.buffer(PRIMITIVE_ARRAY.getBuffer(COLOR)).loadData();
 
 		vao.vertexAttribPointer(positionBuffer, 0, 3, GL11.GL_FLOAT, false, 0);
 		vao.enableVertexAttribArray(0);
@@ -80,7 +78,7 @@ public class Drawer {
 		GL.debug("Drawer pre vao bind");
 
 		if (useTexture) {
-			uvBuffer.buffer(pa.getBuffer(UV)).loadData();
+			uvBuffer.buffer(PRIMITIVE_ARRAY.getBuffer(UV)).loadData();
 			vao.vertexAttribPointer(uvBuffer, 2, 2, GL11.GL_FLOAT, false, 0);
 			vao.enableVertexAttribArray(2);
 			GL13.glActiveTexture(GL13.GL_TEXTURE0);
@@ -110,11 +108,11 @@ public class Drawer {
 	}
 
 	public static void vertex(float x, float y, float z) {
-		pa.data(POSITION, x, y, z);
-		pa.data(COLOR, r, g, b, a);
+		PRIMITIVE_ARRAY.data(POSITION, x, y, z);
+		PRIMITIVE_ARRAY.data(COLOR, r, g, b, a);
 		if (useTexture)
-			pa.data(UV, u, v);
-		pa.endVertex();
+			PRIMITIVE_ARRAY.data(UV, u, v);
+		PRIMITIVE_ARRAY.endVertex();
 		vertexCount++;
 	}
 

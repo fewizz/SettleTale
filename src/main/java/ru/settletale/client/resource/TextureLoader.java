@@ -13,8 +13,8 @@ import org.lwjgl.opengl.GL11;
 import ru.settletale.client.opengl.Texture2D;
 import ru.settletale.client.render.GLThread;
 
-public class TextureLoader extends ResourceLoaderAbstract {
-	public static final Map<String, Texture2D> textures = new HashMap<>();
+public class TextureLoader extends ResourceLoaderOneExtAbstract {
+	public static final Map<String, Texture2D> TEXTURES = new HashMap<>();
 
 	@Override
 	public String getRequiredExtension() {
@@ -60,6 +60,6 @@ public class TextureLoader extends ResourceLoaderAbstract {
 			tex.gen().setDefaultParams().loadData();
 		});
 
-		textures.put(resourceFile.key, tex);
+		TEXTURES.put(resourceFile.key, tex);
 	}
 }

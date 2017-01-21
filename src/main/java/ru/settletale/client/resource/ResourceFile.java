@@ -14,4 +14,8 @@ public class ResourceFile {
 	public boolean isEqualExtension(String extension) {
 		return key.endsWith(extension);
 	}
+	
+	public String getExtension() {
+		return key.substring(key.lastIndexOf(".") + 1);
+	}
 }

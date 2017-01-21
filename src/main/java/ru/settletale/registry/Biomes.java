@@ -14,7 +14,7 @@ import ru.settletale.world.biome.BiomeType;
 import ru.settletale.world.biome.Climate;
 
 public class Biomes {
-	public static final BiomeAbstract[] biomes = new BiomeAbstract[0xFF];
+	public static final BiomeAbstract[] BIOMES = new BiomeAbstract[0xFF];
 	@SuppressWarnings("unchecked")
 	private static final List<BiomeAbstract>[] biomesEarthByClimate = new ArrayList[Climate.all().length];
 	@SuppressWarnings("unchecked")
@@ -37,7 +37,7 @@ public class Biomes {
 	}
 
 	private static void registerBiome(BiomeAbstract biome) {
-		biomes[lastBiomeID] = biome;
+		BIOMES[lastBiomeID] = biome;
 		lastBiomeID++;
 		
 		for(Climate climate : biome.climats) {
@@ -46,8 +46,8 @@ public class Biomes {
 	}
 
 	public static int getBiomeID(BiomeAbstract biome) {
-		for (int i = 0; i < biomes.length; i++) {
-			if (biomes[i] == biome)
+		for (int i = 0; i < BIOMES.length; i++) {
+			if (BIOMES[i] == biome)
 				return i;
 		}
 
@@ -61,7 +61,7 @@ public class Biomes {
 	}
 
 	public static BiomeAbstract getBiomeByID(int id) {
-		BiomeAbstract biome = biomes[id];
+		BiomeAbstract biome = BIOMES[id];
 
 		if (biome != null) {
 			return biome;

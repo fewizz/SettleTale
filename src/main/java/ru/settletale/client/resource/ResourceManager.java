@@ -26,12 +26,13 @@ public class ResourceManager {
 		resourceLoaders.forEach(rla -> rla.onResourceManagerStart());
 		startResourceScanning();
 		resourceFiles.forEach(resourceFile -> resourceLoaders.forEach(rla -> {
-			if (resourceFile.isEqualExtension(rla.getRequiredExtension())) {
-				rla.loadResource(resourceFile);
+			for(String ext : rla.getRequiredExtensions()) {
+				if (resourceFile.isEqualExtension(ext)) {
+					rla.loadResource(resourceFile);
+				}
 			}
 		}));
-		resourceLoaders.forEach(rla -> rla.onResourcesLoadedPre());
-		resourceLoaders.forEach(rla -> rla.onResourcesLoadedPost());
+		resourceLoaders.forEach(rla -> rla.onResourcesLoaded());
 		
 		EventManager.fireEvent(Event.ResourceManagerLoaded);
 	}

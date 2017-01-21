@@ -10,8 +10,8 @@ import ru.settletale.client.Font;
 import ru.settletale.client.FontChar;
 import ru.settletale.client.FontPage;
 
-public class FontLoader extends ResourceLoaderAbstract {
-	public static final Map<String, Font> fontMap = new HashMap<>();
+public class FontLoader extends ResourceLoaderOneExtAbstract {
+	public static final Map<String, Font> FONTS = new HashMap<>();
 	
 	@Override
 	public String getRequiredExtension() {
@@ -59,15 +59,15 @@ public class FontLoader extends ResourceLoaderAbstract {
 			e.printStackTrace();
 		}
 		
-		fontMap.put(resourceFile.key, font);
+		FONTS.put(resourceFile.key, font);
 
 	}
 	
 	@Override
-	public void onResourcesLoadedPost() {
-		fontMap.forEach((key, f) -> {
+	public void onResourcesLoaded() {
+		FONTS.forEach((key, f) -> {
 			for(FontPage page : f.pages) {
-				page.texture = TextureLoader.textures.get(page.textureName);
+				page.texture = TextureLoader.TEXTURES.get(page.textureName);
 				
 				if(page.texture == null) {
 					throw new Error("Texture for font " + f.name + " not found!");

@@ -9,7 +9,7 @@ public class VertexStorageFloat extends VertexStorageAbstarct {
 	float f4;
 	
 	public VertexStorageFloat(int size) {
-		super(size);
+		super(size, Float.BYTES);
 	}
 
 	@Override
@@ -22,19 +22,18 @@ public class VertexStorageFloat extends VertexStorageAbstarct {
 
 	@Override
 	public void dataEnd(int id) {
-		int sizeBytes = size * Float.BYTES;
-		id *= sizeBytes;
+		id *= growBytes;
 		
-		int limit = id + sizeBytes;
+		int limit = id + growBytes;
 		
 		if(limit > buff.capacity())
 			DirectByteBufferUtils.growBuffer(buff, 1.5F);
 		
-		buff.limit(Math.max(buff.limit(), limit));
+		buff.limit(limit);
 		
-		buff.putFloat(id + Float.BYTES * 0, f1);
+		buff.putFloat(id, f1);
 		
-		switch (size) {
+		switch (count) {
 			case 2:
 				buff.putFloat(id + Float.BYTES * 1, (float) f2);
 				break;
@@ -51,8 +50,6 @@ public class VertexStorageFloat extends VertexStorageAbstarct {
 			default:
 				break;
 		}
-		
-		buff.position(0);
 	}
 
 }

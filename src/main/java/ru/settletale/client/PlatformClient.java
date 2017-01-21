@@ -18,7 +18,7 @@ import ru.settletale.world.World;
 import ru.settletale.world.region.RegionManagerOnePlayer;
 
 public class PlatformClient extends PlatformAbstract {
-	private static final GLThread glThread = new GLThread();
+	private static final GLThread GL_THREAD = new GLThread();
 	
 	@Override
 	public Side getSide() {
@@ -30,7 +30,7 @@ public class PlatformClient extends PlatformAbstract {
 		initLWJGL();
 		initGLFW();
 		
-		glThread.start(); /** Starting rendering **/
+		GL_THREAD.start(); /** Starting rendering **/
 		
 		ResourceManager.loadResources();
 		

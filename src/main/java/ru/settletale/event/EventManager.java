@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class EventManager {
-	private static final Map<Method, Event> map = new HashMap<>();
+	private static final Map<Method, Event> MAP = new HashMap<>();
 	
 	public static void addEventListener(Class<?> clazz) {
 		for(Method m : clazz.getDeclaredMethods()) {
@@ -18,13 +18,13 @@ public class EventManager {
 			
 			System.out.println("Add: " + m);
 			
-			map.put(m, annotation.event());
+			MAP.put(m, annotation.event());
 		}
 	}
 	
 	public static void fireEvent(Event e) {
 		
-		map.forEach((method, event) -> {
+		MAP.forEach((method, event) -> {
 			if(e == event) {
 				try {
 					method.setAccessible(true);

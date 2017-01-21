@@ -8,7 +8,7 @@ import ru.settletale.world.region.RegionManagerAbstract;
 public class World {
 	Random random;
 	public long seed;
-	public RegionManagerAbstract regionManager;
+	public final RegionManagerAbstract regionManager;
 	public WorldUpdateThread updateThread;
 
 	public World(RegionManagerAbstract rm) {

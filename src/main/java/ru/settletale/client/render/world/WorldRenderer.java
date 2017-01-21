@@ -12,24 +12,24 @@ import ru.settletale.client.Camera;
 import ru.settletale.client.opengl.GL;
 import ru.settletale.client.vertex.PrimitiveArray;
 import ru.settletale.client.vertex.PrimitiveArray.Storage;
-import ru.settletale.client.opengl.Shader;
 import ru.settletale.client.opengl.ShaderProgram;
 import ru.settletale.client.render.Drawer;
 import ru.settletale.client.render.GLThread;
 import ru.settletale.client.render.IRenderable;
 import ru.settletale.client.resource.FontLoader;
+import ru.settletale.client.resource.ShaderLoader;
 import ru.settletale.util.IRegionManagerListener;
 import ru.settletale.world.region.Region;
 
-public class WorldRenderer implements IRegionManagerListener, IRenderable{
+public class WorldRenderer implements IRegionManagerListener, IRenderable {
 	public static final WorldRenderer INSTANCE = new WorldRenderer();
-	public static HashLongObjMap<Region> regions;
-	public static HashLongObjMap<CompiledRegion> regionsToRender;
+	public static final HashLongObjMap<Region> REGIONS =  HashLongObjMaps.newMutableMap();;
+	public static final HashLongObjMap<CompiledRegion> REGIONS_TO_RENDER = HashLongObjMaps.newMutableMap();;
 
 	public static final int POSITION = 0;
 	public static final int NORMAL = 1;
 
-	public static PrimitiveArray pa = new PrimitiveArray(true, Storage.FLOAT_3, Storage.FLOAT_1);
+	public static final PrimitiveArray PRIMITIVE_ARRAY = new PrimitiveArray(true, Storage.FLOAT_3, Storage.FLOAT_1);
 	static ShaderProgram programSky;
 
 	public static void init() {
@@ -38,10 +38,9 @@ public class WorldRenderer implements IRegionManagerListener, IRenderable{
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		regions = HashLongObjMaps.newMutableMap();
-		regionsToRender = HashLongObjMaps.newMutableMap();
 		programSky = new ShaderProgram().gen();
-		programSky.attachShaders(new Shader(Shader.Type.VERTEX, "shaders/sky_vs.shader").gen().compile(), new Shader(Shader.Type.FRAGMENT, "shaders/sky_fs.shader").gen().compile());
+		programSky.attachShader(ShaderLoader.SHADERS.get("shaders/sky.vs"));
+		programSky.attachShader(ShaderLoader.SHADERS.get("shaders/sky.fs"));
 		programSky.link();
 	}
 
@@ -59,18 +58,18 @@ public class WorldRenderer implements IRegionManagerListener, IRenderable{
 
 		GL.debug("World rend after transforms");
 
-		for (Region r : regions.values()) {
-			CompiledRegion cr = regionsToRender.get(r.coord);
+		for (Region r : REGIONS.values()) {
+			CompiledRegion cr = REGIONS_TO_RENDER.get(r.coord);
 
 			if (cr == null) {
 				GL.debug("Fill buffers");
 				renderRegion(r);
 				GL.debug("Fill VBOs");
 				cr = new CompiledRegion(r);
-				cr.compile(pa);
+				cr.compile(PRIMITIVE_ARRAY);
 				GL.debug("Array clear");
-				pa.clear();
-				regionsToRender.put(r.coord, cr);
+				PRIMITIVE_ARRAY.clear();
+				REGIONS_TO_RENDER.put(r.coord, cr);
 			}
 			cr.render();
 
@@ -80,7 +79,7 @@ public class WorldRenderer implements IRegionManagerListener, IRenderable{
 		programSky.bind();
 		GL11.glDrawArrays(GL11.GL_QUADS, 0, 4);
 		
-		FontLoader.fontMap.get("fonts/font.fnt").render("aaaa!", 0, 50);
+		FontLoader.FONTS.get("fonts/font.fnt").render("ׂוסע רנטפעא =D", 0, 50);
 		GL11.glLineWidth(10);
 		Drawer.begin(GL_LINES);
 		Drawer.color(1, 0, 0, 1);
@@ -110,60 +109,60 @@ public class WorldRenderer implements IRegionManagerListener, IRenderable{
 						int i3 = (nx + 1) * 33 + (nz + 1);
 						int i4 = (nx + 1) * 33 + nz;
 
-						pa.index(i1);
-						pa.index(i2);
-						pa.index(i3);
-						pa.index(i4);
+						PRIMITIVE_ARRAY.index(i1);
+						PRIMITIVE_ARRAY.index(i2);
+						PRIMITIVE_ARRAY.index(i3);
+						PRIMITIVE_ARRAY.index(i4);
 					}
 				}
 			}
 		}
 	}
 
-	static Vector3f normal = new Vector3f();
-	static Vector3f temp = new Vector3f();
-	static Vector3f v1 = new Vector3f();
-	static Vector3f v2 = new Vector3f();
-	static Vector3f v3 = new Vector3f();
+	static final Vector3f NORMAL_TEMP = new Vector3f();
+	static final Vector3f TEMP = new Vector3f();
+	static final Vector3f V1_TEMP = new Vector3f();
+	static final Vector3f V2_TEMP = new Vector3f();
+	static final Vector3f V3_TEMP = new Vector3f();
 
 	private static void fillBuffers(Region r) {
 
 		for (int x = 2; x < 35; x++) {
 			for (int z = 2; z < 35; z++) {
-				normal.set(0, 0, 0);
-				temp.set(0, 0, 0);
+				NORMAL_TEMP.set(0, 0, 0);
+				TEMP.set(0, 0, 0);
 
-				v1.set(x, r.getHeight(x, z), z);
+				V1_TEMP.set(x, r.getHeight(x, z), z);
 
-				v2.set(x, r.getHeight(x, z + 1), z + 1);
-				v3.set(x + 1, r.getHeight(x + 1, z), z);
-				v1.sub(v2, v2);
-				v1.sub(v3, v3);
-				v2.cross(v3, temp);
-				normal.add(temp);
+				V2_TEMP.set(x, r.getHeight(x, z + 1), z + 1);
+				V3_TEMP.set(x + 1, r.getHeight(x + 1, z), z);
+				V1_TEMP.sub(V2_TEMP, V2_TEMP);
+				V1_TEMP.sub(V3_TEMP, V3_TEMP);
+				V2_TEMP.cross(V3_TEMP, TEMP);
+				NORMAL_TEMP.add(TEMP);
 
-				v2.set(x + 1, r.getHeight(x + 1, z), z);
-				v3.set(x, r.getHeight(x, z - 1), z - 1);
-				v1.sub(v2, v2);
-				v1.sub(v3, v3);
-				v2.cross(v3, temp);
-				normal.add(temp);
+				V2_TEMP.set(x + 1, r.getHeight(x + 1, z), z);
+				V3_TEMP.set(x, r.getHeight(x, z - 1), z - 1);
+				V1_TEMP.sub(V2_TEMP, V2_TEMP);
+				V1_TEMP.sub(V3_TEMP, V3_TEMP);
+				V2_TEMP.cross(V3_TEMP, TEMP);
+				NORMAL_TEMP.add(TEMP);
 
-				v2.set(x, r.getHeight(x, z - 1), z - 1);
-				v3.set(x - 1, r.getHeight(x - 1, z), z);
-				v1.sub(v2, v2);
-				v1.sub(v3, v3);
-				v2.cross(v3, temp);
-				normal.add(temp);
+				V2_TEMP.set(x, r.getHeight(x, z - 1), z - 1);
+				V3_TEMP.set(x - 1, r.getHeight(x - 1, z), z);
+				V1_TEMP.sub(V2_TEMP, V2_TEMP);
+				V1_TEMP.sub(V3_TEMP, V3_TEMP);
+				V2_TEMP.cross(V3_TEMP, TEMP);
+				NORMAL_TEMP.add(TEMP);
 
-				v2.set(x - 1, r.getHeight(x - 1, z), z);
-				v3.set(x, r.getHeight(x, z + 1), z + 1);
-				v1.sub(v2, v2);
-				v1.sub(v3, v3);
-				v2.cross(v3, temp);
-				normal.add(temp);
+				V2_TEMP.set(x - 1, r.getHeight(x - 1, z), z);
+				V3_TEMP.set(x, r.getHeight(x, z + 1), z + 1);
+				V1_TEMP.sub(V2_TEMP, V2_TEMP);
+				V1_TEMP.sub(V3_TEMP, V3_TEMP);
+				V2_TEMP.cross(V3_TEMP, TEMP);
+				NORMAL_TEMP.add(TEMP);
 
-				normal.normalize();
+				NORMAL_TEMP.normalize();
 
 				int nx = x - 2;
 				int nz = z - 2;
@@ -174,10 +173,10 @@ public class WorldRenderer implements IRegionManagerListener, IRenderable{
 				float pxf = r.x * 16 + px;
 				float pzf = r.z * 16 + pz;
 
-				pa.data(POSITION, pxf, r.getHeight(x, z), pzf);
-				pa.data(NORMAL, normal.y);
+				PRIMITIVE_ARRAY.data(POSITION, pxf, r.getHeight(x, z), pzf);
+				PRIMITIVE_ARRAY.data(NORMAL, NORMAL_TEMP.y);
 
-				pa.endVertex();
+				PRIMITIVE_ARRAY.endVertex();
 			}
 		}
 	}
@@ -185,7 +184,7 @@ public class WorldRenderer implements IRegionManagerListener, IRenderable{
 	@Override
 	public void onRegionAdded(Region r) {
 		GLThread.addTask(() -> {
-			regions.put(r.coord, r);
+			REGIONS.put(r.coord, r);
 			r.threads++;
 		});
 
@@ -194,10 +193,10 @@ public class WorldRenderer implements IRegionManagerListener, IRenderable{
 	@Override
 	public void onRegionRemoved(Region r) {
 		GLThread.addTask(() -> {
-			regions.remove(r.coord);
-			if (regionsToRender.containsKey(r.coord)) {
-				regionsToRender.get(r.coord).clear();
-				regionsToRender.remove(r.coord);
+			REGIONS.remove(r.coord);
+			if (REGIONS_TO_RENDER.containsKey(r.coord)) {
+				REGIONS_TO_RENDER.get(r.coord).clear();
+				REGIONS_TO_RENDER.remove(r.coord);
 			}
 			r.threads--;
 		});

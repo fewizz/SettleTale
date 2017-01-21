@@ -3,10 +3,9 @@ package ru.settletale.client;
 import org.lwjgl.opengl.GL11;
 
 import ru.settletale.client.opengl.GL;
-import ru.settletale.client.opengl.Shader;
 import ru.settletale.client.opengl.ShaderProgram;
-import ru.settletale.client.opengl.Shader.Type;
 import ru.settletale.client.render.Drawer;
+import ru.settletale.client.resource.ShaderLoader;
 
 public class Font {
 	public String name;
@@ -24,8 +23,8 @@ public class Font {
 	public void render(String text, float x, float y) {
 		if(program == null) {
 			program = new ShaderProgram().gen();
-			program.attachShader(new Shader(Type.VERTEX, "shaders/font_vs.shader").gen().compile());
-			program.attachShader(new Shader(Type.FRAGMENT, "shaders/font_fs.shader").gen().compile());
+			program.attachShader(ShaderLoader.SHADERS.get("shaders/font.vs"));
+			program.attachShader(ShaderLoader.SHADERS.get("shaders/font.fs"));
 			program.link();
 		}
 		

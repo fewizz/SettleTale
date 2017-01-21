@@ -11,8 +11,7 @@ import org.lwjgl.system.MemoryUtil;
 import ru.settletale.client.opengl.BufferObject.Usage;
 import ru.settletale.client.opengl.ElementArrayBufferObject;
 import ru.settletale.client.opengl.GL;
-import ru.settletale.client.opengl.Shader;
-import ru.settletale.client.opengl.Shader.Type;
+import ru.settletale.client.resource.ShaderLoader;
 import ru.settletale.client.resource.TextureLoader;
 import ru.settletale.world.biome.BiomeAbstract;
 import ru.settletale.world.region.Region;
@@ -44,13 +43,13 @@ public class CompiledRegion {
 		if (program == null) {
 			GL.debug("CR shader start");
 			program = new ShaderProgram().gen();
-			program.attachShader(new Shader(Type.VERTEX, "shaders/terrain_vs.shader").gen().compile());
-			program.attachShader(new Shader(Type.FRAGMENT, "shaders/terrain_fs.shader").gen().compile());
+			program.attachShader(ShaderLoader.SHADERS.get("shaders/terrain.vs"));
+			program.attachShader(ShaderLoader.SHADERS.get("shaders/terrain.fs"));
 			program.link();
 			GL.debug("CR shader end");
 		}
 		if (textureGrass == null) {
-			textureGrass = TextureLoader.textures.get("textures/grass.png");
+			textureGrass = TextureLoader.TEXTURES.get("textures/grass.png");
 			textureGrass.parameter(GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
 			textureGrass.parameter(GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
 		}
@@ -59,7 +58,7 @@ public class CompiledRegion {
 
 			ByteBuffer bb = BufferUtils.createByteBuffer(256 * 3);
 
-			for (BiomeAbstract b : Biomes.biomes) {
+			for (BiomeAbstract b : Biomes.BIOMES) {
 				if (b == null) {
 					continue;
 				}

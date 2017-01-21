@@ -7,8 +7,8 @@ import org.lwjgl.system.MemoryStack;
 import ru.settletale.client.Display;
 
 public class GL {
-	public static final boolean debug = true;
-	public static final boolean debugOnlyFails = true;
+	public static final boolean DEBUG = true;
+	public static final boolean DEBUG_ONLY_ERRORS = true;
 	public static int version;
 	public static int versionMajor;
 	public static int versionMinor;
@@ -70,11 +70,12 @@ public class GL {
 	public static void debug(String s) {
 		debug(s, false);
 	}
+	
 	static String parent = "";
 	public static void debug(String s, boolean printParent) {
-		if (debug) {
+		if (DEBUG) {
 			int error = GL11.glGetError();
-			if (debugOnlyFails && error != 0) {
+			if (DEBUG_ONLY_ERRORS && error != 0) {
 				System.out.println("OpenGL: " + error + " " + s + (printParent ? " | Parent: " + parent : ""));
 			}
 			parent = s;

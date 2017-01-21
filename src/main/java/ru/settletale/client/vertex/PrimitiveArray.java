@@ -8,7 +8,7 @@ import ru.settletale.util.DirectByteBufferUtils;
 
 public class PrimitiveArray {
 	private final VertexStorageAbstarct[] storages;
-	ByteBuffer ib;
+	private ByteBuffer ib;
 	private int lastVertex = 0;
 	private int lastIndex = 0;
 	private int lastAddedStorage = 0;
@@ -117,7 +117,7 @@ public class PrimitiveArray {
 	public void index(int vertexIndex) {
 		int id = lastIndex;
 
-		int sizeBytes = 1 * Short.BYTES;
+		int sizeBytes = Short.BYTES;
 		id *= sizeBytes;
 
 		int limit = id + sizeBytes;
@@ -125,7 +125,7 @@ public class PrimitiveArray {
 		if (limit > ib.capacity())
 			DirectByteBufferUtils.growBuffer(ib, 1.5F);
 
-		ib.limit(Math.max(ib.limit(), limit));
+		ib.limit(limit);
 
 		ib.putShort(id, (short) vertexIndex);
 

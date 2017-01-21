@@ -13,7 +13,7 @@ import ru.settletale.event.EventManager;
 import ru.settletale.util.TickTimer;
 
 public class GLThread extends Thread {
-	static final private ConcurrentLinkedQueue<Runnable> taskQueue = new ConcurrentLinkedQueue<>();
+	static final private ConcurrentLinkedQueue<Runnable> TASK_QUEUE = new ConcurrentLinkedQueue<>();
 	private static IRenderable renderable;
 
 	public GLThread() {
@@ -71,7 +71,7 @@ public class GLThread extends Thread {
 	}
 
 	private static void doTasks() {
-		Runnable r = taskQueue.poll();
+		Runnable r = TASK_QUEUE.poll();
 		
 		for(;;) {
 			if(r == null) {
@@ -79,13 +79,13 @@ public class GLThread extends Thread {
 			}
 			
 			r.run();
-			r = taskQueue.poll();
+			r = TASK_QUEUE.poll();
 		}
 
 	}
 
 	public static void addTask(Runnable runnable) {
-		taskQueue.add(runnable);
+		TASK_QUEUE.add(runnable);
 	}
 	
 	public static void setRenderable(IRenderable renderable) {

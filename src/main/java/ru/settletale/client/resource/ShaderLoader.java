@@ -6,21 +6,24 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import ru.settletale.client.opengl.Shader;
+import ru.settletale.client.render.GLThread;
+
 public class ShaderLoader extends ResourceLoaderAbstract {
-	public static final Map<String, String> shaderSources = new HashMap<>();
+	public static final Map<String, Shader> SHADERS = new HashMap<>();
 
 	@Override
-	public String getRequiredExtension() {
-		return "shader";
+	public String[] getRequiredExtensions() {
+		return new String[] {"vs", "fs"};
 	}
 	
 	@Override
 	public void loadResource(ResourceFile resourceFile) {
 		System.out.println("Loading shader: " + resourceFile.key);
 		
+		StringBuilder text = new StringBuilder();
+		
 		try(FileReader fr = new FileReader(resourceFile.fullPath); BufferedReader reader = new BufferedReader(fr)) {
-			StringBuilder text = new StringBuilder();
-
 			for (;;) {
 				String line = reader.readLine();
 
@@ -30,10 +33,17 @@ public class ShaderLoader extends ResourceLoaderAbstract {
 
 				text.append(line).append("\n");
 			}
-
-			shaderSources.put(resourceFile.key, text.toString());
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
+		
+		Shader.Type type = Shader.Type.getByExtension(resourceFile.getExtension());
+		Shader shader = new Shader(type, text.toString());
+		
+		GLThread.addTask(() -> {
+			shader.gen().compile();
+		});
+		
+		SHADERS.put(resourceFile.key, shader);
 	}
 }
