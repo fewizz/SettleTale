@@ -1,7 +1,7 @@
 package ru.settletale;
 
 import ru.settletale.client.PlatformClient;
-import ru.settletale.registry.Biomes;
+import ru.settletale.registry.Registry;
 import ru.settletale.server.PlatformServer;
 import ru.settletale.util.Side;
 import ru.settletale.world.World;
@@ -16,8 +16,7 @@ public class Game {
 		else {
 			platform = new PlatformClient();
 		}
-		Biomes.register();
-		
+		Registry.init();
 		
 		platform.start();
 	}

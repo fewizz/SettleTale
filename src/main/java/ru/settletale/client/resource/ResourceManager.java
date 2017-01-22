@@ -22,6 +22,7 @@ public class ResourceManager {
 		resourceLoaders.add(new TextureLoader());
 		resourceLoaders.add(new ShaderLoader());
 		resourceLoaders.add(new FontLoader());
+		resourceLoaders.add(new ObjModelLoader());
 
 		resourceLoaders.forEach(rla -> rla.onResourceManagerStart());
 		startResourceScanning();

@@ -7,8 +7,8 @@ import org.lwjgl.system.MemoryStack;
 import ru.settletale.client.Display;
 
 public class GL {
-	public static final boolean DEBUG = true;
-	public static final boolean DEBUG_ONLY_ERRORS = true;
+	private static final boolean DEBUG = true;
+	private static final boolean DEBUG_ONLY_ERRORS = true;
 	public static int version;
 	public static int versionMajor;
 	public static int versionMinor;

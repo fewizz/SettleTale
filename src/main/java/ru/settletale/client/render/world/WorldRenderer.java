@@ -17,6 +17,7 @@ import ru.settletale.client.render.Drawer;
 import ru.settletale.client.render.GLThread;
 import ru.settletale.client.render.IRenderable;
 import ru.settletale.client.resource.FontLoader;
+import ru.settletale.client.resource.ObjModelLoader;
 import ru.settletale.client.resource.ShaderLoader;
 import ru.settletale.util.IRegionManagerListener;
 import ru.settletale.world.region.Region;
@@ -86,6 +87,11 @@ public class WorldRenderer implements IRegionManagerListener, IRenderable {
 		Drawer.vertex(0, 50, 0);
 		Drawer.vertex(100, 50, 0);
 		Drawer.draw();
+		
+		GL.viewMatrix.scale(10, 10, 10);
+		GL.viewMatrix.translate(0, 10, 0);
+		GL.updateTransformUniformBlock();
+		ObjModelLoader.MODELS.get("models/dragon.obj").render();
 		
 		GL.viewMatrix.pop();
 		
