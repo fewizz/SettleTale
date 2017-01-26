@@ -20,6 +20,7 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 	static final int NORM = 1;
 	static final int UV = 2;
 	static final int MAT_ID = 3;
+	static final double h = -8.67248e-005;
 
 	public static final Map<String, ObjModel> MODELS = new HashMap<>();
 
@@ -33,6 +34,8 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 		System.out.println("Loading objModel: " + resourceFile.key);
 		String[] strings = FileUtils.readLines(resourceFile.fullPath);
 		ObjModel model = new ObjModel();
+		float[] back = new float[5];
+		int[] backInt = new int[9];
 
 		cleanup(strings);
 
@@ -53,15 +56,15 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 			}
 
 			if (str.startsWith("v ")) {
-				readPosition(str, positions);
+				readPosition(str, positions, back);
 			}
 
 			if (str.startsWith("vn ")) {
-				readNormal(str, normals);
+				readNormal(str, normals, back);
 			}
 			
 			if (str.startsWith("vt ")) {
-				readUV(str, uvs);
+				readUV(str, uvs, back);
 			}
 
 			if (str.startsWith("mtllib ")) {
@@ -73,7 +76,7 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 			}
 
 			if (str.startsWith("f ")) {
-				readFace(str, pa, positions, normals, uvs, currentMatID);
+				readFace(str, pa, positions, normals, uvs, currentMatID, backInt);
 			}
 		}
 
@@ -107,13 +110,17 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 		}
 	}
 
-	public static void readPosition(String str, FloatBuffer fb) {
-		String[] values = str.split(" ");
+	public static void readPosition(String str, FloatBuffer fb, float[] back) {
+		int i = StringUtils.readFloats(str, back);
 
-		float x = Float.valueOf(values[1]);
-		float y = Float.valueOf(values[2]);
-		float z = Float.valueOf(values[3]);
-		float w = values.length == 5 ? Float.valueOf(values[4]) : 1F;
+		float x = back[0];
+		float y = back[1];
+		float z = back[2];
+		float w = i == 4 ? back[3] : 1F;
+		
+		if(x > 1) {
+			System.out.println(str);
+		}
 
 		fb.put(x);
 		fb.put(y);
@@ -121,37 +128,38 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 		fb.put(w);
 	}
 
-	public static void readNormal(String str, FloatBuffer fb) {
-		String[] values = str.split(" ");
-
-		float x = Float.valueOf(values[1]);
-		float y = Float.valueOf(values[2]);
-		float z = Float.valueOf(values[3]);
+	public static void readNormal(String str, FloatBuffer fb, float[] back) {
+		StringUtils.readFloats(str, back);
+		
+		float x = back[0];
+		float y = back[1];
+		float z = back[2];
 
 		fb.put(x);
 		fb.put(y);
 		fb.put(z);
 	}
 
-	public static void readUV(String str, FloatBuffer fb) {
-		String[] values = str.split(" ");
-
-		float u = Float.valueOf(values[1]);
-		float v = Float.valueOf(values[2]);
+	public static void readUV(String str, FloatBuffer fb, float[] back) {
+		StringUtils.readFloats(str, back);
+		
+		float u = back[0];
+		float v = back[1];
 
 		fb.put(u);
 		fb.put(v);
 	}
 	
-	public static void readFace(String str, PrimitiveArray pa, FloatBuffer positions, FloatBuffer normals, FloatBuffer uvs, int matID) {
-		String[] values = str.split(" ");
+	public static void readFace(String str, PrimitiveArray pa, FloatBuffer positions, FloatBuffer normals, FloatBuffer uvs, int matID, int[] back) {
+		int i = StringUtils.readInts(str, back);
+		
+		boolean hasUV = i == 9;
+		int add = hasUV ? 3 : 2;
 
 		for (int k = 0; k < 3; k++) {
-			String[] values2 = values[k + 1].split("/");
-			int v = Integer.parseInt(values2[0]);
-			boolean hasUV = !values2[1].equals("");
-			int vt = hasUV ? Integer.parseInt(values2[1]) : 0;
-			int vn = values2[2].equals("") ? 0 : Integer.parseInt(values2[2]);
+			int v = back[k * add];
+			int vt = hasUV ? back[k * add + 1] : 0;
+			int vn = back[k * add + (hasUV ? 2 : 1)];
 
 			int posIndex = 0;
 			int normIndex = 0;
