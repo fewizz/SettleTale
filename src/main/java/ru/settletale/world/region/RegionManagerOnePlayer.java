@@ -3,8 +3,7 @@ package ru.settletale.world.region;
 import java.util.Iterator;
 
 import ru.settletale.client.Camera;
-import ru.settletale.util.IRegionManagerListener;
-import ru.settletale.util.SSMath;
+import ru.settletale.util.MathUtils;
 
 public class RegionManagerOnePlayer extends RegionManagerAbstract {
 	protected RegionGenerator regionGenerator;
@@ -22,8 +21,8 @@ public class RegionManagerOnePlayer extends RegionManagerAbstract {
 	
 	@Override
 	public void update() {
-		int regX = SSMath.floor2(Camera.x / 16F);
-		int regZ = SSMath.floor2(Camera.z / 16F);
+		int regX = MathUtils.floor2(Camera.x / 16F);
+		int regZ = MathUtils.floor2(Camera.z / 16F);
 		
 		regions.forEach((long key, Region obj) -> obj.active = false);
 

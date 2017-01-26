@@ -13,12 +13,12 @@ import org.lwjgl.opengl.GL11;
 import ru.settletale.client.opengl.Texture2D;
 import ru.settletale.client.render.GLThread;
 
-public class TextureLoader extends ResourceLoaderOneExtAbstract {
+public class TextureLoader extends ResourceLoaderAbstract {
 	public static final Map<String, Texture2D> TEXTURES = new HashMap<>();
 
 	@Override
-	public String getRequiredExtension() {
-		return "png";
+	public String[] getRequiredExtensions() {
+		return new String[] {"png"};
 	}
 	
 	@Override

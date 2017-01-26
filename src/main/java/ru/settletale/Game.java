@@ -9,7 +9,7 @@ import ru.settletale.world.World;
 public class Game {
 	public static PlatformAbstract platform;
 	
-	public static void main(String[] args) {
+	public static void main(String... args) {
 		if(args != null && args.length == 1 && args[0].equals("--server")) {
 			platform = new PlatformServer();
 		}

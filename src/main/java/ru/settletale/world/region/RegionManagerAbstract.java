@@ -6,8 +6,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import com.koloboke.collect.map.hash.HashLongObjMap;
 import com.koloboke.collect.map.hash.HashLongObjMaps;
 
-import ru.settletale.util.IRegionManagerListener;
-import ru.settletale.util.SSMath;
+import ru.settletale.util.MathUtils;
 
 public abstract class RegionManagerAbstract {
 	public final HashLongObjMap<Region> regions;
@@ -23,10 +22,10 @@ public abstract class RegionManagerAbstract {
 	abstract public void update();
 	
 	public boolean regionLoaded(int x, int z) {
-		return regions.containsKey(SSMath.clamp(x, z));
+		return regions.containsKey(MathUtils.clamp(x, z));
 	}
 	
 	public Region getRegion(int x, int z) {
-		return regions.get(SSMath.clamp(x, z));
+		return regions.get(MathUtils.clamp(x, z));
 	}
 }

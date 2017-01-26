@@ -1,6 +1,6 @@
 package ru.settletale.world.layer;
 
-import ru.settletale.util.SSMath;
+import ru.settletale.util.MathUtils;
 
 public class LayerScaleX2Random extends LayerAbstract {
 
@@ -14,8 +14,8 @@ public class LayerScaleX2Random extends LayerAbstract {
 		boolean evenZ = z % 2 == 0;
 		int widthParent = (width / 2) + 3;
 		int lengthParent = (length / 2) + 3;
-		int xParent = SSMath.floor((float) x / 2F) + (x < 0 ? (evenX ? 0 : -1) : -1);
-		int zParent = SSMath.floor((float) z / 2F) + (z < 0 ? (evenZ ? 0 : -1) : -1);
+		int xParent = MathUtils.floor((float) x / 2F) + (x < 0 ? (evenX ? 0 : -1) : -1);
+		int zParent = MathUtils.floor((float) z / 2F) + (z < 0 ? (evenZ ? 0 : -1) : -1);
 		byte[] valuesParent = parent.getValues(xParent, zParent, widthParent, lengthParent);
 		byte[] values = getByteArray(width, length);
 

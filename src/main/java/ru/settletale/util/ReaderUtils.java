@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.Reader;
 
 public class ReaderUtils {
-	static final char[] BUFFER = new char[0xFFF];
+	static final char[] BUFFER = new char[16384];
 
 	public static int getLineCount(Reader reader) {
 		int newLineCount = 0;

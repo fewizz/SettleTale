@@ -1,7 +1,7 @@
 package ru.settletale.world.region;
 
 import ru.settletale.registry.Biomes;
-import ru.settletale.util.SSMath;
+import ru.settletale.util.MathUtils;
 import ru.settletale.world.biome.BiomeAbstract;
 
 public class Region {
@@ -21,7 +21,7 @@ public class Region {
 		this.x = x;
 		this.z = z;
 		active = false;
-		this.coord = SSMath.clamp(x, z);
+		this.coord = MathUtils.clamp(x, z);
 	}
 	
 	public BiomeAbstract getBiome(int x, int z) {

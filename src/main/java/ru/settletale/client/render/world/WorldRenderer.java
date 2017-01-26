@@ -19,7 +19,7 @@ import ru.settletale.client.render.IRenderable;
 import ru.settletale.client.resource.FontLoader;
 import ru.settletale.client.resource.ObjModelLoader;
 import ru.settletale.client.resource.ShaderLoader;
-import ru.settletale.util.IRegionManagerListener;
+import ru.settletale.world.region.IRegionManagerListener;
 import ru.settletale.world.region.Region;
 
 public class WorldRenderer implements IRegionManagerListener, IRenderable {
@@ -37,7 +37,7 @@ public class WorldRenderer implements IRegionManagerListener, IRenderable {
 		glColor4f(1, 1, 1, 1);
 		glClearColor(0.1F, 0.5F, 1F, 1F);
 		glEnable(GL_DEPTH_TEST);
-		glEnable(GL_BLEND);
+		glEnable(GL_BLEND);	
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		programSky = new ShaderProgram().gen();
 		programSky.attachShader(ShaderLoader.SHADERS.get("shaders/sky.vs"));

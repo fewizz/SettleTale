@@ -24,7 +24,7 @@ public class ResourceManager {
 		resourceLoaders.add(new FontLoader());
 		resourceLoaders.add(new ObjModelLoader());
 
-		resourceLoaders.forEach(rla -> rla.onResourceManagerStart());
+		resourceLoaders.forEach(rla -> rla.onResourcesLoadStart());
 		startResourceScanning();
 		resourceFiles.forEach(resourceFile -> resourceLoaders.forEach(rla -> {
 			for(String ext : rla.getRequiredExtensions()) {
@@ -33,14 +33,14 @@ public class ResourceManager {
 				}
 			}
 		}));
-		resourceLoaders.forEach(rla -> rla.onResourcesLoaded());
+		resourceLoaders.forEach(rla -> rla.onResourcesLoadEnd());
 		
 		EventManager.fireEvent(Event.ResourceManagerLoaded);
 	}
 
 	private static void startResourceScanning() {
 		scanFolder(new File("assets/"));
-		scanFolder(new File("bin/assets/"));
+		scanFolder(new File("src/main/resources/assets/"));
 	}
 
 	private static void scanFolder(File file) {

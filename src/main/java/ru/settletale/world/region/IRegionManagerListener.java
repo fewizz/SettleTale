@@ -1,6 +1,4 @@
-package ru.settletale.util;
-
-import ru.settletale.world.region.Region;
+package ru.settletale.world.region;
 
 public interface IRegionManagerListener {
 	void onRegionAdded(Region r);

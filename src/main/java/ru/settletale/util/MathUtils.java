@@ -1,6 +1,6 @@
 package ru.settletale.util;
 
-public class SSMath {
+public class MathUtils {
 	public static long clamp(int x, int z) {
 		return ((long)z & 0xFFFFFFFFL) | ((long)x << 32);
 	}

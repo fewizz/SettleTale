@@ -1,4 +1,4 @@
-package ru.settletale.client;
+package ru.settletale.client.render;
 
 public class FontChar {
 	public char id;

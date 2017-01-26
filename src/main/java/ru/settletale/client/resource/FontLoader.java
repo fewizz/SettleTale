@@ -6,16 +6,16 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import ru.settletale.client.Font;
-import ru.settletale.client.FontChar;
-import ru.settletale.client.FontPage;
+import ru.settletale.client.render.Font;
+import ru.settletale.client.render.FontChar;
+import ru.settletale.client.render.FontPage;
 
-public class FontLoader extends ResourceLoaderOneExtAbstract {
+public class FontLoader extends ResourceLoaderAbstract {
 	public static final Map<String, Font> FONTS = new HashMap<>();
 	
 	@Override
-	public String getRequiredExtension() {
-		return "fnt";
+	public String[] getRequiredExtensions() {
+		return new String[] {"fnt"};
 	}
 
 	@Override
@@ -64,7 +64,7 @@ public class FontLoader extends ResourceLoaderOneExtAbstract {
 	}
 	
 	@Override
-	public void onResourcesLoaded() {
+	public void onResourcesLoadEnd() {
 		FONTS.forEach((key, f) -> {
 			for(FontPage page : f.pages) {
 				page.texture = TextureLoader.TEXTURES.get(page.textureName);

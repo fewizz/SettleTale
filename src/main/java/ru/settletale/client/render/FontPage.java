@@ -1,4 +1,4 @@
-package ru.settletale.client;
+package ru.settletale.client.render;
 
 import com.koloboke.collect.map.hash.HashCharObjMap;
 import com.koloboke.collect.map.hash.HashCharObjMaps;
