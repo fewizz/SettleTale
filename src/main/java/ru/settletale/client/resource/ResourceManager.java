@@ -23,6 +23,7 @@ public class ResourceManager {
 		resourceLoaders.add(new ShaderLoader());
 		resourceLoaders.add(new FontLoader());
 		resourceLoaders.add(new ObjModelLoader());
+		resourceLoaders.add(new MtlLibLoader());
 
 		resourceLoaders.forEach(rla -> rla.onResourcesLoadStart());
 		startResourceScanning();

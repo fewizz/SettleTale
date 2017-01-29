@@ -1,51 +1,52 @@
 package ru.settletale.client.render;
 
 import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 import java.util.List;
 
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL20;
+import org.lwjgl.system.MemoryUtil;
 
 import ru.settletale.client.opengl.GL;
 import ru.settletale.client.opengl.ShaderProgram;
-import ru.settletale.client.opengl.Texture2D;
+import ru.settletale.client.opengl.UniformBufferObject;
 import ru.settletale.client.opengl.VertexArrayObject;
 import ru.settletale.client.opengl.VertexBufferObject;
-import ru.settletale.client.resource.ObjMtlLoader;
+import ru.settletale.client.resource.MtlLibLoader;
 import ru.settletale.client.resource.ShaderLoader;
 
 public class ObjModel {
 	private String mtlName;
-	private ObjMTL mtl;
-	private List<String> materialsNames;
+	private MTLLib mtl;
+	private List<String> materialNames;
 	private int vertexCount;
 	private VertexArrayObject vao;
 	private VertexBufferObject positionVBO;
 	private VertexBufferObject normalVBO;
 	private VertexBufferObject uvVBO;
 	private VertexBufferObject matidsVBO;
-	//private Texture2D colorsDiffuse;
-	private int[] texUnitIDs;
-	private Texture2D[] textures;
+	private UniformBufferObject ubo;
+	private IntBuffer textureIDs;
 	
 	static ShaderProgram programObj;
 	
 	public void compile() {
 		GL.debug("ModelObj compile start");
 		
-		mtl = ObjMtlLoader.MTLS.get(mtlName);
+		mtl = MtlLibLoader.MTLS.get(mtlName);
 		
 		if(mtl == null) {
 			System.out.println("Model is not using texture!");
-			mtl = ObjMTL.DEFAULT;
-			materialsNames.add("white");
+			mtl = MTLLib.DEFAULT;
 		}
 		
 		positionVBO.gen().loadData();
 		normalVBO.gen().loadData();
 		matidsVBO.gen().loadData();
 		uvVBO.gen().loadData();
+		ubo = new UniformBufferObject().gen();
 		
 		vao = new VertexArrayObject().gen();
 		vao.vertexAttribPointer(positionVBO, 0, 4, GL11.GL_FLOAT, false, 0);
@@ -57,24 +58,27 @@ public class ObjModel {
 		vao.vertexAttribPointer(uvVBO, 2, 2, GL11.GL_FLOAT, false, 0);
 		vao.enableVertexAttribArray(2);
 		
-		vao.vertexAttribPointer(matidsVBO, 3, 1, GL11.GL_BYTE, false, 0);
+		vao.vertexAttribIPointer(matidsVBO, 3, 1, GL11.GL_INT, 0);
 		vao.enableVertexAttribArray(3);
 		
-		texUnitIDs = new int[materialsNames.size()];
-		textures = new Texture2D[materialsNames.size()];
+		ByteBuffer uBuff = MemoryUtil.memAlloc(materialNames.size() * Float.BYTES * 4);
+		textureIDs = MemoryUtil.memAllocInt(materialNames.size());
 		
-		for(int i = 0; i < texUnitIDs.length; i++) {
-			Texture2D tex = mtl.getMaterial(materialsNames.get(i)).textureDiffuse;
+		for(int i = 0; i < materialNames.size(); i++) {
+			Material m = mtl.getMaterial(materialNames.get(i));
 			
-			textures[i] = tex;
+			uBuff.putFloat(m.colorDiffuse.x);
+			uBuff.putFloat(m.colorDiffuse.y);
+			uBuff.putFloat(m.colorDiffuse.z);
+			uBuff.putFloat(1F);
 			
-			if(tex == null) {
-				texUnitIDs[i] = -1;
-				continue;
-			}
-			
-			texUnitIDs[i] = i;
+			textureIDs.put(i);
 		}
+		uBuff.flip();
+		textureIDs.flip();
+		
+		ubo.buffer(uBuff);
+		ubo.loadData();
 		
 		if(programObj == null) {
 			programObj = new ShaderProgram().gen();
@@ -87,22 +91,19 @@ public class ObjModel {
 	
 	public void render() {
 		GL.debug("ModelObj render start");
+		for(int i = 0; i < materialNames.size(); i++) {
+			GL13.glActiveTexture(GL13.GL_TEXTURE0 + i);
+			mtl.getMaterial(materialNames.get(i)).textureDiffuse.bind();
+		}
+		
 		programObj.bind();
 		GL.debug("ModelObj program bind");
 		vao.bind();
 		GL.debug("ModelObj vao bind");
 		
-		for(int i = 0; i < textures.length; i++) {
-			Texture2D tex = textures[i];
-			if(tex == null) {
-				continue;
-			}
-			
-			GL13.glActiveTexture(GL13.GL_TEXTURE0 + i);
-			tex.bind();
-		}
+		GL20.glUniform1iv(0, textureIDs);
+		GL.bindBufferBase(ubo, 4);
 		
-		GL20.glUniform1iv(0, texUnitIDs);
 		GL11.glDrawArrays(GL11.GL_TRIANGLES, 0, vertexCount);
 		GL.debug("ModelObj render end");
 	}
@@ -126,6 +127,6 @@ public class ObjModel {
 	}
 	
 	public void setMaterials(List<String> materials) {
-		this.materialsNames = materials;
+		this.materialNames = materials;
 	}
 }

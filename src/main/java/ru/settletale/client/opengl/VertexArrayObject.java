@@ -19,6 +19,12 @@ public class VertexArrayObject extends NameableAbstract<VertexArrayObject> {
 		GL20.glVertexAttribPointer(index, size, type, normalized, stride, MemoryUtil.NULL);
 	}
 	
+	public void vertexAttribIPointer(BufferObject<?> buffer, int index, int size, int type, int stride) {
+		bind();
+		buffer.bind();
+		GL30.glVertexAttribIPointer(index, size, type, stride, MemoryUtil.NULL);
+	}
+	
 	public void enableVertexAttribArray(int index) {
 		if(GL.version >= 45) {
 			GL45.glEnableVertexArrayAttrib(id, index);

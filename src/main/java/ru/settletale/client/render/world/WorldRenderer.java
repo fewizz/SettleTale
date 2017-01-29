@@ -37,7 +37,8 @@ public class WorldRenderer implements IRegionManagerListener, IRenderable {
 		glColor4f(1, 1, 1, 1);
 		glClearColor(0.1F, 0.5F, 1F, 1F);
 		glEnable(GL_DEPTH_TEST);
-		glEnable(GL_BLEND);	
+		glEnable(GL_BLEND);
+		glEnable(GL_ALPHA_TEST);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		programSky = new ShaderProgram().gen();
 		programSky.attachShader(ShaderLoader.SHADERS.get("shaders/sky.vs"));
@@ -91,7 +92,7 @@ public class WorldRenderer implements IRegionManagerListener, IRenderable {
 		GL.viewMatrix.scale(10, 10, 10);
 		GL.viewMatrix.translate(0, 10, 0);
 		GL.updateTransformUniformBlock();
-		ObjModelLoader.MODELS.get("models/dragon.obj").render();
+		ObjModelLoader.MODELS.get("models/tree/Tree_V10_Final.obj").render();
 		
 		GL.viewMatrix.pop();
 		

@@ -24,6 +24,9 @@ public abstract class VertexStorageAbstarct {
 	public void data(float f1, float f2, float f3, float f4) {
 	}
 	
+	public void data(int i1, int i2, int i3, int i4) {
+	}
+	
 	public abstract void dataEnd(int id);
 
 	public ByteBuffer getBuffer() {

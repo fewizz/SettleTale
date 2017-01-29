@@ -24,9 +24,7 @@ public class GLThread extends Thread {
 	@Override
 	public void run() {
 		initGL();
-		
 		GL.init();
-		
 		loop();
 	}
 	
@@ -84,7 +82,7 @@ public class GLThread extends Thread {
 
 	}
 
-	public static void addTask(Runnable runnable) {
+	public static synchronized void addTask(Runnable runnable) {
 		TASK_QUEUE.add(runnable);
 	}
 	
