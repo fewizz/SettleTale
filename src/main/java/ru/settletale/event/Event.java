@@ -1,6 +1,6 @@
 package ru.settletale.event;
 
 public enum Event {
-	ResourceManagerStart,
-	ResourceManagerLoaded
+	RESOURCE_MANAGER_START,
+	RESOURCE_MANAGER_LOADED,
 }

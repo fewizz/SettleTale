@@ -2,7 +2,7 @@ package ru.settletale.client;
 
 import org.lwjgl.glfw.GLFWCursorPosCallback;
 
-class CursorListener extends GLFWCursorPosCallback {
+public class CursorListener extends GLFWCursorPosCallback {
 	public static double x;
 	public static double y;
 	

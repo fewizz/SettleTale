@@ -19,7 +19,7 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 	static final int POS = 0;
 	static final int NORM = 1;
 	static final int UV = 2;
-	static final int MAT_ID = 3;
+	static final int FLAGS = 3;
 
 	public static final Map<String, ObjModel> MODELS = new HashMap<>();
 
@@ -54,26 +54,20 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 			if (str.startsWith("v ")) {
 				readPosition(str, positions, back);
 			}
-
-			if (str.startsWith("vn ")) {
+			else if (str.startsWith("vn ")) {
 				readNormal(str, normals, back);
 			}
-
-			if (str.startsWith("vt ")) {
+			else if (str.startsWith("vt ")) {
 				readUV(str, uvs, back);
 			}
-
-			if (str.startsWith("mtllib ")) {
+			else if (str.startsWith("f ")) {
+				readFace(str, pa, positions, normals, uvs, currentMatID, backIndex, backPos, backNorm, backUV);
+			}
+			else if (str.startsWith("mtllib ")) {
 				mtlLibName = readNameOfMTLLib(str);
 			}
-
-			if (str.startsWith("usemtl ")) {
+			else if (str.startsWith("usemtl ")) {
 				currentMatID = getIDOfMaterial(str, materials);
-				//System.out.println(currentMatID);
-			}
-
-			if (str.startsWith("f ")) {
-				readFace(str, pa, positions, normals, uvs, currentMatID, backIndex, backPos, backNorm, backUV);
 			}
 		}
 
@@ -81,9 +75,13 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 		normals.rewind();
 		uvs.rewind();
 
-		model.setVertexInfo(pa.getVertexCount(), pa.getBuffer(POS), pa.getBuffer(NORM), pa.getBuffer(UV), pa.getBuffer(MAT_ID));
+		model.setVertexInfo(pa.getVertexCount(), pa.getBuffer(POS), pa.getBuffer(NORM), pa.getBuffer(UV), pa.getBuffer(FLAGS));
 		model.setMtlLibName(mtlLibName);
 		model.setMaterials(materials);
+		
+		if(pa.getVertexCount() > 1000) {
+			System.gc();
+		}
 
 		MODELS.put(resourceFile.key, model);
 	}
@@ -150,7 +148,10 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 
 		int vertCount = isQuad ? 4 : 3;
 
-		pa.data(MAT_ID, matID);
+		int flags = matID;
+		flags |= (hasUV ? 1 : 0) << 8;
+		flags |= (hasNormal ? 1 : 0) << 9;
+		pa.data(FLAGS, flags);
 		
 		for (int k = 0; k < vertCount; k++) {
 			int v = back[k + 1][0];

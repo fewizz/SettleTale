@@ -15,22 +15,29 @@ float rand(vec2 p) {
 }
 
 vec3 iqnoise(vec2 pos) {
-	vec2 cell = floor(pos);
+	ivec2 cell = ivec2(floor(pos));
 	vec2 cellOffset = fract(pos);
 	
 	vec3 value = vec3(0);
-	float accum = 0.0;
+	float accum = 0.;
 	
-	for(int x=-1; x<=1; x++ )
-	for(int y=-1; y<=1; y++ )
+	for(float x=-0.5; x<=1.5; x++)
+	for(float y=-0.5; y<=1.5; y++)
 	{
-		vec2 samplePos = vec2(float(y), float(x));
+		vec2 samplePos = vec2(x, y);
 
-		float centerDistance = length(samplePos - cellOffset);
+		vec2 locPos = samplePos - cellOffset;
+		float centerDistance = length(locPos);
 
-		float sample = 1.0 - smoothstep(0.0, /*1.414*/1.2, centerDistance);
-
+		float sample = 1. - smoothstep(0.0, 1.5, centerDistance);
+		
+		if(sample == 0) {
+			continue;
+		}
+		
+		ivec2 point = ivec2(floor(samplePos)) + cell;
 		vec3 color = getColor(cell + samplePos);
+		
 		value += color * sample;
 		accum += sample;
 	}
@@ -52,7 +59,7 @@ void main(void) {
 	}
 		
 	color_out *= normal_vs;
-	color_out.w = 1;
+	color_out.a = 1;
 }
 
 vec3 getColor(vec2 v) {

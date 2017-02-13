@@ -8,7 +8,7 @@ import java.nio.CharBuffer;
 import org.lwjgl.system.MemoryUtil;
 
 public class FileUtils {
-	static final CharBuffer buffer = MemoryUtil.memAlloc(0xFFFF).asCharBuffer();
+	static final CharBuffer BUFFER = MemoryUtil.memAlloc(0xFFFF).asCharBuffer();
 
 	public static int getLineCount(File f) {
 		try (FileReader fr = new FileReader(f)) {

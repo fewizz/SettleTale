@@ -5,21 +5,20 @@ import java.nio.ByteBuffer;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL13;
 import org.lwjgl.system.MemoryUtil;
 
-import ru.settletale.client.opengl.BufferObject.Usage;
-import ru.settletale.client.opengl.ElementArrayBufferObject;
-import ru.settletale.client.opengl.GL;
+import ru.settletale.client.gl.ElementArrayBufferObject;
+import ru.settletale.client.gl.GL;
+import ru.settletale.client.gl.ShaderProgram;
+import ru.settletale.client.gl.Texture1D;
+import ru.settletale.client.gl.Texture2D;
+import ru.settletale.client.gl.VertexArrayObject;
+import ru.settletale.client.gl.VertexBufferObject;
+import ru.settletale.client.gl.BufferObject.Usage;
 import ru.settletale.client.resource.ShaderLoader;
 import ru.settletale.client.resource.TextureLoader;
 import ru.settletale.world.biome.BiomeAbstract;
 import ru.settletale.world.region.Region;
-import ru.settletale.client.opengl.ShaderProgram;
-import ru.settletale.client.opengl.Texture1D;
-import ru.settletale.client.opengl.Texture2D;
-import ru.settletale.client.opengl.VertexArrayObject;
-import ru.settletale.client.opengl.VertexBufferObject;
 import ru.settletale.client.vertex.PrimitiveArray;
 import ru.settletale.registry.Biomes;
 
@@ -123,12 +122,9 @@ public class CompiledRegion {
 		vao.bind();
 
 		GL.debug("CR bind texture units start");
-		GL13.glActiveTexture(GL13.GL_TEXTURE0);
-		textureIDs.bind();
-		GL13.glActiveTexture(GL13.GL_TEXTURE1);
-		textureBiomes.bind();
-		GL13.glActiveTexture(GL13.GL_TEXTURE2);
-		textureGrass.bind();
+		GL.activeTexture(0, textureIDs);
+		GL.activeTexture(1, textureBiomes);
+		GL.activeTexture(2, textureGrass);
 
 		GL.debug("CR bind texture units end");
 

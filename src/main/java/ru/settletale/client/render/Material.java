@@ -2,7 +2,7 @@ package ru.settletale.client.render;
 
 import org.joml.Vector3f;
 
-import ru.settletale.client.opengl.Texture2D;
+import ru.settletale.client.gl.Texture2D;
 
 public class Material {
 	static final Vector3f WHITE = new Vector3f(1F);

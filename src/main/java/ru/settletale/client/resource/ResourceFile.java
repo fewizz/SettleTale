@@ -12,7 +12,7 @@ public class ResourceFile {
 	}
 	
 	public boolean isEqualExtension(String extension) {
-		return key.endsWith(extension);
+		return key.endsWith("." + extension);
 	}
 	
 	public String getExtension() {

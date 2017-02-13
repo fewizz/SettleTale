@@ -1,17 +1,10 @@
 package ru.settletale.client;
 
-import org.lwjgl.glfw.GLFWErrorCallback;
-import org.lwjgl.glfw.GLFWVidMode;
-import org.lwjgl.system.MemoryUtil;
-
-import static org.lwjgl.glfw.GLFW.*;
-
-import org.lwjgl.glfw.GLFW;
-
 import ru.settletale.PlatformAbstract;
 import ru.settletale.client.render.GLThread;
 import ru.settletale.client.render.world.WorldRenderer;
 import ru.settletale.client.resource.ResourceManager;
+import ru.settletale.entity.EntityPlayer;
 import ru.settletale.util.Side;
 import ru.settletale.util.TickTimer;
 import ru.settletale.world.World;
@@ -19,6 +12,7 @@ import ru.settletale.world.region.RegionManagerOnePlayer;
 
 public class PlatformClient extends PlatformAbstract {
 	private static final GLThread GL_THREAD = new GLThread();
+	public static EntityPlayer player;
 	
 	@Override
 	public Side getSide() {
@@ -26,15 +20,13 @@ public class PlatformClient extends PlatformAbstract {
 	}
 	
 	@Override
-	public void start() {
-		initLWJGL();
-		initGLFW();
-		
+	public void start() {	
 		GL_THREAD.start(); /** Starting rendering **/
 		
 		ResourceManager.loadResources();
 		
 		/** Creating world **/
+		player = new EntityPlayer();
 		world = new World(new RegionManagerOnePlayer());
 		world.regionManager.listeners.add(WorldRenderer.INSTANCE);
 		world.updateThread.start();
@@ -49,40 +41,7 @@ public class PlatformClient extends PlatformAbstract {
 		for(;;) {
 			timer.start();
 			
-			glfwPollEvents();
-			KeyListener.update();
-			Camera.update();
-			GLFW.glfwSetCursorPos(Display.windowID, Display.width / 2, Display.height / 2);
-			
 			timer.waitTimer();
 		}
-	}
-	
-	void initLWJGL() {
-		System.setProperty("org.lwjgl.opengl.capabilities", "static");
-		org.lwjgl.system.Library.initialize();
-	}
-	
-	void initGLFW() {
-		glfwSetErrorCallback(GLFWErrorCallback.createPrint(System.err));
-		if (!glfwInit())
-			throw new IllegalStateException("Unable to initialize GLFW");
-
-		glfwDefaultWindowHints();
-		glfwWindowHint(GLFW_VISIBLE, GLFW_TRUE);
-		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
-
-		Display.windowID = glfwCreateWindow(1000, 800, "Settle Tale", MemoryUtil.NULL, MemoryUtil.NULL);
-		Display.onWindowResize(1000, 800);
-		if (Display.windowID == MemoryUtil.NULL)
-			throw new RuntimeException("Failed to create the GLFW window");
-		
-		glfwSetKeyCallback(Display.windowID, new KeyListener());
-		glfwSetFramebufferSizeCallback(Display.windowID, new WindowResizeListener());
-		glfwSetCursorPosCallback(Display.windowID, new CursorListener());
-
-		GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-		glfwSetWindowPos(Display.windowID, (vidmode.width() - Display.width) / 2, (vidmode.height() - Display.height) / 2);
-		glfwShowWindow(Display.windowID);
 	}
 }

@@ -10,7 +10,7 @@ import javax.imageio.ImageIO;
 
 import org.lwjgl.opengl.GL11;
 
-import ru.settletale.client.opengl.Texture2D;
+import ru.settletale.client.gl.Texture2D;
 import ru.settletale.client.render.GLThread;
 
 public class TextureLoader extends ResourceLoaderAbstract {

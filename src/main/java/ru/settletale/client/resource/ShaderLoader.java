@@ -3,7 +3,7 @@ package ru.settletale.client.resource;
 import java.util.HashMap;
 import java.util.Map;
 
-import ru.settletale.client.opengl.Shader;
+import ru.settletale.client.gl.Shader;
 import ru.settletale.client.render.GLThread;
 import ru.settletale.util.FileUtils;
 

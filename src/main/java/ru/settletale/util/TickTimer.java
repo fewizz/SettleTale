@@ -1,12 +1,14 @@
 package ru.settletale.util;
 
+import java.util.concurrent.TimeUnit;
+
 public class TickTimer {
 	long waitTimeNano;
 	long startTimeNano;
-	public long lastTime;
+	public long lastTimeNano;
 
-	public TickTimer(float countOfTicksPerSecond) {
-		this.waitTimeNano = (long) ((1D / (double) countOfTicksPerSecond) * 1_000_000_000D);
+	public TickTimer(double countOfTicksPerSecond) {
+		this.waitTimeNano = (long) ((1D / countOfTicksPerSecond) * 1_000_000_000D);
 	}
 	
 	public TickTimer(int countOfTicksPerSecond) {
@@ -18,15 +20,15 @@ public class TickTimer {
 	}
 	
 	public void waitTimer() {
-		long end = System.nanoTime();
-		lastTime = end - startTimeNano;
-		long timeToSleep = waitTimeNano - lastTime;
+		long endTimeNano = System.nanoTime();
+		lastTimeNano = endTimeNano - startTimeNano;
+		long timeToSleepNano = waitTimeNano - lastTimeNano;
 		
-		if(timeToSleep < 0) {
+		if(timeToSleepNano < 0) {
 			return;
 		}
 		try {
-			Thread.sleep(timeToSleep / 1_000_000L, (int)(timeToSleep % 1_000_000L));
+			TimeUnit.NANOSECONDS.sleep(timeToSleepNano);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}

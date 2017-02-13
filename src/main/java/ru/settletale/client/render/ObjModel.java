@@ -5,15 +5,14 @@ import java.nio.IntBuffer;
 import java.util.List;
 
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.system.MemoryUtil;
 
-import ru.settletale.client.opengl.GL;
-import ru.settletale.client.opengl.ShaderProgram;
-import ru.settletale.client.opengl.UniformBufferObject;
-import ru.settletale.client.opengl.VertexArrayObject;
-import ru.settletale.client.opengl.VertexBufferObject;
+import ru.settletale.client.gl.GL;
+import ru.settletale.client.gl.ShaderProgram;
+import ru.settletale.client.gl.UniformBufferObject;
+import ru.settletale.client.gl.VertexArrayObject;
+import ru.settletale.client.gl.VertexBufferObject;
 import ru.settletale.client.resource.MtlLibLoader;
 import ru.settletale.client.resource.ShaderLoader;
 
@@ -26,7 +25,7 @@ public class ObjModel {
 	private VertexBufferObject positionVBO;
 	private VertexBufferObject normalVBO;
 	private VertexBufferObject uvVBO;
-	private VertexBufferObject matidsVBO;
+	private VertexBufferObject flagsVBO;
 	private UniformBufferObject ubo;
 	private IntBuffer textureIDs;
 	
@@ -44,7 +43,7 @@ public class ObjModel {
 		
 		positionVBO.gen().loadData();
 		normalVBO.gen().loadData();
-		matidsVBO.gen().loadData();
+		flagsVBO.gen().loadData();
 		uvVBO.gen().loadData();
 		ubo = new UniformBufferObject().gen();
 		
@@ -58,7 +57,7 @@ public class ObjModel {
 		vao.vertexAttribPointer(uvVBO, 2, 2, GL11.GL_FLOAT, false, 0);
 		vao.enableVertexAttribArray(2);
 		
-		vao.vertexAttribIPointer(matidsVBO, 3, 1, GL11.GL_INT, 0);
+		vao.vertexAttribIPointer(flagsVBO, 3, 1, GL11.GL_INT, 0);
 		vao.enableVertexAttribArray(3);
 		
 		ByteBuffer uBuff = MemoryUtil.memAlloc(materialNames.size() * Float.BYTES * 4);
@@ -92,8 +91,7 @@ public class ObjModel {
 	public void render() {
 		GL.debug("ModelObj render start");
 		for(int i = 0; i < materialNames.size(); i++) {
-			GL13.glActiveTexture(GL13.GL_TEXTURE0 + i);
-			mtl.getMaterial(materialNames.get(i)).textureDiffuse.bind();
+			GL.activeTexture(i, mtl.getMaterial(materialNames.get(i)).textureDiffuse);
 		}
 		
 		programObj.bind();
@@ -108,16 +106,16 @@ public class ObjModel {
 		GL.debug("ModelObj render end");
 	}
 	
-	public void setVertexInfo(int vertexCount, ByteBuffer positions, ByteBuffer normals, ByteBuffer uvs, ByteBuffer matIDs) {
+	public void setVertexInfo(int vertexCount, ByteBuffer positions, ByteBuffer normals, ByteBuffer uvs, ByteBuffer flags) {
 		positionVBO = new VertexBufferObject();
 		normalVBO = new VertexBufferObject();
 		uvVBO = new VertexBufferObject();
-		matidsVBO = new VertexBufferObject();
+		flagsVBO = new VertexBufferObject();
 		
 		positionVBO.buffer(positions);
 		normalVBO.buffer(normals);
 		uvVBO.buffer(uvs);
-		matidsVBO.buffer(matIDs);
+		flagsVBO.buffer(flags);
 		
 		this.vertexCount = vertexCount;
 	}

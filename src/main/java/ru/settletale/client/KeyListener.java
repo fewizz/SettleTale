@@ -6,7 +6,7 @@ import org.lwjgl.glfw.GLFWKeyCallback;
 import com.koloboke.collect.map.hash.HashIntObjMap;
 import com.koloboke.collect.map.hash.HashIntObjMaps;
 
-class KeyListener extends GLFWKeyCallback {
+public class KeyListener extends GLFWKeyCallback {
 	private static final HashIntObjMap<KeyState> keyStates = HashIntObjMaps.newMutableMap();
 
 	@Override

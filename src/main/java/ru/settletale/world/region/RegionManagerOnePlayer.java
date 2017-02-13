@@ -21,8 +21,8 @@ public class RegionManagerOnePlayer extends RegionManagerAbstract {
 	
 	@Override
 	public void update() {
-		int regX = MathUtils.floor2(Camera.x / 16F);
-		int regZ = MathUtils.floor2(Camera.z / 16F);
+		int regX = MathUtils.floor(Camera.position.x / 16F);
+		int regZ = MathUtils.floor(Camera.position.z / 16F);
 		
 		regions.forEach((long key, Region obj) -> obj.active = false);
 

@@ -36,7 +36,7 @@ public class ResourceManager {
 		}));
 		resourceLoaders.forEach(rla -> rla.onResourcesLoadEnd());
 		
-		EventManager.fireEvent(Event.ResourceManagerLoaded);
+		EventManager.fireEvent(Event.RESOURCE_MANAGER_LOADED);
 	}
 
 	private static void startResourceScanning() {

@@ -2,8 +2,8 @@ package ru.settletale.client.render;
 
 import org.lwjgl.opengl.GL11;
 
-import ru.settletale.client.opengl.GL;
-import ru.settletale.client.opengl.ShaderProgram;
+import ru.settletale.client.gl.GL;
+import ru.settletale.client.gl.ShaderProgram;
 import ru.settletale.client.resource.ShaderLoader;
 
 public class Font {

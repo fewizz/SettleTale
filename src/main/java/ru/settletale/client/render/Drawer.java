@@ -1,14 +1,13 @@
 package ru.settletale.client.render;
 
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL13;
 
-import ru.settletale.client.opengl.GL;
-import ru.settletale.client.opengl.ShaderProgram;
-import ru.settletale.client.opengl.TextureAbstract;
-import ru.settletale.client.opengl.VertexArrayObject;
-import ru.settletale.client.opengl.VertexBufferObject;
-import ru.settletale.client.opengl.BufferObject.Usage;
+import ru.settletale.client.gl.GL;
+import ru.settletale.client.gl.ShaderProgram;
+import ru.settletale.client.gl.TextureAbstract;
+import ru.settletale.client.gl.VertexArrayObject;
+import ru.settletale.client.gl.VertexBufferObject;
+import ru.settletale.client.gl.BufferObject.Usage;
 import ru.settletale.client.resource.ShaderLoader;
 import ru.settletale.client.vertex.PrimitiveArray;
 import ru.settletale.client.vertex.PrimitiveArray.Storage;
@@ -81,8 +80,7 @@ public class Drawer {
 			uvBuffer.buffer(PRIMITIVE_ARRAY.getBuffer(UV)).loadData();
 			vao.vertexAttribPointer(uvBuffer, 2, 2, GL11.GL_FLOAT, false, 0);
 			vao.enableVertexAttribArray(2);
-			GL13.glActiveTexture(GL13.GL_TEXTURE0);
-			texture.bind();
+			GL.activeTexture(0, texture);
 			program.bind();
 		}
 		else {
