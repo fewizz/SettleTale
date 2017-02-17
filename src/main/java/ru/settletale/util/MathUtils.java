@@ -1,5 +1,7 @@
 package ru.settletale.util;
 
+import org.joml.Vector3f;
+
 public class MathUtils {
 	public static long clamp(int x, int z) {
 		return ((long) z & 0xFFFFFFFFL) | ((long) x << 32);
@@ -36,5 +38,14 @@ public class MathUtils {
 
 	public static float clamp(float x, float min, float max) {
 		return Math.max(min, Math.min(x, max));
+	}
+	
+	public static Vector3f interpolate(Vector3f v1, Vector3f v2, Vector3f dest, float f) {
+		dest.set(v2);
+		dest.sub(v1);
+		dest.mul(f);
+		dest.add(v1);
+		
+		return dest;
 	}
 }

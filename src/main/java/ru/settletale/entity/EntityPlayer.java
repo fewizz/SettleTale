@@ -5,15 +5,12 @@ import static org.lwjgl.glfw.GLFW.*;
 import org.joml.Vector3f;
 
 import ru.settletale.client.Camera;
-import ru.settletale.client.CursorListener;
 import ru.settletale.client.KeyListener;
 
 public class EntityPlayer extends Entity {
 
 	@Override
 	public void update() {
-		position.updatePrevious();
-		
 		Vector3f add = new Vector3f(0);
 		rotationX = Camera.rotationX;
 		rotationY = Camera.rotationY;
@@ -41,7 +38,16 @@ public class EntityPlayer extends Entity {
 			add.y += 1;
 		}
 		
+		add.mul(5);
+		
+		position.updatePrevious();
 		position.add(add);
+		//Camera.playerPosition.set(position);
+		//Camera.lastTime = System.nanoTime() - Camera.startTime;
+		//Camera.startTime = System.nanoTime();
+		//System.out.println("Update player");
+		
+		
 	}
 
 }

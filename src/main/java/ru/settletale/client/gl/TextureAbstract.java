@@ -3,7 +3,6 @@ package ru.settletale.client.gl;
 import org.lwjgl.opengl.GL11;
 
 public abstract class TextureAbstract<T> extends NameableDataContainerAbstract<T> {
-	static int lastID = 0;
 	public final int type;
 	public int internalFormat;
 	public int bufferFormat;
@@ -24,7 +23,12 @@ public abstract class TextureAbstract<T> extends NameableDataContainerAbstract<T
 	}
 	
 	@Override
-	public int internalGet() {
+	public boolean isBase() {
+		return true;
+	}
+	
+	@Override
+	public int genInternal() {
 		return GL11.glGenTextures();
 	}
 	
@@ -47,11 +51,6 @@ public abstract class TextureAbstract<T> extends NameableDataContainerAbstract<T
 	public boolean bind() {
 		GL.activeTextureUnitTexture(this);
 		return super.bind();
-	}
-	
-	public void forceBind() {
-		bindInternal();
-		setLastBoundID(id);
 	}
 	
 	@Override
@@ -97,20 +96,9 @@ public abstract class TextureAbstract<T> extends NameableDataContainerAbstract<T
 		return getThis();
 	}
 	
-	public void delete() {
-		unbind();
+	@Override
+	public void deleteInternal() {
 		GL11.glDeleteTextures(id);
-		id = -2;
-	}
-
-	@Override
-	public void setLastBoundID(int id) {
-		lastID = id;
-	}
-
-	@Override
-	public int getLastBoundID() {
-		return lastID;
 	}
 
 	@Override

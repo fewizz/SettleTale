@@ -2,6 +2,7 @@ package ru.settletale.world;
 
 import java.util.Random;
 
+import ru.settletale.client.PlatformClient;
 import ru.settletale.world.region.Region;
 import ru.settletale.world.region.RegionManagerAbstract;
 
@@ -23,6 +24,7 @@ public class World {
 	}
 
 	public void update() {
+		PlatformClient.player.update();
 		regionManager.update();
 	}
 

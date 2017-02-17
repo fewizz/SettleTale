@@ -6,11 +6,15 @@ import org.lwjgl.opengl.GL45;
 import org.lwjgl.system.MemoryUtil;
 
 public class VertexArrayObject extends NameableAbstract<VertexArrayObject> {
-	public static int lastID = 0;
 	
 	@Override
-	public int internalGet() {
+	public int genInternal() {
 		return GL30.glGenVertexArrays();
+	}
+	
+	@Override
+	public boolean isBase() {
+		return true;
 	}
 	
 	public void vertexAttribPointer(BufferObject<?> buffer, int index, int size, int type, boolean normalized, int stride) {
@@ -43,19 +47,9 @@ public class VertexArrayObject extends NameableAbstract<VertexArrayObject> {
 		GL20.glDisableVertexAttribArray(index);
 	}
 	
-	public void delete() {
+	@Override
+	public void deleteInternal() {
 		GL30.glDeleteVertexArrays(id);
-		id = -1;
-	}
-
-	@Override
-	public void setLastBoundID(int id) {
-		lastID = id;
-	}
-
-	@Override
-	public int getLastBoundID() {
-		return lastID;
 	}
 
 	@Override

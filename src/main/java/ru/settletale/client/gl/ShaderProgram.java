@@ -4,11 +4,15 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 
 public class ShaderProgram extends NameableAbstract<ShaderProgram> {
-	public static int lastID = -1;
 	
 	@Override
-	public int internalGet() {
+	public int genInternal() {
 		return GL20.glCreateProgram();
+	}
+	
+	@Override
+	public boolean isBase() {
+		return true;
 	}
 	
 	public void attachShader(Shader shader) {
@@ -22,20 +26,11 @@ public class ShaderProgram extends NameableAbstract<ShaderProgram> {
 	
 	public void link() {
 		GL20.glLinkProgram(id);
+		
 		if(GL20.glGetProgrami(id, GL20.GL_LINK_STATUS) == GL11.GL_FALSE) {
 			System.err.println("Program not compiled!");
 			System.err.println(GL20.glGetProgramInfoLog(id));
 		}
-	}
-
-	@Override
-	public void setLastBoundID(int id) {
-		lastID = id;
-	}
-
-	@Override
-	public int getLastBoundID() {
-		return lastID;
 	}
 
 	@Override
@@ -46,5 +41,10 @@ public class ShaderProgram extends NameableAbstract<ShaderProgram> {
 	@Override
 	public void unbindInternal() {
 		GL20.glUseProgram(0);
+	}
+
+	@Override
+	public void deleteInternal() {
+		GL20.glDeleteProgram(id);
 	}
 }

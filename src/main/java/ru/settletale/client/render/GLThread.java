@@ -4,53 +4,70 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.Semaphore;
 
+import org.lwjgl.glfw.GLFWErrorCallback;
+import org.lwjgl.glfw.GLFWVidMode;
+import org.lwjgl.system.MemoryUtil;
+
 import static org.lwjgl.glfw.GLFW.*;
 
-import ru.settletale.client.Display;
+import ru.settletale.client.CursorListener;
+import ru.settletale.client.KeyListener;
+import ru.settletale.client.Window;
+import ru.settletale.client.WindowResizeListener;
 import ru.settletale.client.gl.GL;
-import ru.settletale.client.render.world.WorldRenderer;
-import ru.settletale.event.Event;
-import ru.settletale.event.EventListener;
-import ru.settletale.event.EventManager;
 
 public class GLThread extends Thread {
 	private static final Queue<Runnable> TASK_QUEUE = new LinkedList<>();
 	private static final Semaphore SEMAPHORE = new Semaphore(0);
 	private static Stage stage = Stage.ONLY_DO_TASKS;
+	private static GLThread instance;
 
 	public GLThread() {
 		super("Render thread");
-		EventManager.addEventListener(GLThread.class);
+		instance = this;
 	}
 	
 	@Override
 	public void run() {
-		ru.settletale.client.GLFW.initGLFW();
-		ru.settletale.client.LWJGL.initLWJGL();
+		initGLFW();
 		initGL();
 		GL.init();
 		mainLoop();
 	}
 	
-	static void initGL() {
-		glfwMakeContextCurrent(Display.windowID);
-		org.lwjgl.opengl.GL.createCapabilities();
-		glfwSwapInterval(0);
+	public static void initGLFW() {
+		glfwSetErrorCallback(GLFWErrorCallback.createPrint(System.err));
+		if (!glfwInit())
+			throw new IllegalStateException("Unable to initialize GLFW");
+
+		glfwDefaultWindowHints();
+		glfwWindowHint(GLFW_VISIBLE, GLFW_TRUE);
+		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+
+		Window.windowID = glfwCreateWindow(1000, 800, "Settle Tale", MemoryUtil.NULL, MemoryUtil.NULL);
+		Window.onWindowResize(1000, 800);
+		if (Window.windowID == MemoryUtil.NULL)
+			throw new RuntimeException("Failed to create the GLFW window");
+		
+		glfwSetKeyCallback(Window.windowID, new KeyListener());
+		glfwSetFramebufferSizeCallback(Window.windowID, new WindowResizeListener());
+		glfwSetCursorPosCallback(Window.windowID, new CursorListener());
+
+		GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+		glfwSetWindowPos(Window.windowID, (vidmode.width() - Window.width) / 2, (vidmode.height() - Window.height) / 2);
+		glfwShowWindow(Window.windowID);
 	}
 	
-	@EventListener(event = Event.RESOURCE_MANAGER_LOADED)
-	static void onResourceManagerLoaded() {
-		GLThread.addTask(() -> {
-			Drawer.init();
-			WorldRenderer.init();
-			setStage(Stage.RENDER_WORLD);
-		});
+	static void initGL() {
+		glfwMakeContextCurrent(Window.windowID);
+		org.lwjgl.opengl.GL.createCapabilities();
+		glfwSwapInterval(0);
 	}
 
 	private static void mainLoop() {
 		for(;;) {
-			interrupted();
 			stage.doStuff();
+			interrupted();
 		}
 	}
 
@@ -59,7 +76,7 @@ public class GLThread extends Thread {
 		TASK_QUEUE.poll().run();
 	}
 	
-	public static void doAvailableTasks() {	
+	public static void doAvailableTasks() {
 		for(;;) {
 			if(SEMAPHORE.tryAcquire()) {
 				TASK_QUEUE.poll().run();
@@ -77,7 +94,9 @@ public class GLThread extends Thread {
 	
 	public static synchronized void setStage(Stage stage) {
 		GLThread.stage = stage;
-		currentThread().interrupt();
+		if(instance.getState() == Thread.State.WAITING) {
+			instance.interrupt();
+		}
 	}
 	
 	public enum Stage {

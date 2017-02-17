@@ -4,7 +4,6 @@ import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL45;
 
 public class BufferObject<T> extends NameableDataContainerAbstract<T> {
-	static int lastID = -1;
 	protected int type;
 	Usage usage;
 	int offset;
@@ -15,13 +14,13 @@ public class BufferObject<T> extends NameableDataContainerAbstract<T> {
 	}
 	
 	@Override
-	public int internalGet() {
-		return GL.version >= 45 ? GL45.glCreateBuffers() : GL15.glGenBuffers();
+	public boolean isBase() {
+		return true;
 	}
 	
 	@Override
-	public void setLastBoundID(int id) {
-		lastID = id;
+	public int genInternal() {
+		return GL.version >= 45 ? GL45.glCreateBuffers() : GL15.glGenBuffers();
 	}
 	
 	public T usage(Usage usage) {
@@ -32,11 +31,6 @@ public class BufferObject<T> extends NameableDataContainerAbstract<T> {
 	public T offset(int offset) {
 		this.offset = offset;
 		return getThis();
-	}
-
-	@Override
-	public int getLastBoundID() {
-		return lastID;
 	}
 
 	@Override
@@ -73,9 +67,9 @@ public class BufferObject<T> extends NameableDataContainerAbstract<T> {
 		return getThis();
 	}
 	
-	public void delete() {
+	@Override
+	public void deleteInternal() {
 		GL15.glDeleteBuffers(id);
-		id = -1;
 	}
 	
 	public enum Usage {

@@ -2,12 +2,14 @@ package ru.settletale.world.region;
 
 import java.util.Iterator;
 
-import ru.settletale.client.Camera;
+import ru.settletale.Game;
+import ru.settletale.client.PlatformClient;
 import ru.settletale.util.MathUtils;
+import ru.settletale.util.TickTimer;
 
 public class RegionManagerOnePlayer extends RegionManagerAbstract {
 	protected RegionGenerator regionGenerator;
-	public static final int REGION_LOAD_RADIUS = 20;
+	public static final int REGION_LOAD_RADIUS = 30;
 
 	public RegionManagerOnePlayer() {
 		super();
@@ -21,19 +23,26 @@ public class RegionManagerOnePlayer extends RegionManagerAbstract {
 	
 	@Override
 	public void update() {
-		int regX = MathUtils.floor(Camera.position.x / 16F);
-		int regZ = MathUtils.floor(Camera.position.z / 16F);
+		int regX = MathUtils.floor(PlatformClient.player.position.x / 16F);
+		int regZ = MathUtils.floor(PlatformClient.player.position.z / 16F);
 		
 		regions.forEach((long key, Region obj) -> obj.active = false);
+		
+		TickTimer worldTimer = Game.getWorld().updateThread.timer;
 
 		for (int x = -REGION_LOAD_RADIUS + regX; x <= REGION_LOAD_RADIUS + regX; x++) {
 			for (int z = -REGION_LOAD_RADIUS + regZ; z <= REGION_LOAD_RADIUS + regZ; z++) {
+				
+				if(System.nanoTime() - worldTimer.startTimeNano > worldTimer.waitTimeNano - (worldTimer.waitTimeNano / 10)) {
+					return;
+				}
+				
 				float w = x - regX;
 				float l = z - regZ;
 
-				float hyp = (float) Math.sqrt((w * w) + (l * l));
+				float hyp2 = (w * w) + (l * l);
 
-				if (hyp >= REGION_LOAD_RADIUS) {
+				if (hyp2 >= REGION_LOAD_RADIUS * REGION_LOAD_RADIUS) {
 					continue;
 				}
 

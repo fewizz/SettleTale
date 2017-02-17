@@ -8,7 +8,7 @@ public class CursorListener extends GLFWCursorPosCallback {
 	
 	@Override
 	public void invoke(long window, double xpos, double ypos) {
-		x = xpos - (Display.width / 2);
-		y = ypos - (Display.height / 2);
+		x = xpos - (Window.width / 2);
+		y = ypos - (Window.height / 2);
 	}
 }

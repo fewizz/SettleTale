@@ -26,7 +26,7 @@ public class CompiledRegion {
 	static Texture1D textureBiomes;
 	static Texture2D textureGrass;
 	static ByteBuffer textureIDsTempBuffer = BufferUtils.createByteBuffer(18 * 20);
-	static ShaderProgram program;
+	static ShaderProgram program = new ShaderProgram();
 	
 	Region region;
 	VertexBufferObject pbo;
@@ -39,9 +39,9 @@ public class CompiledRegion {
 	public CompiledRegion(Region region) {
 		this.region = region;
 
-		if (program == null) {
+		if (!program.isGenerated()) {
 			GL.debug("CR shader start");
-			program = new ShaderProgram().gen();
+			program.gen();
 			program.attachShader(ShaderLoader.SHADERS.get("shaders/terrain.vs"));
 			program.attachShader(ShaderLoader.SHADERS.get("shaders/terrain.fs"));
 			program.link();

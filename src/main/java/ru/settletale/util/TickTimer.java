@@ -3,8 +3,10 @@ package ru.settletale.util;
 import java.util.concurrent.TimeUnit;
 
 public class TickTimer {
-	long waitTimeNano;
-	long startTimeNano;
+	public long waitTimeNano;
+	public long startTimeNano;
+	public long endTimeNano;
+	public long prevStartTimeNano;
 	public long lastTimeNano;
 
 	public TickTimer(double countOfTicksPerSecond) {
@@ -16,13 +18,12 @@ public class TickTimer {
 	}
 	
 	public void start() {
+		prevStartTimeNano = startTimeNano;
 		startTimeNano = System.nanoTime();
 	}
 	
-	public void waitTimer() {
-		long endTimeNano = System.nanoTime();
-		lastTimeNano = endTimeNano - startTimeNano;
-		long timeToSleepNano = waitTimeNano - lastTimeNano;
+	public void waitAndEndTimer() {
+		long timeToSleepNano = waitTimeNano - (System.nanoTime() - startTimeNano);
 		
 		if(timeToSleepNano < 0) {
 			return;
@@ -32,5 +33,12 @@ public class TickTimer {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		
+		end();
+	}
+	
+	public void end() {
+		endTimeNano = System.nanoTime();
+		lastTimeNano = endTimeNano - startTimeNano;
 	}
 }

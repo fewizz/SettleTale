@@ -101,27 +101,23 @@ public class WorldRenderer implements IRegionManagerListener {
 		GL.debug("Fill buffers0");
 
 		for (int x = 0; x < 16; x++) {
+			int nx = x * 2;
+			
 			for (int z = 0; z < 16; z++) {
 				int nz = z * 2;
-				int nx = x * 2;
 
 				int i1 = nx * 33 + nz;
-				int i2 = nx * 33 + (nz + 1);
-				int i3 = (nx + 1) * 33 + (nz + 1);
-				int i4 = (nx + 1) * 33 + nz;
+				int i2 = i1 + 1;
+				int i3 = i2 + 33;
+				int i4 = i1 + 33;
 
 				for (int x2 = 0; x2 < 2; x2++) {
 
 					for (int z2 = 0; z2 < 2; z2++) {
-						PRIMITIVE_ARRAY.index(i1);
-						PRIMITIVE_ARRAY.index(i2);
-						PRIMITIVE_ARRAY.index(i3);
-						PRIMITIVE_ARRAY.index(i4);
-
-						i1++;
-						i2++;
-						i3++;
-						i4++;
+						PRIMITIVE_ARRAY.index(i1++);
+						PRIMITIVE_ARRAY.index(i2++);
+						PRIMITIVE_ARRAY.index(i3++);
+						PRIMITIVE_ARRAY.index(i4++);
 					}
 
 					i1 -= 2;

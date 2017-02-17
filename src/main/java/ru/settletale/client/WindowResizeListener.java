@@ -6,6 +6,6 @@ public class WindowResizeListener extends GLFWFramebufferSizeCallback {
 
 	@Override
 	public void invoke(long window, int width, int height) {
-		Display.onWindowResize(width, height);
+		Window.onWindowResize(width, height);
 	}
 }

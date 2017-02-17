@@ -5,10 +5,10 @@ import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.system.MemoryStack;
 
-import ru.settletale.client.Display;
+import ru.settletale.client.Window;
 
 public class GL {
-	private static final boolean DEBUG = true;
+	public static final boolean DEBUG = true;
 	private static final boolean DEBUG_ONLY_ERRORS = true;
 	private static UniformBufferObject uboMatricies;
 	private static UniformBufferObject uboDisplaySize;
@@ -57,7 +57,7 @@ public class GL {
 		debug("UpdateDisplaySizeUniformBlock start");
 
 		try (MemoryStack ms = MemoryStack.stackPush()) {
-			uboDisplaySize.buffer(ms.floats(Display.width, Display.height)).loadSubData();
+			uboDisplaySize.buffer(ms.floats(Window.width, Window.height)).loadSubData();
 			bindBufferBase(uboDisplaySize, 1);
 		}
 

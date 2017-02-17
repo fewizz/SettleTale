@@ -7,10 +7,12 @@ public class WorldUpdateThread extends Thread {
 	final int countOfUpdatesPerSec;
 	public static final int DEFAULT_COUNT_OF_UPDATES_PER_TICK = 20;
 	public int ticks = 0;
+	public TickTimer timer;
 	
 	public WorldUpdateThread(World world) {
 		this.world = world;
 		this.countOfUpdatesPerSec = DEFAULT_COUNT_OF_UPDATES_PER_TICK;
+		this.timer = new TickTimer(DEFAULT_COUNT_OF_UPDATES_PER_TICK);
 	}
 	
 	public WorldUpdateThread(World world, int countOfUpdatesPerSec) {
@@ -22,14 +24,12 @@ public class WorldUpdateThread extends Thread {
 	public void run() {
 		world.start();
 		
-		TickTimer timer = new TickTimer(countOfUpdatesPerSec);
-		
 		for(;;) {
 			timer.start();
 			
 			world.update();
 			
-			timer.waitTimer();
+			timer.waitAndEndTimer();
 			
 			ticks++;
 		}
