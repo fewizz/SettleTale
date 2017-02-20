@@ -5,10 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import ru.settletale.client.gl.Shader;
 import ru.settletale.client.gl.ShaderProgram;
-import ru.settletale.client.resource.ResourceManager;
-import ru.settletale.util.FileUtils;
 
 public class RenderLayerList {
 	static final int POS = 0;
@@ -41,7 +38,7 @@ public class RenderLayerList {
 	
 	public void compile() {
 		layers.forEach(layer -> {
-			layer.program = generateOrGetShaderProgram(layer);
+			//layer.program = generateOrGetShaderProgram(layer);
 			layer.compile();
 		});
 	}
@@ -52,7 +49,7 @@ public class RenderLayerList {
 		});
 	}
 	
-	public RenderLayerList position(float x, float y, float z) {
+	/*public RenderLayerList position(float x, float y, float z) {
 		currentLayer.primitiveArray.data(POS, x, y, z, 1);
 		return this;
 	}
@@ -157,5 +154,5 @@ public class RenderLayerList {
 		}
 		
 		return builder.toString();
-	}
+	}*/
 }

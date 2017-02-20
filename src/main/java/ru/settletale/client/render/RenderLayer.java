@@ -1,79 +1,62 @@
 package ru.settletale.client.render;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.lwjgl.opengl.GL11;
 
+import ru.settletale.client.gl.GL;
 import ru.settletale.client.gl.ShaderProgram;
 import ru.settletale.client.gl.VertexArrayObject;
 import ru.settletale.client.gl.VertexBufferObject;
 import ru.settletale.client.vertex.PrimitiveArray;
+import ru.settletale.util.ClientUtils;
 
-public class RenderLayer {
-	int posIndex;
-	int normIndex;
-	int uvIndex;
-	int colorIndex;
-	int flagsIndex;
-	
-	public boolean usedNormal;
-	public boolean usedColor;
-	public boolean usedUV;
-	public boolean usedMaterials;
-	public boolean usedTextures;
-	List<Material> materials;
+public class RenderLayer extends PrimitiveArray {
 	VertexArrayObject vao;
-	VertexBufferObject positionBuffer;
-	VertexBufferObject normalBuffer;
-	VertexBufferObject colorBuffer;
-	VertexBufferObject uvBuffer;
-	VertexBufferObject flagsBuffer;
-	int vertexCount = 0;
-	PrimitiveArray primitiveArray;
 	ShaderProgram program;
+	VertexBufferObject[] buffers;
+	boolean[] normalisations;
+	int bufferCount;
 	
-	public RenderLayer(PrimitiveArray array) {
-		primitiveArray = array;
-		materials = new ArrayList<>();
+	public RenderLayer(StorageInfo... storages) {
+		super(storages);
+		normalisations = new boolean[16];
+		vao = new VertexArrayObject();
 	}
 	
 	public void compile() {
-		vao = new VertexArrayObject().gen();
-		
+		compile(false);
+	}
+	
+	public void compile(boolean allowSubDataIfPossible) {
+		if(!vao.isGenerated()) {
+			vao.gen();
+		}
 		vao.bind();
-		positionBuffer = new VertexBufferObject().gen();
-		normalBuffer = new VertexBufferObject().gen();
-		colorBuffer = new VertexBufferObject().gen();
-		uvBuffer = new VertexBufferObject().gen();
-		flagsBuffer = new VertexBufferObject().gen();
 		
-		positionBuffer.buffer(primitiveArray.getBuffer(posIndex)).loadData();
-		normalBuffer.buffer(primitiveArray.getBuffer(normIndex)).loadData();
-		colorBuffer.buffer(primitiveArray.getBuffer(colorIndex)).loadData();
-		uvBuffer.buffer(primitiveArray.getBuffer(uvIndex)).loadData();
-		flagsBuffer.buffer(primitiveArray.getBuffer(flagsIndex)).loadData();
+		GL.debug("RenderLayer vao creating");
 		
-		vao.vertexAttribPointer(positionBuffer, 0, 4);
-		vao.enableVertexAttribArray(0);
-		
-		if(usedNormal) {
-			vao.vertexAttribPointer(normalBuffer, 1, 3);
-			vao.enableVertexAttribArray(1);
+		for(int i = 0; i < bufferCount; i++) {
+			VertexBufferObject vbo = buffers[i];
+			
+			if(!vbo.isGenerated()) {
+				vbo.gen();
+			}
+			
+			vbo.buffer(getBuffer(i));
+			
+			if(allowSubDataIfPossible) {
+				vbo.loadDataOrSubData();
+			}
+			else {
+				vbo.loadData();
+			}
+			
+			GL.debug("RenderLayer loadData");
+			
+			StorageInfo si = getStorageInfo(i);
+			
+			vao.vertexAttribPointer(vbo, i, si.getElementCount(), ClientUtils.getGLPrimitive(si.getPrimitiveType()), normalisations[i]);
+			vao.enableVertexAttribArray(i);
 		}
-		
-		if(usedUV) {
-			vao.vertexAttribPointer(uvBuffer, 2, 2);
-			vao.enableVertexAttribArray(2);
-		}
-		
-		if(usedColor) {
-			vao.vertexAttribPointer(colorBuffer, 3, 4, GL11.GL_UNSIGNED_BYTE, true);
-			vao.enableVertexAttribArray(3);
-		}
-		
-		vao.vertexAttribIntPointer(flagsBuffer, 4, 1);
-		vao.enableVertexAttribArray(4);
 	}
 	
 	public void render(int mode) {
@@ -82,16 +65,22 @@ public class RenderLayer {
 		GL11.glDrawArrays(mode, 0, vertexCount);
 	}
 	
+	public void setShaderProgram(ShaderProgram program) {
+		this.program = program;
+	}
+	
+	public void enableNormalisation(int index) {
+		this.normalisations[index] = true;
+	}
+	
 	@Override
-	public int hashCode() {
-		int hash = 0;
+	protected void addStorage(StorageInfo es) {
+		super.addStorage(es);
 		
-		hash |= usedNormal ? 1 : 0;
-		hash |= (usedColor ? 1 : 0) << 1;
-		hash |= (usedUV ? 1 : 0) << 2;
-		hash |= (usedMaterials ? 1 : 0) << 3;
-		hash |= (usedTextures ? 1 : 0) << 4;
+		if(buffers == null) {
+			buffers = new VertexBufferObject[16];
+		}
 		
-		return hash;
+		buffers[bufferCount++] = new VertexBufferObject();
 	}
 }

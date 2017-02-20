@@ -1,6 +1,7 @@
 package ru.settletale.client.vertex;
 
 import ru.settletale.util.DirectByteBufferUtils;
+import ru.settletale.util.Primitive;
 
 public class VertexStorageInt extends VertexStorageAbstarct {
 	int i1;
@@ -9,7 +10,7 @@ public class VertexStorageInt extends VertexStorageAbstarct {
 	int i4;
 	
 	public VertexStorageInt(int size) {
-		super(size, Integer.BYTES);
+		super(size, Primitive.INT);
 	}
 
 	@Override

@@ -2,92 +2,69 @@ package ru.settletale.client.vertex;
 
 import java.nio.ByteBuffer;
 
-import org.lwjgl.system.MemoryUtil;
-
-import ru.settletale.util.DirectByteBufferUtils;
+import ru.settletale.util.Primitive;
 
 public class PrimitiveArray {
 	private final VertexStorageAbstarct[] storages;
-	private ByteBuffer ib;
-	private int lastVertex = 0;
-	private int lastIndex = 0;
-	private int lastAddedStorage = 0;
+	private final StorageInfo[] storagesInfos;
+	protected int vertexCount = 0;
+	private int storageCount = 0;
+	
+	public PrimitiveArray(StorageInfo... storages) {
+		this.storages = new VertexStorageAbstarct[16];
+		this.storagesInfos = new StorageInfo[16];
+		addStorages(storages);
+	}
 
-	public PrimitiveArray(Storage... storages) {
-		this(false, storages);
+	public static enum StorageInfo {
+		FLOAT_4(new VertexStorageFloat(4)),
+		FLOAT_3(new VertexStorageFloat(3)),
+		FLOAT_2(new VertexStorageFloat(2)),
+		FLOAT_1(new VertexStorageFloat(1)),
+		INT_1(new VertexStorageInt(1)),
+		BYTE_4(new VertexStorageByte(4)),
+		BYTE_3(new VertexStorageByte(3)),
+		BYTE_1(new VertexStorageByte(1));
+		
+		final Primitive primitive;
+		final VertexStorageAbstarct vs;
+		final int perVertexElementCount;
+
+		private StorageInfo(VertexStorageAbstarct vs) {
+			this.vs = vs;
+			this.perVertexElementCount = vs.count;
+			this.primitive = vs.primitive;
+		}
+		
+		public VertexStorageAbstarct getVertexStorage() {
+			return vs;
+		}
+		
+		public int getElementCount() {
+			return perVertexElementCount;
+		}
+		
+		public Primitive getPrimitiveType() {
+			return primitive;
+		}
+	}
+
+	public void addStorages(StorageInfo... storages) {
+		for(StorageInfo storage : storages) {
+			addStorage(storage);
+		}
 	}
 	
-	public PrimitiveArray(boolean indexed, Storage... storages) {
-		if(indexed) {
-			ib = MemoryUtil.memAlloc(4096);
-			ib.limit(0);
-		}
-
-		this.storages = new VertexStorageAbstarct[storages.length];
-
-		for (Storage data : storages) {
-			data.setBool(this);
-		}
+	protected void addStorage(StorageInfo es) {
+		storages[storageCount] = es.getVertexStorage();
+		storagesInfos[storageCount] = es;
+		storageCount++;
 	}
 
-	public static enum Storage {
-		FLOAT_4 {
-			@Override
-			void setBool(PrimitiveArray arr) {
-				arr.addStorage(new VertexStorageFloat(4));
-			}
-		},
-		FLOAT_3 {
-			@Override
-			void setBool(PrimitiveArray arr) {
-				arr.addStorage(new VertexStorageFloat(3));
-			}
-		},
-		FLOAT_2 {
-			@Override
-			void setBool(PrimitiveArray arr) {
-				arr.addStorage(new VertexStorageFloat(2));
-			}
-		},
-		FLOAT_1 {
-			@Override
-			void setBool(PrimitiveArray arr) {
-				arr.addStorage(new VertexStorageFloat(1));
-			}
-		},
-		INT_1 {
-			@Override
-			void setBool(PrimitiveArray arr) {
-				arr.addStorage(new VertexStorageInt(1));
-			}
-		},
-		BYTE_4 {
-			@Override
-			void setBool(PrimitiveArray arr) {
-				arr.addStorage(new VertexStorageByte(4));
-			}
-		},
-		BYTE_3 {
-			@Override
-			void setBool(PrimitiveArray arr) {
-				arr.addStorage(new VertexStorageByte(3));
-			}
-		},
-		BYTE_1 {
-			@Override
-			void setBool(PrimitiveArray arr) {
-				arr.addStorage(new VertexStorageByte(1));
-			}
-		};
-
-		void setBool(PrimitiveArray arr) {
-		}
+	public StorageInfo getStorageInfo(int index) {
+		return storagesInfos[index];
 	}
-
-	private void addStorage(VertexStorageAbstarct s) {
-		storages[lastAddedStorage++] = s;
-	}
-
+	
 	public void data(int storage, float f1, float f2, float f3, float f4) {
 		storages[storage].data(f1, f2, f3, f4);
 	}
@@ -121,54 +98,25 @@ public class PrimitiveArray {
 	}
 
 	public void endVertex() {
-		for (VertexStorageAbstarct s : storages) {
-			s.dataEnd(lastVertex);
+		for (int i = 0; i < storageCount; i++) {
+			storages[i].dataEnd(vertexCount);
 		}
 
-		lastVertex++;
-	}
-
-	public void index(int vertexIndex) {
-		int id = lastIndex;
-
-		int sizeBytes = Short.BYTES;
-		id *= sizeBytes;
-
-		int limit = id + sizeBytes;
-
-		if (limit > ib.capacity())
-			DirectByteBufferUtils.growBuffer(ib, 1.5F);
-
-		ib.limit(limit);
-
-		ib.putShort(id, (short) vertexIndex);
-
-		ib.position(0);
-
-		lastIndex++;
+		vertexCount++;
 	}
 
 	public ByteBuffer getBuffer(int storage) {
 		return storages[storage].getBuffer();
 	}
 
-	public ByteBuffer getIndexBuffer() {
-		return ib;
-	}
-
 	public void clear() {
-		for (VertexStorageAbstarct s : storages) {
-			s.clear();
+		for (int i = 0; i < storageCount; i++) {
+			storages[i].clear();
 		}
-		lastVertex = 0;
-		lastIndex = 0;
+		vertexCount = 0;
 	}
 
 	public int getVertexCount() {
-		return this.lastVertex;
-	}
-
-	public int getIndexCount() {
-		return this.lastIndex;
+		return this.vertexCount;
 	}
 }

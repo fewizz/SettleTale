@@ -11,7 +11,7 @@ import org.lwjgl.system.MemoryUtil;
 import ru.settletale.client.render.GLThread;
 import ru.settletale.client.render.ObjModel;
 import ru.settletale.client.vertex.PrimitiveArray;
-import ru.settletale.client.vertex.PrimitiveArray.Storage;
+import ru.settletale.client.vertex.PrimitiveArray.StorageInfo;
 import ru.settletale.util.FileUtils;
 import ru.settletale.util.StringUtils;
 
@@ -42,7 +42,7 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 		FloatBuffer positions = MemoryUtil.memAllocFloat(getCountOfElementsSuccessively(strings, "v ") * 4);
 		FloatBuffer uvs = MemoryUtil.memAllocFloat(getCountOfElementsSuccessively(strings, "vt ") * 2);
 		FloatBuffer normals = MemoryUtil.memAllocFloat(getCountOfElementsSuccessively(strings, "vn ") * 3);
-		PrimitiveArray pa = new PrimitiveArray(Storage.FLOAT_4, Storage.FLOAT_3, Storage.FLOAT_2, Storage.INT_1);
+		PrimitiveArray pa = new PrimitiveArray(StorageInfo.FLOAT_4, StorageInfo.FLOAT_3, StorageInfo.FLOAT_2, StorageInfo.INT_1);
 
 		String mtlLibName = "";
 		List<String> materials = new ArrayList<String>();

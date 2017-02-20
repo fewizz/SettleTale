@@ -13,7 +13,9 @@ import ru.settletale.client.Window;
 import ru.settletale.client.gl.GL;
 import ru.settletale.client.gl.ShaderProgram;
 import ru.settletale.client.vertex.PrimitiveArray;
-import ru.settletale.client.vertex.PrimitiveArray.Storage;
+import ru.settletale.client.vertex.PrimitiveArray.StorageInfo;
+import ru.settletale.client.vertex.PrimitiveArrayIndexed;
+import ru.settletale.client.render.Drawer;
 import ru.settletale.client.render.GLThread;
 import ru.settletale.client.render.MainRenderer;
 import ru.settletale.client.render.RenderLayerList;
@@ -30,7 +32,7 @@ public class WorldRenderer implements IRegionManagerListener {
 	public static final int POSITION = 0;
 	public static final int NORMAL = 1;
 
-	public static final PrimitiveArray PRIMITIVE_ARRAY = new PrimitiveArray(true, Storage.FLOAT_3, Storage.FLOAT_1);
+	public static final PrimitiveArrayIndexed PRIMITIVE_ARRAY = new PrimitiveArrayIndexed(StorageInfo.FLOAT_3, StorageInfo.FLOAT_1);
 	static ShaderProgram programSky;
 	
 	static RenderLayerList lineList;
@@ -47,10 +49,10 @@ public class WorldRenderer implements IRegionManagerListener {
 		programSky.attachShader(ShaderLoader.SHADERS.get("shaders/sky.fs"));
 		programSky.link();
 		
-		lineList = new RenderLayerList();
+		/*lineList = new RenderLayerList();
 		lineList.position(0   , 50, 0).color((byte)255, (byte)0, (byte)0, (byte)255).endVertex();
 		lineList.position( 100, 50, 0).color((byte)255, (byte)0, (byte)0, (byte)255).endVertex();
-		lineList.compile();
+		lineList.compile();*/
 	}
 
 	public static void render() {
@@ -93,14 +95,14 @@ public class WorldRenderer implements IRegionManagerListener {
 
 		FontLoader.FONTS.get("fonts/font.fnt").render("ׂוסע רנטפעא =D", 0, 50);
 		GL11.glLineWidth(10);
-		/*Drawer.begin(GL_LINES);
+		Drawer.begin(GL_LINES);
 		Drawer.color(1, 0, 0, 1);
 		Drawer.vertex(0, 50, 0);
 		Drawer.vertex(100, 50, 0);
-		Drawer.draw();*/
+		Drawer.draw();
 		
 		GL.updateTransformUniformBlock();
-		lineList.render(GL11.GL_LINES);
+		//lineList.render(GL11.GL_LINES);
 
 		GL.PROJ_MATRIX.identity();
 		GL.PROJ_MATRIX.ortho2D(0, Window.width, 0, Window.height);

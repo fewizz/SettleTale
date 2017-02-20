@@ -19,7 +19,7 @@ import ru.settletale.client.resource.ShaderLoader;
 import ru.settletale.client.resource.TextureLoader;
 import ru.settletale.world.biome.BiomeAbstract;
 import ru.settletale.world.region.Region;
-import ru.settletale.client.vertex.PrimitiveArray;
+import ru.settletale.client.vertex.PrimitiveArrayIndexed;
 import ru.settletale.registry.Biomes;
 
 public class CompiledRegion {
@@ -73,7 +73,7 @@ public class CompiledRegion {
 		}
 	}
 
-	public void compile(PrimitiveArray pa) {
+	public void compile(PrimitiveArrayIndexed pa) {
 		GL.debug("CR compile start");
 
 		pbo = new VertexBufferObject().gen();

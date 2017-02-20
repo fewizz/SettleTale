@@ -4,16 +4,18 @@ import java.nio.ByteBuffer;
 
 import org.lwjgl.system.MemoryUtil;
 
+import ru.settletale.util.Primitive;
+
 public abstract class VertexStorageAbstarct {
 	final int count;
-	final int primitiveSize;
 	final int growBytes;
 	ByteBuffer buff;
+	Primitive primitive;
 
-	public VertexStorageAbstarct(int size, int primitiveSize) {
+	public VertexStorageAbstarct(int size, Primitive p) {
 		this.count = size;
-		this.primitiveSize = primitiveSize;
-		this.growBytes = size * primitiveSize;
+		this.primitive = p;
+		this.growBytes = size * p.sizeInBytes;
 		buff = MemoryUtil.memAlloc(4096);
 		buff.limit(0);
 	}
