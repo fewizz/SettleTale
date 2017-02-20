@@ -48,7 +48,7 @@ public class Shader extends NameableAbstract<Shader> {
 	public Shader compile() {
 		GL20.glCompileShader(id);
 		if(GL20.glGetShaderi(id, GL20.GL_COMPILE_STATUS) == GL11.GL_FALSE) {
-			System.err.println(type.name + " " + source + " \nnot compiled!");
+			System.err.println(type.name + "\n" + source + " \nnot compiled!");
 			System.err.println(GL20.glGetShaderInfoLog(id));
 		}
 		return this;

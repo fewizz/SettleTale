@@ -7,15 +7,17 @@ import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import ru.settletale.event.Event;
 import ru.settletale.event.EventManager;
 
 public class ResourceManager {
-	static final List<ResourceFile> resourceFiles = new ArrayList<>();
+	static final Map<String, ResourceFile> resourceFiles = new HashMap<>();
 	static final List<ResourceLoaderAbstract> resourceLoaders = new ArrayList<>();
 
 	public static void loadResources() {
@@ -27,7 +29,7 @@ public class ResourceManager {
 
 		resourceLoaders.forEach(rla -> rla.onResourcesLoadStart());
 		startResourceScanning();
-		resourceFiles.forEach(resourceFile -> resourceLoaders.forEach(rla -> {
+		resourceFiles.forEach((key, resourceFile) -> resourceLoaders.forEach(rla -> {
 			for(String ext : rla.getRequiredExtensions()) {
 				if (resourceFile.isEqualExtension(ext)) {
 					rla.loadResource(resourceFile);
@@ -64,11 +66,15 @@ public class ResourceManager {
 				String key = path.subpath(assetsIndex, path.getNameCount()).toString();
 				key = key.replace("\\", "/");
 
-				resourceFiles.add(new ResourceFile(key, path.toAbsolutePath().toFile()));
+				resourceFiles.put(key, new ResourceFile(key, path.toAbsolutePath().toFile()));
 			}
 
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public static ResourceFile getResourceFile(String key) {
+		return resourceFiles.get(key);
 	}
 }

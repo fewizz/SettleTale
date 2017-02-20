@@ -20,9 +20,6 @@ public class Window {
 
 		GLThread.addTask(() -> {
 			glViewport(0, 0, width, height);
-			GL.projMatrix.identity();
-			GL.projMatrix.perspective((float) Math.toRadians(120), (float) width / (float) height, 0.1F, 1000);
-			GL.updateTransformUniformBlock();
 			GL.updateDisplaySizeUniformBlock();
 		});
 

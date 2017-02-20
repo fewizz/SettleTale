@@ -19,14 +19,11 @@ public class GL {
 	public static int version;
 	public static int versionMajor;
 	public static int versionMinor;
-	public static Matrix4fv projMatrix;
-	public static Matrix4fv viewMatrix;
+	public static final Matrix4fv PROJ_MATRIX = new Matrix4fv();
+	public static final Matrix4fv VIEW_MATRIX = new Matrix4fv();
 
 	public static void init() {
 		debug("Init start");
-
-		projMatrix = new Matrix4fv();
-		viewMatrix = new Matrix4fv();
 
 		try (MemoryStack ms = MemoryStack.stackPush()) {
 			uboMatricies = new UniformBufferObject().gen().buffer(ms.callocFloat(32)).loadData();
@@ -43,10 +40,10 @@ public class GL {
 	public static void updateTransformUniformBlock() {
 		debug("UpdateTransformUniformBlock start");
 
-		projMatrix.updateBuffer();
-		viewMatrix.updateBuffer();
-		uboMatricies.buffer(projMatrix.buffer).offset(0).loadSubData();
-		uboMatricies.buffer(viewMatrix.buffer).offset(16 * Float.BYTES).loadSubData();
+		PROJ_MATRIX.updateBuffer();
+		VIEW_MATRIX.updateBuffer();
+		uboMatricies.buffer(PROJ_MATRIX.buffer).offset(0).loadSubData();
+		uboMatricies.buffer(VIEW_MATRIX.buffer).offset(16 * Float.BYTES).loadSubData();
 
 		bindBufferBase(uboMatricies, 0);
 

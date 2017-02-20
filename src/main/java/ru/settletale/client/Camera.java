@@ -23,8 +23,8 @@ public class Camera {
 		
 		MathUtils.interpolate(player.position.previous, player.position, position, f);
 		
-		rotationX += CursorListener.y;
-		rotationY += CursorListener.x;
+		rotationX += CursorListener.y / 2F;
+		rotationY += CursorListener.x / 2F;
 		
 		if(rotationX > 90) {
 			rotationX = 90;

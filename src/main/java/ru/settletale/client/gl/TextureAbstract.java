@@ -53,7 +53,6 @@ public abstract class TextureAbstract<T> extends NameableDataContainerAbstract<T
 		return super.bind();
 	}
 	
-	@Override
 	public T loadData() {
 		bind();
 		internalLoadData();
@@ -62,7 +61,6 @@ public abstract class TextureAbstract<T> extends NameableDataContainerAbstract<T
 		return getThis();
 	}
 	
-	@Override
 	public T loadSubData() {
 		bind();
 		internalLoadSubData();

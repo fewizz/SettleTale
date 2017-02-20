@@ -65,8 +65,8 @@ public class Drawer {
 	public static void draw(ShaderProgram program) {
 		GL.debug("Drawer start", true);
 
-		positionBuffer.buffer(PRIMITIVE_ARRAY.getBuffer(POSITION)).loadData();
-		colorBuffer.buffer(PRIMITIVE_ARRAY.getBuffer(COLOR)).loadData();
+		positionBuffer.buffer(PRIMITIVE_ARRAY.getBuffer(POSITION)).loadDataOrSubData();
+		colorBuffer.buffer(PRIMITIVE_ARRAY.getBuffer(COLOR)).loadDataOrSubData();
 
 		vao.vertexAttribPointer(positionBuffer, 0, 3, GL11.GL_FLOAT, false, 0);
 		vao.enableVertexAttribArray(0);

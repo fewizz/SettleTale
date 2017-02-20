@@ -9,12 +9,14 @@ import com.koloboke.collect.map.hash.HashLongObjMap;
 import com.koloboke.collect.map.hash.HashLongObjMaps;
 
 import ru.settletale.client.Camera;
+import ru.settletale.client.Window;
 import ru.settletale.client.gl.GL;
 import ru.settletale.client.gl.ShaderProgram;
 import ru.settletale.client.vertex.PrimitiveArray;
 import ru.settletale.client.vertex.PrimitiveArray.Storage;
-import ru.settletale.client.render.Drawer;
 import ru.settletale.client.render.GLThread;
+import ru.settletale.client.render.MainRenderer;
+import ru.settletale.client.render.RenderLayerList;
 import ru.settletale.client.resource.FontLoader;
 import ru.settletale.client.resource.ShaderLoader;
 import ru.settletale.world.region.IRegionManagerListener;
@@ -30,6 +32,8 @@ public class WorldRenderer implements IRegionManagerListener {
 
 	public static final PrimitiveArray PRIMITIVE_ARRAY = new PrimitiveArray(true, Storage.FLOAT_3, Storage.FLOAT_1);
 	static ShaderProgram programSky;
+	
+	static RenderLayerList lineList;
 
 	public static void init() {
 		glColor4f(1, 1, 1, 1);
@@ -42,16 +46,25 @@ public class WorldRenderer implements IRegionManagerListener {
 		programSky.attachShader(ShaderLoader.SHADERS.get("shaders/sky.vs"));
 		programSky.attachShader(ShaderLoader.SHADERS.get("shaders/sky.fs"));
 		programSky.link();
+		
+		lineList = new RenderLayerList();
+		lineList.position(0   , 50, 0).color((byte)255, (byte)0, (byte)0, (byte)255).endVertex();
+		lineList.position( 100, 50, 0).color((byte)255, (byte)0, (byte)0, (byte)255).endVertex();
+		lineList.compile();
 	}
 
 	public static void render() {
 		GL.debug("World rend start");
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		GL.viewMatrix.push();
-		GL.viewMatrix.rotateDeg(Camera.rotationX, 1, 0, 0);
-		GL.viewMatrix.rotateDeg(Camera.rotationY, 0, 1, 0);
-		GL.viewMatrix.translate(-Camera.position.x, -Camera.position.y, -Camera.position.z);
+		GL.PROJ_MATRIX.identity();
+		GL.PROJ_MATRIX.perspective((float) Math.toRadians(120), (float) Window.width / (float) Window.height, 0.1F, 1000);
+		GL.VIEW_MATRIX.push();
+		GL.PROJ_MATRIX.push();
+		
+		GL.VIEW_MATRIX.rotateDeg(Camera.rotationX, 1, 0, 0);
+		GL.VIEW_MATRIX.rotateDeg(Camera.rotationY, 0, 1, 0);
+		GL.VIEW_MATRIX.translate(-Camera.position.x, -Camera.position.y, -Camera.position.z);
 
 		GL.updateTransformUniformBlock();
 
@@ -80,17 +93,24 @@ public class WorldRenderer implements IRegionManagerListener {
 
 		FontLoader.FONTS.get("fonts/font.fnt").render("ׂוסע רנטפעא =D", 0, 50);
 		GL11.glLineWidth(10);
-		Drawer.begin(GL_LINES);
+		/*Drawer.begin(GL_LINES);
 		Drawer.color(1, 0, 0, 1);
 		Drawer.vertex(0, 50, 0);
 		Drawer.vertex(100, 50, 0);
-		Drawer.draw();
-
-		GL.viewMatrix.scale(10, 10, 10);
-		GL.viewMatrix.translate(0, 0, 0);
+		Drawer.draw();*/
+		
 		GL.updateTransformUniformBlock();
+		lineList.render(GL11.GL_LINES);
 
-		GL.viewMatrix.pop();
+		GL.PROJ_MATRIX.identity();
+		GL.PROJ_MATRIX.ortho2D(0, Window.width, 0, Window.height);
+		GL.VIEW_MATRIX.identity();
+		GL.updateTransformUniformBlock();
+		
+		FontLoader.FONTS.get("fonts/font.fnt").render("FPS: " + MainRenderer.lastFPSCount, 10, Window.height - 60);
+		
+		GL.PROJ_MATRIX.pop();
+		GL.VIEW_MATRIX.pop();
 
 		GL.debug("World rend end");
 	}

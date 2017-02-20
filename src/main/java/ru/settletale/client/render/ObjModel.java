@@ -57,7 +57,7 @@ public class ObjModel {
 		vao.vertexAttribPointer(uvVBO, 2, 2, GL11.GL_FLOAT, false, 0);
 		vao.enableVertexAttribArray(2);
 		
-		vao.vertexAttribIPointer(flagsVBO, 3, 1, GL11.GL_INT, 0);
+		vao.vertexAttribIntPointer(flagsVBO, 3, 1, GL11.GL_INT, 0);
 		vao.enableVertexAttribArray(3);
 		
 		ByteBuffer uBuff = MemoryUtil.memAlloc(materialNames.size() * Float.BYTES * 4);

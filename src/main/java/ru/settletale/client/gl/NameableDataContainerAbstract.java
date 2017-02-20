@@ -17,10 +17,9 @@ public abstract class NameableDataContainerAbstract<T> extends NameableAbstract<
 		this.buffer = MemoryUtil.memByteBuffer(MemoryUtil.memAddress(buffer), buffer.capacity() * Float.BYTES);
 		return getThis();
 	}
-
+	
 	@Override
-	public abstract T loadData();
-
-	@Override
-	public abstract T loadSubData();
+	public ByteBuffer getBuffer() {
+		return buffer;
+	}
 }

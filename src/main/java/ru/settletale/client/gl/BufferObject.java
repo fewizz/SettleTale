@@ -5,6 +5,7 @@ import org.lwjgl.opengl.GL45;
 
 public class BufferObject<T> extends NameableDataContainerAbstract<T> {
 	protected int type;
+	int loadedSize;
 	Usage usage;
 	int offset;
 	
@@ -43,8 +44,9 @@ public class BufferObject<T> extends NameableDataContainerAbstract<T> {
 		GL15.glBindBuffer(type, 0);
 	}
 	
-	@Override
 	public T loadData() {
+		loadedSize = buffer.remaining();
+		
 		if(GL.version >= 45) {
 			GL45.glNamedBufferData(id, buffer, usage.glCode);
 			return getThis();
@@ -55,7 +57,6 @@ public class BufferObject<T> extends NameableDataContainerAbstract<T> {
 		return getThis();
 	}
 
-	@Override
 	public T loadSubData() {
 		if(GL.version >= 45) {
 			GL45.glNamedBufferSubData(id, offset, buffer);
@@ -64,6 +65,19 @@ public class BufferObject<T> extends NameableDataContainerAbstract<T> {
 
 		bind();
 		GL15.glBufferSubData(type, offset, buffer);
+		return getThis();
+	}
+	
+	public T loadDataOrSubData() {
+		int size = buffer.remaining();
+		
+		if(size <= loadedSize) {
+			loadSubData();
+		}
+		else {
+			loadData();
+		}
+		
 		return getThis();
 	}
 	
