@@ -5,36 +5,27 @@ import java.nio.ByteBuffer;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.system.MemoryUtil;
 
-import ru.settletale.client.gl.ElementArrayBufferObject;
 import ru.settletale.client.gl.GL;
 import ru.settletale.client.gl.ShaderProgram;
 import ru.settletale.client.gl.Texture1D;
 import ru.settletale.client.gl.Texture2D;
-import ru.settletale.client.gl.VertexArrayObject;
-import ru.settletale.client.gl.VertexBufferObject;
-import ru.settletale.client.gl.BufferObject.Usage;
+import ru.settletale.client.render.RenderLayer;
 import ru.settletale.client.resource.ShaderLoader;
 import ru.settletale.client.resource.TextureLoader;
 import ru.settletale.world.biome.BiomeAbstract;
 import ru.settletale.world.region.Region;
-import ru.settletale.client.vertex.PrimitiveArrayIndexed;
+import ru.settletale.client.vertex.VertexArrayIndexed;
 import ru.settletale.registry.Biomes;
 
 public class CompiledRegion {
 	static Texture1D textureBiomes;
 	static Texture2D textureGrass;
-	static ByteBuffer textureIDsTempBuffer = BufferUtils.createByteBuffer(18 * 20);
-	static ShaderProgram program = new ShaderProgram();
-	
+	static final ByteBuffer textureIDsTempBuffer = BufferUtils.createByteBuffer(18 * 20);
+	static final ShaderProgram program = new ShaderProgram();
 	Region region;
-	VertexBufferObject pbo;
-	VertexBufferObject nbo;
-	ElementArrayBufferObject ib;
-	VertexArrayObject vao;
+	RenderLayer layer;
 	Texture2D textureIDs;
-	int indexCount = 0;
 
 	public CompiledRegion(Region region) {
 		this.region = region;
@@ -73,30 +64,13 @@ public class CompiledRegion {
 		}
 	}
 
-	public void compile(PrimitiveArrayIndexed pa) {
+	public void compile(VertexArrayIndexed pa) {
 		GL.debug("CR compile start");
 
-		pbo = new VertexBufferObject().gen();
-		nbo = new VertexBufferObject().gen();
-
-		ib = new ElementArrayBufferObject().gen();
-
-		vao = new VertexArrayObject().gen();
-		vao.bind();
-
-		pbo.buffer(pa.getBuffer(WorldRenderer.POSITION)).usage(Usage.STATIC_DRAW).loadData();
-		nbo.buffer(pa.getBuffer(WorldRenderer.NORMAL)).usage(Usage.STATIC_DRAW).loadData();
-
-		ib.buffer(pa.getIndexBuffer()).usage(Usage.STATIC_DRAW).loadData();
-
-		vao.vertexAttribPointer(pbo, 0, 3, GL11.GL_FLOAT, false, 0);
-		vao.enableVertexAttribArray(0);
-
-		vao.vertexAttribPointer(nbo, 1, 1, GL11.GL_FLOAT, false, 0);
-		vao.enableVertexAttribArray(1);
-		vao.unbind();
-
-		indexCount = pa.getIndexCount();
+		this.layer = new RenderLayer(true);
+		this.layer.setVertexArray(pa);
+		this.layer.compile();
+		this.layer.setShaderProgram(program);
 
 		textureIDs = new Texture2D(18, 18).gen().internalFormat(GL11.GL_RED).bufferFormat(GL11.GL_RED).bufferType(GL11.GL_UNSIGNED_BYTE);
 
@@ -119,7 +93,6 @@ public class CompiledRegion {
 	public void render() {
 		program.bind();
 		GL.debug("CR rend shader start");
-		vao.bind();
 
 		GL.debug("CR bind texture units start");
 		GL.activeTexture(0, textureIDs);
@@ -129,17 +102,14 @@ public class CompiledRegion {
 		GL.debug("CR bind texture units end");
 
 		GL.debug("CR rend start");
-		ib.bind();
-		GL11.glDrawElements(GL11.GL_QUADS, indexCount, GL11.GL_UNSIGNED_SHORT, MemoryUtil.NULL);
+		
+		this.layer.render(GL11.GL_QUADS);
 		GL.debug("CR rend end");
 		GL.debug("CR unbind vao");
 	}
 
 	public void clear() {
-		pbo.delete();
-		nbo.delete();
-		vao.delete();
-		ib.delete();
+		layer.getVertexArray().clear();
 		textureIDs.delete();
 	}
 

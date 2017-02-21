@@ -12,9 +12,8 @@ import ru.settletale.client.Camera;
 import ru.settletale.client.Window;
 import ru.settletale.client.gl.GL;
 import ru.settletale.client.gl.ShaderProgram;
-import ru.settletale.client.vertex.PrimitiveArray;
-import ru.settletale.client.vertex.PrimitiveArray.StorageInfo;
-import ru.settletale.client.vertex.PrimitiveArrayIndexed;
+import ru.settletale.client.vertex.VertexArray.StorageInfo;
+import ru.settletale.client.vertex.VertexArrayIndexed;
 import ru.settletale.client.render.Drawer;
 import ru.settletale.client.render.GLThread;
 import ru.settletale.client.render.MainRenderer;
@@ -32,7 +31,7 @@ public class WorldRenderer implements IRegionManagerListener {
 	public static final int POSITION = 0;
 	public static final int NORMAL = 1;
 
-	public static final PrimitiveArrayIndexed PRIMITIVE_ARRAY = new PrimitiveArrayIndexed(StorageInfo.FLOAT_3, StorageInfo.FLOAT_1);
+	public static final VertexArrayIndexed PRIMITIVE_ARRAY = new VertexArrayIndexed(false, StorageInfo.FLOAT_3, StorageInfo.FLOAT_1);
 	static ShaderProgram programSky;
 	
 	static RenderLayerList lineList;

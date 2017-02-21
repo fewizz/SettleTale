@@ -10,8 +10,8 @@ import org.lwjgl.system.MemoryUtil;
 
 import ru.settletale.client.render.GLThread;
 import ru.settletale.client.render.ObjModel;
-import ru.settletale.client.vertex.PrimitiveArray;
-import ru.settletale.client.vertex.PrimitiveArray.StorageInfo;
+import ru.settletale.client.vertex.VertexArray;
+import ru.settletale.client.vertex.VertexArray.StorageInfo;
 import ru.settletale.util.FileUtils;
 import ru.settletale.util.StringUtils;
 
@@ -42,7 +42,7 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 		FloatBuffer positions = MemoryUtil.memAllocFloat(getCountOfElementsSuccessively(strings, "v ") * 4);
 		FloatBuffer uvs = MemoryUtil.memAllocFloat(getCountOfElementsSuccessively(strings, "vt ") * 2);
 		FloatBuffer normals = MemoryUtil.memAllocFloat(getCountOfElementsSuccessively(strings, "vn ") * 3);
-		PrimitiveArray pa = new PrimitiveArray(StorageInfo.FLOAT_4, StorageInfo.FLOAT_3, StorageInfo.FLOAT_2, StorageInfo.INT_1);
+		VertexArray pa = new VertexArray(StorageInfo.FLOAT_4, StorageInfo.FLOAT_3, StorageInfo.FLOAT_2, StorageInfo.INT_1);
 
 		String mtlLibName = "";
 		List<String> materials = new ArrayList<String>();
@@ -131,7 +131,7 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 		fb.put(v);
 	}
 
-	public static void readFace(String str, PrimitiveArray pa, FloatBuffer positions, FloatBuffer normals, FloatBuffer uvs, int matID, int[][] back, float[][] backPos, float[][] backNorm, float[][] backUV) {
+	public static void readFace(String str, VertexArray pa, FloatBuffer positions, FloatBuffer normals, FloatBuffer uvs, int matID, int[][] back, float[][] backPos, float[][] backNorm, float[][] backUV) {
 		int count = StringUtils.readInts(str, back, ' ', '/', -1);
 
 		boolean isQuad = count == 8 || count == 12;
@@ -219,7 +219,7 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 		}
 	}
 
-	static void fillPA(PrimitiveArray pa, int indx, float[][] backPos, float[][] backNorm, float[][] backUV) {
+	static void fillPA(VertexArray pa, int indx, float[][] backPos, float[][] backNorm, float[][] backUV) {
 		pa.data(POS, backPos[indx][0], backPos[indx][1], backPos[indx][2], backPos[indx][3]);
 		if (backNorm != null)
 			pa.data(NORM, backNorm[indx][0], backNorm[indx][1], backNorm[indx][2]);

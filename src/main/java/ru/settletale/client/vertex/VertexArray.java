@@ -4,13 +4,13 @@ import java.nio.ByteBuffer;
 
 import ru.settletale.util.Primitive;
 
-public class PrimitiveArray {
+public class VertexArray {
 	private final VertexStorageAbstarct[] storages;
 	private final StorageInfo[] storagesInfos;
 	protected int vertexCount = 0;
 	private int storageCount = 0;
-	
-	public PrimitiveArray(StorageInfo... storages) {
+
+	public VertexArray(StorageInfo... storages) {
 		this.storages = new VertexStorageAbstarct[16];
 		this.storagesInfos = new StorageInfo[16];
 		addStorages(storages);
@@ -23,38 +23,57 @@ public class PrimitiveArray {
 		FLOAT_1(new VertexStorageFloat(1)),
 		INT_1(new VertexStorageInt(1)),
 		BYTE_4(new VertexStorageByte(4)),
+		BYTE_4_NORMALISED(new VertexStorageByte(4), true),
 		BYTE_3(new VertexStorageByte(3)),
 		BYTE_1(new VertexStorageByte(1));
-		
+
 		final Primitive primitive;
 		final VertexStorageAbstarct vs;
 		final int perVertexElementCount;
+		final boolean normalised;
 
 		private StorageInfo(VertexStorageAbstarct vs) {
+			this(vs, false);
+		}
+		
+		private StorageInfo(VertexStorageAbstarct vs, boolean normalised) {
 			this.vs = vs;
 			this.perVertexElementCount = vs.count;
 			this.primitive = vs.primitive;
+			this.normalised = normalised;
 		}
-		
+
 		public VertexStorageAbstarct getVertexStorage() {
 			return vs;
 		}
-		
+
 		public int getElementCount() {
 			return perVertexElementCount;
 		}
-		
+
 		public Primitive getPrimitiveType() {
 			return primitive;
+		}
+		
+		public boolean isNormalised() {
+			return normalised;
 		}
 	}
 
 	public void addStorages(StorageInfo... storages) {
-		for(StorageInfo storage : storages) {
+		for (StorageInfo storage : storages) {
 			addStorage(storage);
 		}
 	}
 	
+	public int getStorageCount() {
+		return this.storageCount;
+	}
+	
+	public VertexStorageAbstarct[] getStorages() {
+		return this.storages;
+	}
+
 	protected void addStorage(StorageInfo es) {
 		storages[storageCount] = es.getVertexStorage();
 		storagesInfos[storageCount] = es;
@@ -64,7 +83,7 @@ public class PrimitiveArray {
 	public StorageInfo getStorageInfo(int index) {
 		return storagesInfos[index];
 	}
-	
+
 	public void data(int storage, float f1, float f2, float f3, float f4) {
 		storages[storage].data(f1, f2, f3, f4);
 	}
@@ -72,19 +91,19 @@ public class PrimitiveArray {
 	public void data(int storage, float f1) {
 		this.data(storage, f1, 0, 0, 0);
 	}
-	
+
 	public void data(int storage, float f1, float f2, float f3) {
 		this.data(storage, f1, f2, f3, 0);
 	}
-	
+
 	public void data(int storage, float f1, float f2) {
 		this.data(storage, f1, f2, 0, 0);
 	}
-	
+
 	public void data(int storage, int i1, int i2, int i3, int i4) {
 		storages[storage].data(i1, i2, i3, i4);
 	}
-	
+
 	public void data(int storage, int i1) {
 		this.data(storage, i1, 0, 0, 0);
 	}

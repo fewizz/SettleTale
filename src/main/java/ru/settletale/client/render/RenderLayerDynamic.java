@@ -1,7 +1,7 @@
 package ru.settletale.client.render;
 
-import ru.settletale.client.vertex.PrimitiveArray;
-import ru.settletale.client.vertex.PrimitiveArray.StorageInfo;
+import ru.settletale.client.vertex.VertexArray;
+import ru.settletale.client.vertex.VertexArray.StorageInfo;
 
 public class RenderLayerDynamic extends RenderLayer {
 	/*static final int POS = 0;

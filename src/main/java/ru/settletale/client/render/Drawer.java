@@ -4,7 +4,7 @@ import ru.settletale.client.gl.GL;
 import ru.settletale.client.gl.ShaderProgram;
 import ru.settletale.client.gl.TextureAbstract;
 import ru.settletale.client.resource.ShaderLoader;
-import ru.settletale.client.vertex.PrimitiveArray.StorageInfo;
+import ru.settletale.client.vertex.VertexArray.StorageInfo;
 
 public class Drawer {
 	static RenderLayer layer;
@@ -25,8 +25,7 @@ public class Drawer {
 	static byte a = (byte) 0xFF;
 
 	public static void init() {
-		layer = new RenderLayer(StorageInfo.FLOAT_3, StorageInfo.BYTE_4, StorageInfo.FLOAT_2);
-		layer.enableNormalisation(COLOR);
+		layer = new RenderLayer(StorageInfo.FLOAT_3, StorageInfo.BYTE_4_NORMALISED, StorageInfo.FLOAT_2);
 		
 		program = new ShaderProgram().gen();
 		program.attachShader(ShaderLoader.SHADERS.get("shaders/default.vs"));
@@ -43,7 +42,7 @@ public class Drawer {
 		vertexCount = 0;
 		useTexture = false;
 		texture = null;
-		layer.clear();
+		layer.getVertexArray().clear();
 	}
 
 	public static void draw() {
@@ -77,11 +76,11 @@ public class Drawer {
 	}
 
 	public static void vertex(float x, float y, float z) {
-		layer.data(POSITION, x, y, z);
-		layer.data(COLOR, r, g, b, a);
+		layer.getVertexArray().data(POSITION, x, y, z);
+		layer.getVertexArray().data(COLOR, r, g, b, a);
 		if (useTexture)
-			layer.data(UV, u, v);
-		layer.endVertex();
+			layer.getVertexArray().data(UV, u, v);
+		layer.getVertexArray().endVertex();
 	}
 
 	public static void texture(TextureAbstract<?> texture) {
