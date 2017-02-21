@@ -25,13 +25,13 @@ import ru.settletale.world.region.Region;
 
 public class WorldRenderer implements IRegionManagerListener {
 	public static final WorldRenderer INSTANCE = new WorldRenderer();
-	public static final HashLongObjMap<Region> REGIONS = HashLongObjMaps.newMutableMap();;
-	public static final HashLongObjMap<CompiledRegion> REGIONS_TO_RENDER = HashLongObjMaps.newMutableMap();;
+	public static final HashLongObjMap<Region> REGIONS = HashLongObjMaps.newMutableMap();
+	public static final HashLongObjMap<CompiledRegion> REGIONS_TO_RENDER = HashLongObjMaps.newMutableMap();
 
 	public static final int POSITION = 0;
 	public static final int NORMAL = 1;
 
-	public static final VertexArrayIndexed PRIMITIVE_ARRAY = new VertexArrayIndexed(false, StorageInfo.FLOAT_3, StorageInfo.FLOAT_1);
+	public static final VertexArrayIndexed VERTEX_ARRAY = new VertexArrayIndexed(StorageInfo.FLOAT_3, StorageInfo.FLOAT_1);
 	static ShaderProgram programSky;
 	
 	static RenderLayerList lineList;
@@ -79,9 +79,9 @@ public class WorldRenderer implements IRegionManagerListener {
 				renderRegion(r);
 				GL.debug("Fill VBOs");
 				cr = new CompiledRegion(r);
-				cr.compile(PRIMITIVE_ARRAY);
+				cr.compile(VERTEX_ARRAY);
 				GL.debug("Array clear");
-				PRIMITIVE_ARRAY.clear();
+				VERTEX_ARRAY.clear();
 				REGIONS_TO_RENDER.put(r.coord, cr);
 			}
 			cr.render();
@@ -135,10 +135,10 @@ public class WorldRenderer implements IRegionManagerListener {
 				for (int x2 = 0; x2 < 2; x2++) {
 
 					for (int z2 = 0; z2 < 2; z2++) {
-						PRIMITIVE_ARRAY.index(i1++);
-						PRIMITIVE_ARRAY.index(i2++);
-						PRIMITIVE_ARRAY.index(i3++);
-						PRIMITIVE_ARRAY.index(i4++);
+						VERTEX_ARRAY.index(i1++);
+						VERTEX_ARRAY.index(i2++);
+						VERTEX_ARRAY.index(i3++);
+						VERTEX_ARRAY.index(i4++);
 					}
 
 					i1 -= 2;
@@ -205,10 +205,10 @@ public class WorldRenderer implements IRegionManagerListener {
 
 				NORMAL_TEMP.normalize();
 
-				PRIMITIVE_ARRAY.data(POSITION, pxf, r.getHeight(x, z), pzf);
-				PRIMITIVE_ARRAY.data(NORMAL, NORMAL_TEMP.y);
+				VERTEX_ARRAY.data(POSITION, pxf, r.getHeight(x, z), pzf);
+				VERTEX_ARRAY.data(NORMAL, NORMAL_TEMP.y);
 
-				PRIMITIVE_ARRAY.endVertex();
+				VERTEX_ARRAY.endVertex();
 				
 				pzf += 0.5F;
 			}

@@ -82,6 +82,13 @@ public class BufferObject<T> extends NameableDataContainerAbstract<T> {
 	}
 	
 	@Override
+	public void delete() {
+		super.delete();
+		
+		this.loadedSize = 0;
+	}
+	
+	@Override
 	public void deleteInternal() {
 		GL15.glDeleteBuffers(id);
 	}

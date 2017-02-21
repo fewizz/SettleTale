@@ -11,6 +11,7 @@ import ru.settletale.client.gl.ShaderProgram;
 import ru.settletale.client.gl.Texture1D;
 import ru.settletale.client.gl.Texture2D;
 import ru.settletale.client.render.RenderLayer;
+import ru.settletale.client.render.RenderLayerIndexed;
 import ru.settletale.client.resource.ShaderLoader;
 import ru.settletale.client.resource.TextureLoader;
 import ru.settletale.world.biome.BiomeAbstract;
@@ -67,7 +68,7 @@ public class CompiledRegion {
 	public void compile(VertexArrayIndexed pa) {
 		GL.debug("CR compile start");
 
-		this.layer = new RenderLayer(true);
+		this.layer = new RenderLayerIndexed();
 		this.layer.setVertexArray(pa);
 		this.layer.compile();
 		this.layer.setShaderProgram(program);
