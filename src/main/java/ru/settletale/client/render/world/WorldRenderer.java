@@ -54,7 +54,7 @@ public class WorldRenderer implements IRegionManagerListener {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		GL.PROJ_MATRIX.identity();
-		GL.PROJ_MATRIX.perspective((float) Math.toRadians(120), (float) Window.width / (float) Window.height, 0.1F, 1000);
+		GL.PROJ_MATRIX.perspectiveDeg(120F, (float) Window.width / (float) Window.height, 0.1F, 1000);
 		GL.VIEW_MATRIX.push();
 		GL.PROJ_MATRIX.push();
 		
@@ -87,7 +87,7 @@ public class WorldRenderer implements IRegionManagerListener {
 		programSky.bind();
 		GL11.glDrawArrays(GL11.GL_QUADS, 0, 4);
 
-		FontLoader.FONTS.get("fonts/font.fnt").render(0, 50, "ׂוסע רנטפעא =D");
+		//FontLoader.FONTS.get("fonts/font.fnt").render(0, 50, "ׂוסע רנטפעא =D");
 		GL11.glLineWidth(10);
 		Drawer.begin(GL_LINES);
 		Drawer.color(1, 0, 0, 1);
@@ -102,7 +102,7 @@ public class WorldRenderer implements IRegionManagerListener {
 		GL.VIEW_MATRIX.identity();
 		GL.updateTransformUniformBlock();
 		
-		FontLoader.FONTS.get("fonts/font.fnt").render(10, Window.height - 60, "FPS: " + MainRenderer.lastFPSCount);
+		//FontLoader.FONTS.get("fonts/font.fnt").render(10, Window.height - 60, "FPS: " + MainRenderer.lastFPSCount);
 		
 		GL.PROJ_MATRIX.pop();
 		GL.VIEW_MATRIX.pop();

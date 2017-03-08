@@ -90,7 +90,7 @@ public class FontLoader extends ResourceLoaderAbstract {
 
 	static void readInfo(Font font, String[] strings) {
 		font.name = getValueString(strings[1]);
-		font.origSize = getValueInt(strings[2]);
+		font.originalSize = getValueInt(strings[2]);
 	}
 	
 	static void readCommon(Font font, String[] strings) {

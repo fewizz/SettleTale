@@ -40,6 +40,6 @@ public class PlatformClient extends PlatformAbstract {
 		world.updateThread.start();
 		/********************/
 		
-		GLThread.setStage(Stage.RENDER_WORLD);
+		GLThread.setStage(Stage.RENDER);
 	}
 }

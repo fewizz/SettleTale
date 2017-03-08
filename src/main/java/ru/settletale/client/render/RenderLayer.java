@@ -39,6 +39,10 @@ public class RenderLayer {
 	public VertexArray getVertexArray() {
 		return this.vertexArray;
 	}
+	
+	public boolean hasVertexArray() {
+		return this.vertexArray != null;
+	}
 
 	public void compile() {
 		compile(false);

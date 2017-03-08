@@ -23,7 +23,7 @@ public class MainRenderer {
 		
 		GLThread.doAvailableTasks();
 		
-		KeyListener.update();
+		KeyListener.updateForCurrentThread();
 		Camera.update();
 		
 		WorldRenderer.render();

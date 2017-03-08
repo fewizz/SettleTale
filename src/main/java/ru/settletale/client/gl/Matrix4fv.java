@@ -44,4 +44,8 @@ public class Matrix4fv extends Matrix4f {
 	public void rotateDeg(float ang, float x, float y, float z) {
 		super.rotate((float) Math.toRadians(ang), x, y, z);
 	}
+	
+	public void perspectiveDeg(float fovy, float aspect, float zNear, float zFar) {
+		super.perspective((float) Math.toRadians(fovy), aspect, zNear, zFar);
+	}
 }

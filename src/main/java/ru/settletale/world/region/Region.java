@@ -11,7 +11,7 @@ public class Region {
 	public int z;
 	public boolean active;
 	public long coord;
-	public int threads = 0;
+	public volatile int threads = 0;
 	
 	public Region(int x, int z) {
 		initInfo(x, z);

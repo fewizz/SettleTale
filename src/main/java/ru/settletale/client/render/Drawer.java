@@ -19,14 +19,12 @@ public class Drawer {
 	static boolean useTexture = false;
 	static float u;
 	static float v;
-	static byte r = (byte) 0xFF;
-	static byte g = (byte) 0xFF;
-	static byte b = (byte) 0xFF;
-	static byte a = (byte) 0xFF;
+	static float scale = 1F;
+	static Color color = new Color(1F, 1F, 1F, 1F);
 
 	public static void init() {
 		layer = new RenderLayer(StorageInfo.FLOAT_3, StorageInfo.BYTE_4_NORMALISED, StorageInfo.FLOAT_2);
-		
+
 		program = new ShaderProgram().gen();
 		program.attachShader(ShaderLoader.SHADERS.get("shaders/default.vs"));
 		program.attachShader(ShaderLoader.SHADERS.get("shaders/default.fs"));
@@ -42,12 +40,16 @@ public class Drawer {
 		vertexCount = 0;
 		useTexture = false;
 		texture = null;
-		layer.getVertexArray().clear();
+
+		if (layer.hasVertexArray()) {
+			layer.getVertexArray().clear();
+		}
 	}
 
 	public static void draw() {
 		draw(useTexture ? programTex : program);
 	}
+
 	public static void draw(ShaderProgram program) {
 		GL.debug("Drawer start", true);
 
@@ -64,10 +66,15 @@ public class Drawer {
 	}
 
 	public static void color(float r, float g, float b, float a) {
-		Drawer.r = (byte) (r * 255);
-		Drawer.g = (byte) (g * 255);
-		Drawer.b = (byte) (b * 255);
-		Drawer.a = (byte) (a * 255);
+		color.set(r, g, b, a);
+	}
+	
+	public static void color(Color c) {
+		color.set(c);
+	}
+	
+	public static void scale(float scale) {
+		Drawer.scale = scale;
 	}
 
 	public static void uv(float u, float v) {
@@ -75,9 +82,13 @@ public class Drawer {
 		Drawer.v = v;
 	}
 
+	public static void vertex(float x, float y) {
+		vertex(x, y, 0);
+	}
+	
 	public static void vertex(float x, float y, float z) {
-		layer.getVertexArray().data(POSITION, x, y, z);
-		layer.getVertexArray().data(COLOR, r, g, b, a);
+		layer.getVertexArray().data(POSITION, x * scale, y * scale, z * scale);
+		layer.getVertexArray().data(COLOR, color.r(), color.g(), color.b(), color.a());
 		if (useTexture)
 			layer.getVertexArray().data(UV, u, v);
 		layer.getVertexArray().endVertex();

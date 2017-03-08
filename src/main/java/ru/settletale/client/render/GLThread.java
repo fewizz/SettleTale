@@ -8,18 +8,19 @@ import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.system.MemoryUtil;
 
-import static org.lwjgl.glfw.GLFW.*;
-
 import ru.settletale.client.CursorListener;
 import ru.settletale.client.KeyListener;
+import ru.settletale.client.MouseButtonListener;
 import ru.settletale.client.Window;
 import ru.settletale.client.WindowResizeListener;
 import ru.settletale.client.gl.GL;
 
+import static org.lwjgl.glfw.GLFW.*;
+
 public class GLThread extends Thread {
 	private static final Queue<Runnable> TASK_QUEUE = new LinkedList<>();
 	private static final Semaphore SEMAPHORE = new Semaphore(0);
-	private static Stage stage = Stage.ONLY_DO_TASKS;
+	private static volatile Stage stage = Stage.ONLY_DO_TASKS;
 	private static GLThread instance;
 
 	public GLThread() {
@@ -44,12 +45,13 @@ public class GLThread extends Thread {
 		glfwWindowHint(GLFW_VISIBLE, GLFW_TRUE);
 		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
-		Window.windowID = glfwCreateWindow(1000, 800, "Settle Tale", MemoryUtil.NULL, MemoryUtil.NULL);
-		Window.onWindowResize(1000, 800);
+		Window.windowID = glfwCreateWindow(1000, 600, "Settle Tale", MemoryUtil.NULL, MemoryUtil.NULL);
+		Window.onWindowResize(1000, 600);
 		if (Window.windowID == MemoryUtil.NULL)
 			throw new RuntimeException("Failed to create the GLFW window");
 		
-		glfwSetKeyCallback(Window.windowID, new KeyListener());
+		glfwSetKeyCallback(Window.windowID, KeyListener.INSTANCE);
+		glfwSetMouseButtonCallback(Window.windowID, new MouseButtonListener());
 		glfwSetFramebufferSizeCallback(Window.windowID, new WindowResizeListener());
 		glfwSetCursorPosCallback(Window.windowID, new CursorListener());
 
@@ -66,8 +68,10 @@ public class GLThread extends Thread {
 
 	private static void mainLoop() {
 		for(;;) {
+			if(interrupted()) {
+				break;
+			}
 			stage.doStuff();
-			interrupted();
 		}
 	}
 
@@ -106,13 +110,22 @@ public class GLThread extends Thread {
 				try {
 					waitAndDoAvailableTask();
 				} catch (InterruptedException e) {
+					interrupted();
 				}
 			}
 		},
-		RENDER_WORLD {
+		RENDER {
 			@Override
 			public void doStuff() {
 				MainRenderer.render();
+			}
+		},
+		STOP {
+			@Override
+			public void doStuff() {
+				instance.interrupt();
+				
+				System.out.println("GLThread stopped!");
 			}
 		};
 		
