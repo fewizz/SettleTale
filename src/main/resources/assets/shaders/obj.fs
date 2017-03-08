@@ -39,5 +39,5 @@ void main(void) {
 		}
 	}
 	
-	if(color_out.a == 0.) discard;
+	if(color_out.a == 0) discard;
 }

@@ -6,13 +6,13 @@ import org.lwjgl.system.MemoryUtil;
 
 import ru.settletale.util.Primitive;
 
-public abstract class VertexStorageAbstarct {
+public abstract class AttributeStorageAbstarct {
 	final int count;
 	final int growBytes;
 	ByteBuffer buff;
 	Primitive primitive;
 
-	public VertexStorageAbstarct(int size, Primitive p) {
+	public AttributeStorageAbstarct(int size, Primitive p) {
 		this.count = size;
 		this.primitive = p;
 		this.growBytes = size * p.sizeInBytes;

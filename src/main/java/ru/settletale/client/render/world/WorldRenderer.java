@@ -12,13 +12,13 @@ import ru.settletale.client.Camera;
 import ru.settletale.client.Window;
 import ru.settletale.client.gl.GL;
 import ru.settletale.client.gl.ShaderProgram;
-import ru.settletale.client.vertex.VertexArray.StorageInfo;
+import ru.settletale.client.vertex.VertexArray.AttributeType;
 import ru.settletale.client.vertex.VertexArrayIndexed;
+import ru.settletale.client.render.Color;
 import ru.settletale.client.render.Drawer;
 import ru.settletale.client.render.GLThread;
-import ru.settletale.client.render.MainRenderer;
 import ru.settletale.client.render.RenderLayerList;
-import ru.settletale.client.resource.FontLoader;
+import ru.settletale.client.resource.ObjModelLoader;
 import ru.settletale.client.resource.ShaderLoader;
 import ru.settletale.world.region.IRegionManagerListener;
 import ru.settletale.world.region.Region;
@@ -31,7 +31,7 @@ public class WorldRenderer implements IRegionManagerListener {
 	public static final int POSITION = 0;
 	public static final int NORMAL = 1;
 
-	public static final VertexArrayIndexed VERTEX_ARRAY = new VertexArrayIndexed(StorageInfo.FLOAT_3, StorageInfo.FLOAT_1);
+	public static final VertexArrayIndexed VERTEX_ARRAY = new VertexArrayIndexed(AttributeType.FLOAT_3, AttributeType.FLOAT_1);
 	static ShaderProgram programSky;
 	
 	static RenderLayerList lineList;
@@ -87,10 +87,16 @@ public class WorldRenderer implements IRegionManagerListener {
 		programSky.bind();
 		GL11.glDrawArrays(GL11.GL_QUADS, 0, 4);
 
+		GL.VIEW_MATRIX.push();
+		GL.VIEW_MATRIX.translate(0, 50, 0);
+		GL.VIEW_MATRIX.scale(5);
+		GL.updateTransformUniformBlock();
+		ObjModelLoader.MODELS.get("models/tree/Tree2.obj").render();
+		GL.VIEW_MATRIX.pop();
 		//FontLoader.FONTS.get("fonts/font.fnt").render(0, 50, "ׂוסע רנטפעא =D");
 		GL11.glLineWidth(10);
 		Drawer.begin(GL_LINES);
-		Drawer.color(1, 0, 0, 1);
+		Drawer.color(Color.RED);
 		Drawer.vertex(0, 50, 0);
 		Drawer.vertex(100, 50, 0);
 		Drawer.draw();

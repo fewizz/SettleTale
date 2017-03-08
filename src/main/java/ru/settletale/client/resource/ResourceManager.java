@@ -63,10 +63,10 @@ public class ResourceManager {
 					continue;
 				}
 
-				String key = path.subpath(assetsIndex, path.getNameCount()).toString();
-				key = key.replace("\\", "/");
+				Path sub = path.subpath(assetsIndex, path.getNameCount());
+				String key = sub.toString().replace("\\", "/");
 
-				resourceFiles.put(key, new ResourceFile(key, path.toAbsolutePath().toFile()));
+				resourceFiles.put(key, new ResourceFile(key, path, sub));
 			}
 
 		} catch (IOException e) {

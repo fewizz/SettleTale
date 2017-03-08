@@ -11,7 +11,7 @@ import org.lwjgl.system.MemoryUtil;
 import ru.settletale.client.render.GLThread;
 import ru.settletale.client.render.ObjModel;
 import ru.settletale.client.vertex.VertexArray;
-import ru.settletale.client.vertex.VertexArray.StorageInfo;
+import ru.settletale.client.vertex.VertexArray.AttributeType;
 import ru.settletale.util.FileUtils;
 import ru.settletale.util.StringUtils;
 
@@ -32,19 +32,21 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 	public void loadResource(ResourceFile resourceFile) {
 		System.out.println("Loading objModel: " + resourceFile.key);
 		String[] strings = FileUtils.readLines(resourceFile.fullPath);
-		ObjModel model = new ObjModel();
 		float[] back = new float[9];
 		int[][] backIndex = new int[6][4];
 		float[][] backPos = new float[4][4];
 		float[][] backNorm = new float[4][3];
 		float[][] backUV = new float[4][2];
 
-		FloatBuffer positions = MemoryUtil.memAllocFloat(getCountOfElementsSuccessively(strings, "v ") * 4);
-		FloatBuffer uvs = MemoryUtil.memAllocFloat(getCountOfElementsSuccessively(strings, "vt ") * 2);
-		FloatBuffer normals = MemoryUtil.memAllocFloat(getCountOfElementsSuccessively(strings, "vn ") * 3);
-		VertexArray pa = new VertexArray(StorageInfo.FLOAT_4, StorageInfo.FLOAT_3, StorageInfo.FLOAT_2, StorageInfo.INT_1);
+		int[] counts = getCountOfElements(strings, new String[] {"v", "vt", "vn"});
+		
+		FloatBuffer positions = MemoryUtil.memAllocFloat(counts[0] * 4);
+		FloatBuffer uvs = MemoryUtil.memAllocFloat(counts[1] * 2);
+		FloatBuffer normals = MemoryUtil.memAllocFloat(counts[2] * 3);
+		
+		VertexArray pa = new VertexArray(AttributeType.FLOAT_4, AttributeType.FLOAT_3, AttributeType.FLOAT_2, AttributeType.INT_1);
 
-		String mtlLibName = "";
+		String mtlLibPath = "";
 		List<String> materials = new ArrayList<String>();
 		int currentMatID = 0;
 
@@ -64,7 +66,7 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 				readFace(str, pa, positions, normals, uvs, currentMatID, backIndex, backPos, backNorm, backUV);
 			}
 			else if (str.startsWith("mtllib ")) {
-				mtlLibName = readNameOfMTLLib(str);
+				mtlLibPath = readNameOfMTLLib(str);
 			}
 			else if (str.startsWith("usemtl ")) {
 				currentMatID = getIDOfMaterial(str, materials);
@@ -75,13 +77,10 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 		normals.rewind();
 		uvs.rewind();
 
+		ObjModel model = new ObjModel();
 		model.setVertexInfo(pa.getVertexCount(), pa.getBuffer(POS), pa.getBuffer(NORM), pa.getBuffer(UV), pa.getBuffer(FLAGS));
-		model.setMtlLibName(mtlLibName);
+		model.setMtlLibPath(FileUtils.getDirectoryPath(resourceFile.subPath) + mtlLibPath);
 		model.setMaterials(materials);
-		
-		if(pa.getVertexCount() > 1000) {
-			System.gc();
-		}
 
 		MODELS.put(resourceFile.key, model);
 	}
@@ -242,21 +241,22 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 		return materials.indexOf(m1);
 	}
 
-	public static int getCountOfElementsSuccessively(String[] strings, String element) {
-		int count = 0;
+	public static int[] getCountOfElements(String[] strings, String[] elementNames) {
+		int counts[] = new int[elementNames.length];
 
 		for (String str : strings) {
 			if (str == null) {
 				continue;
 			}
-
-			if (str.startsWith(element)) {
-				count++;
-				continue;
+			
+			for(int i = 0; i < elementNames.length; i++) {
+				if(str.startsWith(elementNames[i])) {
+					counts[i]++;
+				}
 			}
 		}
 
-		return count;
+		return counts;
 	}
 
 }

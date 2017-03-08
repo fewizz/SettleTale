@@ -8,13 +8,13 @@ import ru.settletale.client.gl.ShaderProgram;
 import ru.settletale.client.resource.ShaderLoader;
 
 public class FontRenderer {
-	static Vector3f position = new Vector3f(0);
+	static final Vector3f POSITION = new Vector3f(0);
 	static Font font;
 	static float scale = 1F;
-	static Color color = new Color(1F, 1F, 1F, 1F);
+	static final Color COLOR = new Color(1F, 1F, 1F, 1F);
 	static String text;
-	static final ShaderProgram defaultProgram = new ShaderProgram();
-	static ShaderProgram program = defaultProgram;
+	static final ShaderProgram DEFAULT_PROGRAM = new ShaderProgram();
+	static ShaderProgram program = DEFAULT_PROGRAM;
 	
 	public static void setFont(Font f) {
 		float size = font == null ? f.originalSize : font.originalSize * scale;
@@ -31,15 +31,19 @@ public class FontRenderer {
 	}
 	
 	public static Color getColor() {
-		return color;
+		return COLOR;
 	}
 	
 	public static void setColor(Color c) {
-		color = c;
+		COLOR.set(c);
 	}
 	
 	public static Vector3f getPosition() {
-		return position;
+		return POSITION;
+	}
+	
+	public static void setPosition(Vector3f v) {
+		POSITION.set(v);
 	}
 	
 	public static void setText(String text) {
@@ -57,8 +61,8 @@ public class FontRenderer {
 	public static void render(boolean centered) {
 		linkDefaultProgramIfNeed();
 		
-		float wTotal = position.x + (centered ? -(font.getStringWidth(text) * scale) / 2F : 0);
-		float y = position.y + (centered ? -(font.originalSize * scale) / 2F : 0);
+		float wTotal = POSITION.x + (centered ? -(font.getStringWidth(text) * scale) / 2F : 0);
+		float y = POSITION.y + (centered ? -(font.originalSize * scale) / 2F : 0);
 		
 		for (int i = 0; i < text.length(); i++) {
 			char ch = text.charAt(i);
@@ -82,7 +86,7 @@ public class FontRenderer {
 			float width = fch.width * scale;
 			float height = fch.height * scale;
 			
-			Drawer.color(color);
+			Drawer.color(COLOR);
 			
 			Drawer.uv(tu, tv - th);
 			Drawer.vertex(wTotal + xOffset, (y + base - yOffset) - height, 0);
@@ -106,11 +110,11 @@ public class FontRenderer {
 	}
 	
 	static void linkDefaultProgramIfNeed() {
-		if(!defaultProgram.isGenerated()) {
-			program = new ShaderProgram().gen();
-			program.attachShader(ShaderLoader.SHADERS.get("shaders/font.vs"));
-			program.attachShader(ShaderLoader.SHADERS.get("shaders/font.fs"));
-			program.link();
+		if(!DEFAULT_PROGRAM.isGenerated()) {
+			DEFAULT_PROGRAM.gen();
+			DEFAULT_PROGRAM.attachShader(ShaderLoader.SHADERS.get("shaders/font.vs"));
+			DEFAULT_PROGRAM.attachShader(ShaderLoader.SHADERS.get("shaders/font.fs"));
+			DEFAULT_PROGRAM.link();
 		}
 	}
 }

@@ -12,7 +12,7 @@ public class Material {
 	}
 	
 	public String name;
-	public String textureNameDiffuse;
+	public String texturePathDiffuse;
 	final public Vector3f colorDiffuse;
 	public Texture2D textureDiffuse;
 }

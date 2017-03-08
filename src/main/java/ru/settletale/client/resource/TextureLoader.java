@@ -18,7 +18,7 @@ public class TextureLoader extends ResourceLoaderAbstract {
 
 	@Override
 	public String[] getRequiredExtensions() {
-		return new String[] {"png"};
+		return new String[] {"png", "jpg"};
 	}
 	
 	@Override

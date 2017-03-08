@@ -1,7 +1,5 @@
 package ru.settletale.client.render;
 
-import ru.settletale.client.gl.ShaderProgram;
-
 public class Font {
 	public String name;
 	public float originalSize;
@@ -9,7 +7,6 @@ public class Font {
 	public int pageCount;
 	public float base;
 	public FontPage[] pages;
-	static ShaderProgram program;
 
 	public FontPage getPage(int index) {
 		return pages[index];

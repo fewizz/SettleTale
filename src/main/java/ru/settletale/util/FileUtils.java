@@ -39,4 +39,9 @@ public class FileUtils {
 		
 		return null;
 	}
+	
+	public static String getDirectoryPath(File file) {
+		String path = file.isDirectory() ? file.getPath() : file.getParent();
+		return path.replace("\\", "/") + "/";
+	}
 }

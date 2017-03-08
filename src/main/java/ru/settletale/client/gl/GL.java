@@ -97,8 +97,9 @@ public class GL {
 	public static void debug(String s, boolean printParent) {
 		if (DEBUG) {
 			int error = GL11.glGetError();
+			
 			if (DEBUG_ONLY_ERRORS && error != 0) {
-				System.out.println("OpenGL: " + error + " " + s + (printParent ? " | Previous: " + previousMessage : ""));
+				System.out.println("OpenGL Error #" + Integer.toHexString(error) + ": " + s + (printParent ? " | Previous: " + previousMessage : ""));
 			}
 			previousMessage = s;
 		}

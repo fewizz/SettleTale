@@ -7,7 +7,7 @@ import ru.settletale.client.gl.ShaderProgram;
 import ru.settletale.client.gl.VertexArrayObject;
 import ru.settletale.client.gl.VertexBufferObject;
 import ru.settletale.client.vertex.VertexArray;
-import ru.settletale.client.vertex.VertexArray.StorageInfo;
+import ru.settletale.client.vertex.VertexArray.AttributeType;
 import ru.settletale.util.ClientUtils;
 
 public class RenderLayer {
@@ -18,7 +18,7 @@ public class RenderLayer {
 	VertexBufferObject[] buffers;
 	int bufferCount;
 
-	public RenderLayer(StorageInfo... storages) {
+	public RenderLayer(AttributeType... storages) {
 		this(new VertexArray(storages));
 	}
 
@@ -79,7 +79,7 @@ public class RenderLayer {
 
 			GL.debug("RenderLayer loadData");
 
-			StorageInfo si = vertexArray.getStorageInfo(i);
+			AttributeType si = vertexArray.getAttribute(i);
 
 			vao.vertexAttribPointer(vbo, i, si.getElementCount(), ClientUtils.getGLPrimitive(si.getPrimitiveType()), si.isNormalised());
 			vao.enableVertexAttribArray(i);

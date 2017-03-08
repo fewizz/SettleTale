@@ -1,38 +1,38 @@
 package ru.settletale.client.render;
 
+import org.joml.Vector2f;
+
 import ru.settletale.client.gl.GL;
 import ru.settletale.client.gl.ShaderProgram;
 import ru.settletale.client.gl.TextureAbstract;
 import ru.settletale.client.resource.ShaderLoader;
-import ru.settletale.client.vertex.VertexArray.StorageInfo;
+import ru.settletale.client.vertex.VertexArray.AttributeType;
 
 public class Drawer {
-	static RenderLayer layer;
-	static final int POSITION = 0;
-	static final int COLOR = 1;
-	static final int UV = 2;
-	static ShaderProgram program;
-	static ShaderProgram programTex;
+	static final RenderLayer LAYER = new RenderLayer(AttributeType.FLOAT_3, AttributeType.BYTE_4_NORMALISED, AttributeType.FLOAT_2);;
+	static final int POSITION_POS = 0;
+	static final int COLOR_POS = 1;
+	static final int UV_POS = 2;
+	static final ShaderProgram PROGRAM = new ShaderProgram();
+	static final ShaderProgram PROGRAM_TEX = new ShaderProgram();
 	static TextureAbstract<?> texture;
 	static int drawingMode;
 	static int vertexCount;
 	static boolean useTexture = false;
-	static float u;
-	static float v;
+	static final Vector2f UV = new Vector2f();
+	static final Color COLOR = new Color(1F, 1F, 1F, 1F);
 	static float scale = 1F;
-	static Color color = new Color(1F, 1F, 1F, 1F);
 
 	public static void init() {
-		layer = new RenderLayer(StorageInfo.FLOAT_3, StorageInfo.BYTE_4_NORMALISED, StorageInfo.FLOAT_2);
-
-		program = new ShaderProgram().gen();
-		program.attachShader(ShaderLoader.SHADERS.get("shaders/default.vs"));
-		program.attachShader(ShaderLoader.SHADERS.get("shaders/default.fs"));
-		program.link();
-		programTex = new ShaderProgram().gen();
-		programTex.attachShader(ShaderLoader.SHADERS.get("shaders/default_tex1.vs"));
-		programTex.attachShader(ShaderLoader.SHADERS.get("shaders/default_tex1.fs"));
-		programTex.link();
+		PROGRAM.gen();
+		PROGRAM.attachShader(ShaderLoader.SHADERS.get("shaders/default.vs"));
+		PROGRAM.attachShader(ShaderLoader.SHADERS.get("shaders/default.fs"));
+		PROGRAM.link();
+		
+		PROGRAM_TEX.gen();
+		PROGRAM_TEX.attachShader(ShaderLoader.SHADERS.get("shaders/default_tex1.vs"));
+		PROGRAM_TEX.attachShader(ShaderLoader.SHADERS.get("shaders/default_tex1.fs"));
+		PROGRAM_TEX.link();
 	}
 
 	public static void begin(int mode) {
@@ -41,36 +41,36 @@ public class Drawer {
 		useTexture = false;
 		texture = null;
 
-		if (layer.hasVertexArray()) {
-			layer.getVertexArray().clear();
+		if (LAYER.hasVertexArray()) {
+			LAYER.getVertexArray().clear();
 		}
 	}
 
 	public static void draw() {
-		draw(useTexture ? programTex : program);
+		draw(useTexture ? PROGRAM_TEX : PROGRAM);
 	}
 
 	public static void draw(ShaderProgram program) {
 		GL.debug("Drawer start", true);
 
-		layer.compile(true);
+		LAYER.compile(true);
 
 		GL.debug("Drawer pre vao bind");
 
 		if (useTexture) {
 			GL.activeTexture(0, texture);
 		}
-		layer.setShaderProgram(program);
-		layer.render(drawingMode);
+		LAYER.setShaderProgram(program);
+		LAYER.render(drawingMode);
 		GL.debug("Draw drawArrays");
 	}
 
 	public static void color(float r, float g, float b, float a) {
-		color.set(r, g, b, a);
+		COLOR.set(r, g, b, a);
 	}
 	
 	public static void color(Color c) {
-		color.set(c);
+		COLOR.set(c);
 	}
 	
 	public static void scale(float scale) {
@@ -78,8 +78,7 @@ public class Drawer {
 	}
 
 	public static void uv(float u, float v) {
-		Drawer.u = u;
-		Drawer.v = v;
+		Drawer.UV.set(u, v);
 	}
 
 	public static void vertex(float x, float y) {
@@ -87,11 +86,11 @@ public class Drawer {
 	}
 	
 	public static void vertex(float x, float y, float z) {
-		layer.getVertexArray().data(POSITION, x * scale, y * scale, z * scale);
-		layer.getVertexArray().data(COLOR, color.r(), color.g(), color.b(), color.a());
+		LAYER.getVertexArray().data(POSITION_POS, x * scale, y * scale, z * scale);
+		LAYER.getVertexArray().data(COLOR_POS, COLOR.r(), COLOR.g(), COLOR.b(), COLOR.a());
 		if (useTexture)
-			layer.getVertexArray().data(UV, u, v);
-		layer.getVertexArray().endVertex();
+			LAYER.getVertexArray().data(UV_POS, UV.x, UV.y);
+		LAYER.getVertexArray().endVertex();
 	}
 
 	public static void texture(TextureAbstract<?> texture) {

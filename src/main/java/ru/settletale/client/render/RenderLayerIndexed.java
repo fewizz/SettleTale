@@ -4,7 +4,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.system.MemoryUtil;
 
 import ru.settletale.client.gl.ElementArrayBufferObject;
-import ru.settletale.client.vertex.VertexArray.StorageInfo;
+import ru.settletale.client.vertex.VertexArray.AttributeType;
 import ru.settletale.client.vertex.VertexArrayIndexed;
 
 public class RenderLayerIndexed extends RenderLayer {
@@ -16,7 +16,7 @@ public class RenderLayerIndexed extends RenderLayer {
 		initIndexBuffer();
 	}
 
-	public RenderLayerIndexed(StorageInfo... storages) {
+	public RenderLayerIndexed(AttributeType... storages) {
 		super(new VertexArrayIndexed(storages));
 		initIndexBuffer();
 	}

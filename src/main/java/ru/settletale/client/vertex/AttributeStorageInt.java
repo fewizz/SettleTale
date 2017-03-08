@@ -3,13 +3,13 @@ package ru.settletale.client.vertex;
 import ru.settletale.util.DirectByteBufferUtils;
 import ru.settletale.util.Primitive;
 
-public class VertexStorageInt extends VertexStorageAbstarct {
+public class AttributeStorageInt extends AttributeStorageAbstarct {
 	int i1;
 	int i2;
 	int i3;
 	int i4;
 	
-	public VertexStorageInt(int size) {
+	public AttributeStorageInt(int size) {
 		super(size, Primitive.INT);
 	}
 

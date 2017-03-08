@@ -45,7 +45,7 @@ public class MtlLibLoader extends ResourceLoaderAbstract {
 			if (str.startsWith("map_Kd")) {
 				String[] values = str.split(" ");
 
-				mat.textureNameDiffuse = values[values.length - 1]; // In spec was wrote, that texturename is last (надеюсь правду говороят =P )
+				mat.texturePathDiffuse = (FileUtils.getDirectoryPath(resourceFile.subPath) + values[values.length - 1].replace('\\', '/')).replace("//", "/"); // In spec was wrote, that texturename is last (надеюсь правду говороят =P )
 			}
 		}
 		

@@ -10,11 +10,11 @@ public class VertexArrayIndexed extends VertexArray {
 	private ByteBuffer ib;
 	protected int indexCount = 0;
 
-	public VertexArrayIndexed(StorageInfo... storages) {
+	public VertexArrayIndexed(AttributeType... storages) {
 		this(false, storages);
 	}
 
-	public VertexArrayIndexed(boolean lazyIndexBufferInitialisation, StorageInfo... storages) {
+	public VertexArrayIndexed(boolean lazyIndexBufferInitialisation, AttributeType... storages) {
 		super(storages);
 		if (!lazyIndexBufferInitialisation) {
 			initIndexBuffer();

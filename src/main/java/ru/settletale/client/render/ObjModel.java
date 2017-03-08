@@ -17,7 +17,7 @@ import ru.settletale.client.resource.MtlLibLoader;
 import ru.settletale.client.resource.ShaderLoader;
 
 public class ObjModel {
-	private String mtlName;
+	private String mtlPath;
 	private MTLLib mtl;
 	private List<String> materialNames;
 	private int vertexCount;
@@ -34,7 +34,7 @@ public class ObjModel {
 	public void compile() {
 		GL.debug("ModelObj compile start");
 		
-		mtl = MtlLibLoader.MTLS.get(mtlName);
+		mtl = MtlLibLoader.MTLS.get(mtlPath);
 		
 		if(mtl == null) {
 			System.out.println("Model is not using texture!");
@@ -120,8 +120,8 @@ public class ObjModel {
 		this.vertexCount = vertexCount;
 	}
 	
-	public void setMtlLibName(String name) {
-		this.mtlName = name;
+	public void setMtlLibPath(String name) {
+		this.mtlPath = name;
 	}
 	
 	public void setMaterials(List<String> materials) {

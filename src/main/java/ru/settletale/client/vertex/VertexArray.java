@@ -5,45 +5,45 @@ import java.nio.ByteBuffer;
 import ru.settletale.util.Primitive;
 
 public class VertexArray {
-	private final VertexStorageAbstarct[] storages;
-	private final StorageInfo[] storagesInfos;
+	private final AttributeStorageAbstarct[] attributeStorages;
+	private final AttributeType[] attributes;
 	protected int vertexCount = 0;
-	private int storageCount = 0;
+	private int attributeCount = 0;
 
-	public VertexArray(StorageInfo... storages) {
-		this.storages = new VertexStorageAbstarct[16];
-		this.storagesInfos = new StorageInfo[16];
-		addStorages(storages);
+	public VertexArray(AttributeType... storages) {
+		this.attributeStorages = new AttributeStorageAbstarct[16];
+		this.attributes = new AttributeType[16];
+		addAttibutes(storages);
 	}
 
-	public static enum StorageInfo {
-		FLOAT_4(new VertexStorageFloat(4)),
-		FLOAT_3(new VertexStorageFloat(3)),
-		FLOAT_2(new VertexStorageFloat(2)),
-		FLOAT_1(new VertexStorageFloat(1)),
-		INT_1(new VertexStorageInt(1)),
-		BYTE_4(new VertexStorageByte(4)),
-		BYTE_4_NORMALISED(new VertexStorageByte(4), true),
-		BYTE_3(new VertexStorageByte(3)),
-		BYTE_1(new VertexStorageByte(1));
+	public static enum AttributeType {
+		FLOAT_4(new AttributeStorageFloat(4)),
+		FLOAT_3(new AttributeStorageFloat(3)),
+		FLOAT_2(new AttributeStorageFloat(2)),
+		FLOAT_1(new AttributeStorageFloat(1)),
+		INT_1(new AttributeStorageInt(1)),
+		BYTE_4(new AttribyteStorageByte(4)),
+		BYTE_4_NORMALISED(new AttribyteStorageByte(4), true),
+		BYTE_3(new AttribyteStorageByte(3)),
+		BYTE_1(new AttribyteStorageByte(1));
 
 		final Primitive primitive;
-		final VertexStorageAbstarct vs;
+		final AttributeStorageAbstarct vs;
 		final int perVertexElementCount;
 		final boolean normalised;
 
-		private StorageInfo(VertexStorageAbstarct vs) {
+		private AttributeType(AttributeStorageAbstarct vs) {
 			this(vs, false);
 		}
 		
-		private StorageInfo(VertexStorageAbstarct vs, boolean normalised) {
+		private AttributeType(AttributeStorageAbstarct vs, boolean normalised) {
 			this.vs = vs;
 			this.perVertexElementCount = vs.count;
 			this.primitive = vs.primitive;
 			this.normalised = normalised;
 		}
 
-		public VertexStorageAbstarct getVertexStorage() {
+		public AttributeStorageAbstarct getAttributeStorage() {
 			return vs;
 		}
 
@@ -60,32 +60,55 @@ public class VertexArray {
 		}
 	}
 
-	public void addStorages(StorageInfo... storages) {
-		for (StorageInfo storage : storages) {
+	public void addAttibutes(AttributeType... storages) {
+		for (AttributeType storage : storages) {
 			addStorage(storage);
 		}
 	}
 	
 	public int getStorageCount() {
-		return this.storageCount;
+		return this.attributeCount;
 	}
 	
-	public VertexStorageAbstarct[] getStorages() {
-		return this.storages;
+	public AttributeStorageAbstarct[] getStorages() {
+		return this.attributeStorages;
 	}
 
-	protected void addStorage(StorageInfo es) {
-		storages[storageCount] = es.getVertexStorage();
-		storagesInfos[storageCount] = es;
-		storageCount++;
+	protected void addStorage(AttributeType es) {
+		attributeStorages[attributeCount] = es.getAttributeStorage();
+		attributes[attributeCount] = es;
+		attributeCount++;
 	}
 
-	public StorageInfo getStorageInfo(int index) {
-		return storagesInfos[index];
+	public AttributeType getAttribute(int index) {
+		return attributes[index];
+	}
+	
+	public void endVertex() {
+		for (int i = 0; i < attributeCount; i++) {
+			attributeStorages[i].dataEnd(vertexCount);
+		}
+
+		vertexCount++;
+	}
+
+	public ByteBuffer getBuffer(int storage) {
+		return attributeStorages[storage].getBuffer();
+	}
+
+	public void clear() {
+		for (int i = 0; i < attributeCount; i++) {
+			attributeStorages[i].clear();
+		}
+		vertexCount = 0;
+	}
+
+	public int getVertexCount() {
+		return this.vertexCount;
 	}
 
 	public void data(int storage, float f1, float f2, float f3, float f4) {
-		storages[storage].data(f1, f2, f3, f4);
+		attributeStorages[storage].data(f1, f2, f3, f4);
 	}
 
 	public void data(int storage, float f1) {
@@ -101,7 +124,7 @@ public class VertexArray {
 	}
 
 	public void data(int storage, int i1, int i2, int i3, int i4) {
-		storages[storage].data(i1, i2, i3, i4);
+		attributeStorages[storage].data(i1, i2, i3, i4);
 	}
 
 	public void data(int storage, int i1) {
@@ -109,33 +132,10 @@ public class VertexArray {
 	}
 
 	public void data(int storage, byte b1, byte b2, byte b3, byte b4) {
-		storages[storage].data(b1, b2, b3, b4);
+		attributeStorages[storage].data(b1, b2, b3, b4);
 	}
 
 	public void data(int storage, byte b1) {
 		this.data(storage, b1, 0, 0, 0);
-	}
-
-	public void endVertex() {
-		for (int i = 0; i < storageCount; i++) {
-			storages[i].dataEnd(vertexCount);
-		}
-
-		vertexCount++;
-	}
-
-	public ByteBuffer getBuffer(int storage) {
-		return storages[storage].getBuffer();
-	}
-
-	public void clear() {
-		for (int i = 0; i < storageCount; i++) {
-			storages[i].clear();
-		}
-		vertexCount = 0;
-	}
-
-	public int getVertexCount() {
-		return this.vertexCount;
 	}
 }
