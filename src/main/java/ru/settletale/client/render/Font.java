@@ -19,7 +19,7 @@ public class Font {
 		return pages[index];
 	}
 
-	public void render(String text, float x, float y) {
+	public void render(float x, float y, String text) {
 		if(program == null) {
 			program = new ShaderProgram().gen();
 			program.attachShader(ShaderLoader.SHADERS.get("shaders/font.vs"));

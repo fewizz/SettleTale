@@ -47,11 +47,6 @@ public class WorldRenderer implements IRegionManagerListener {
 		programSky.attachShader(ShaderLoader.SHADERS.get("shaders/sky.vs"));
 		programSky.attachShader(ShaderLoader.SHADERS.get("shaders/sky.fs"));
 		programSky.link();
-		
-		/*lineList = new RenderLayerList();
-		lineList.position(0   , 50, 0).color((byte)255, (byte)0, (byte)0, (byte)255).endVertex();
-		lineList.position( 100, 50, 0).color((byte)255, (byte)0, (byte)0, (byte)255).endVertex();
-		lineList.compile();*/
 	}
 
 	public static void render() {
@@ -92,7 +87,7 @@ public class WorldRenderer implements IRegionManagerListener {
 		programSky.bind();
 		GL11.glDrawArrays(GL11.GL_QUADS, 0, 4);
 
-		FontLoader.FONTS.get("fonts/font.fnt").render("ׂוסע רנטפעא =D", 0, 50);
+		FontLoader.FONTS.get("fonts/font.fnt").render(0, 50, "ׂוסע רנטפעא =D");
 		GL11.glLineWidth(10);
 		Drawer.begin(GL_LINES);
 		Drawer.color(1, 0, 0, 1);
@@ -101,14 +96,13 @@ public class WorldRenderer implements IRegionManagerListener {
 		Drawer.draw();
 		
 		GL.updateTransformUniformBlock();
-		//lineList.render(GL11.GL_LINES);
 
 		GL.PROJ_MATRIX.identity();
 		GL.PROJ_MATRIX.ortho2D(0, Window.width, 0, Window.height);
 		GL.VIEW_MATRIX.identity();
 		GL.updateTransformUniformBlock();
 		
-		FontLoader.FONTS.get("fonts/font.fnt").render("FPS: " + MainRenderer.lastFPSCount, 10, Window.height - 60);
+		FontLoader.FONTS.get("fonts/font.fnt").render(10, Window.height - 60, "FPS: " + MainRenderer.lastFPSCount);
 		
 		GL.PROJ_MATRIX.pop();
 		GL.VIEW_MATRIX.pop();
@@ -162,7 +156,6 @@ public class WorldRenderer implements IRegionManagerListener {
 	static final Vector3f V3_TEMP = new Vector3f();
 
 	private static void fillBuffers(Region r) {
-
 		for (int x = 2; x < 35; x++) {
 			int nx = x - 2;
 			float px = (nx / 2F);

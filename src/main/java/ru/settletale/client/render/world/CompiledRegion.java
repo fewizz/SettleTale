@@ -65,23 +65,23 @@ public class CompiledRegion {
 		}
 	}
 
-	public void compile(VertexArrayIndexed pa) {
+	public void compile(VertexArrayIndexed va) {
 		GL.debug("CR compile start");
 
 		this.layer = new RenderLayerIndexed();
-		this.layer.setVertexArray(pa);
+		this.layer.setVertexArray(va);
 		this.layer.compile();
 		this.layer.setShaderProgram(program);
 
 		textureIDs = new Texture2D(18, 18).gen().internalFormat(GL11.GL_RED).bufferFormat(GL11.GL_RED).bufferType(GL11.GL_UNSIGNED_BYTE);
 
-		int i = 0;
+		int byteIndex = 0;
 		for (int z = -1; z < 17; z++) {
 			for (int x = -1; x < 17; x++) {
-				textureIDsTempBuffer.put(i + 0, (byte) region.getBiome(x, z).getBiomeID());
-				i++;
+				textureIDsTempBuffer.put(byteIndex + 0, (byte) region.getBiome(x, z).getBiomeID());
+				byteIndex++;
 			}
-			i += 2; // WTF?
+			byteIndex += 2; // WTF?
 		}
 
 		GL.debug("CR compile texture");
@@ -95,18 +95,14 @@ public class CompiledRegion {
 		program.bind();
 		GL.debug("CR rend shader start");
 
-		GL.debug("CR bind texture units start");
 		GL.activeTexture(0, textureIDs);
 		GL.activeTexture(1, textureBiomes);
 		GL.activeTexture(2, textureGrass);
 
 		GL.debug("CR bind texture units end");
 
-		GL.debug("CR rend start");
-		
 		this.layer.render(GL11.GL_QUADS);
 		GL.debug("CR rend end");
-		GL.debug("CR unbind vao");
 	}
 
 	public void clear() {
