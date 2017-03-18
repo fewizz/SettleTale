@@ -4,7 +4,7 @@ import org.lwjgl.opengl.GL11;
 
 public class ClientUtils {
 
-	public static int getGLPrimitive(Primitive p) {
+	public static int getGLPrimitive(PrimitiveType p) {
 		switch (p) {
 			case FLOAT:
 				return GL11.GL_FLOAT;

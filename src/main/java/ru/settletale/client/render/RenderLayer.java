@@ -81,7 +81,7 @@ public class RenderLayer {
 
 			AttributeType si = vertexArray.getAttribute(i);
 
-			if(si.getPrimitiveType().isInt && !si.isNormalised()) {
+			if(si.getPrimitiveType().isIntegral() && !si.isNormalised()) {
 				vao.vertexAttribIntPointer(vbo, i, si.getElementCount(), ClientUtils.getGLPrimitive(si.getPrimitiveType()));
 			}
 			else {

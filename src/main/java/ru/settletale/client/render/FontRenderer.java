@@ -5,16 +5,22 @@ import org.lwjgl.opengl.GL11;
 
 import ru.settletale.client.gl.GL;
 import ru.settletale.client.gl.ShaderProgram;
+import ru.settletale.client.render.RenderLayerTextured.TextureUniformType;
+import ru.settletale.client.resource.FontLoader;
 import ru.settletale.client.resource.ShaderLoader;
 
 public class FontRenderer {
 	static final Vector3f POSITION = new Vector3f(0);
-	static Font font;
+	static Font font = getDefaultFont();
 	static float scale = 1F;
 	static final Color COLOR = new Color(1F, 1F, 1F, 1F);
 	static String text;
 	static final ShaderProgram DEFAULT_PROGRAM = new ShaderProgram();
 	static ShaderProgram program = DEFAULT_PROGRAM;
+	
+	public static Font getDefaultFont() {
+		return FontLoader.FONTS.get("fonts/font.fnt");
+	}
 	
 	public static void setFont(Font f) {
 		float size = font == null ? f.originalSize : font.originalSize * scale;
@@ -64,6 +70,9 @@ public class FontRenderer {
 		float wTotal = POSITION.x + (centered ? -(font.getStringWidth(text) * scale) / 2F : 0);
 		float y = POSITION.y + (centered ? -(font.originalSize * scale) / 2F : 0);
 		
+		GL.debug("Font start");
+		Drawer.begin(GL11.GL_QUADS);
+		
 		for (int i = 0; i < text.length(); i++) {
 			char ch = text.charAt(i);
 			FontChar fch = font.getChar(ch);
@@ -71,11 +80,7 @@ public class FontRenderer {
 			if (fch == null) {
 				continue;
 			}
-
-			GL.debug("Font start");
-			Drawer.begin(GL11.GL_QUADS);
-			//Drawer.te
-
+			
 			float tu = fch.x / (float)fch.page.texture.width;
 			float tw = fch.width / (float)fch.page.texture.width;
 			float tv = 1F - (fch.y / (float)fch.page.texture.height);
@@ -86,6 +91,7 @@ public class FontRenderer {
 			float width = fch.width * scale;
 			float height = fch.height * scale;
 			
+			Drawer.texture(fch.page.texture);
 			Drawer.color(COLOR);
 			
 			Drawer.uv(tu, tv - th);
@@ -99,14 +105,14 @@ public class FontRenderer {
 
 			Drawer.uv(tu + tw, tv - th);
 			Drawer.vertex(wTotal + xOffset + width, (y + base - yOffset) - height, 0);
-			
-			GL.debug("Font predraw");
-			Drawer.draw(program);
-			
-			GL.debug("Font end");
 
 			wTotal += fch.xAdvance * scale;
 		}
+		
+		GL.debug("Font predraw");
+		Drawer.draw(program, TextureUniformType.ARRAY);
+		
+		GL.debug("Font end");
 	}
 	
 	static void linkDefaultProgramIfNeed() {

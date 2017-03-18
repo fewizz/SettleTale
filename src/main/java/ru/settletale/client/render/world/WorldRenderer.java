@@ -16,7 +16,9 @@ import ru.settletale.client.vertex.AttributeType;
 import ru.settletale.client.vertex.VertexArrayIndexed;
 import ru.settletale.client.render.Color;
 import ru.settletale.client.render.Drawer;
+import ru.settletale.client.render.FontRenderer;
 import ru.settletale.client.render.GLThread;
+import ru.settletale.client.render.MainRenderer;
 import ru.settletale.client.render.RenderLayerList;
 import ru.settletale.client.resource.ShaderLoader;
 import ru.settletale.client.resource.TextureLoader;
@@ -91,9 +93,7 @@ public class WorldRenderer implements IRegionManagerListener {
 		GL.VIEW_MATRIX.translate(0, 50, 0);
 		GL.VIEW_MATRIX.scale(5);
 		GL.updateTransformUniformBlock();
-		//ObjModelLoader.MODELS.get("models/tree/Tree2.obj").render();
 		GL.VIEW_MATRIX.pop();
-		//FontLoader.FONTS.get("fonts/font.fnt").render(0, 50, "ׂוסע רנטפעא =D");
 		GL11.glLineWidth(10);
 		Drawer.begin(GL_LINES);
 		Drawer.color(Color.RED);
@@ -103,7 +103,7 @@ public class WorldRenderer implements IRegionManagerListener {
 		
 		Drawer.begin(GL_QUADS);
 		Drawer.color(Color.WHITE);
-		Drawer.layer.setTexture(TextureLoader.TEXTURES.get("textures/grass.png"));
+		Drawer.texture(TextureLoader.TEXTURES.get("textures/grass.png"));
 		Drawer.uv(0, 0);
 		Drawer.vertex(0, 50, 0);
 		Drawer.uv(0, 1);
@@ -113,7 +113,7 @@ public class WorldRenderer implements IRegionManagerListener {
 		Drawer.uv(1, 0);
 		Drawer.vertex(50, 50, 0);
 		
-		Drawer.layer.setTexture(TextureLoader.TEXTURES.get("textures/tom.png"));
+		Drawer.texture(TextureLoader.TEXTURES.get("textures/tom.png"));
 		Drawer.uv(0, 0);
 		Drawer.vertex(50, 50, 0);
 		Drawer.uv(0, 1);
@@ -132,7 +132,11 @@ public class WorldRenderer implements IRegionManagerListener {
 		GL.VIEW_MATRIX.identity();
 		GL.updateTransformUniformBlock();
 		
-		//FontLoader.FONTS.get("fonts/font.fnt").render(10, Window.height - 60, "FPS: " + MainRenderer.lastFPSCount);
+		FontRenderer.setSize(25);
+		FontRenderer.setColor(Color.WHITE);
+		FontRenderer.getPosition().set(10, Window.height - 30, 0);
+		FontRenderer.setText("FPS: " + MainRenderer.lastFPSCount);
+		FontRenderer.render();
 		
 		GL.PROJ_MATRIX.pop();
 		GL.VIEW_MATRIX.pop();

@@ -4,18 +4,18 @@ import java.nio.ByteBuffer;
 
 import org.lwjgl.system.MemoryUtil;
 
-import ru.settletale.util.Primitive;
+import ru.settletale.util.PrimitiveType;
 
 public abstract class AttributeStorageAbstarct {
 	final int count;
 	final int growBytes;
 	ByteBuffer buff;
-	Primitive primitiveType;
+	PrimitiveType primitiveType;
 
-	public AttributeStorageAbstarct(int size, Primitive p) {
+	public AttributeStorageAbstarct(int size, PrimitiveType primitiveType) {
 		this.count = size;
-		this.primitiveType = p;
-		this.growBytes = size * p.sizeInBytes;
+		this.primitiveType = primitiveType;
+		this.growBytes = size * primitiveType.getSizeInBytes();
 		buff = MemoryUtil.memAlloc(4096);
 		buff.limit(0);
 	}

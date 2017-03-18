@@ -4,6 +4,7 @@ import org.joml.Vector2f;
 
 import ru.settletale.client.gl.GL;
 import ru.settletale.client.gl.ShaderProgram;
+import ru.settletale.client.gl.Texture2D;
 import ru.settletale.client.render.RenderLayerTextured.TextureUniformType;
 import ru.settletale.client.resource.ShaderLoader;
 import ru.settletale.client.vertex.AttributeType;
@@ -53,13 +54,29 @@ public class Drawer {
 	}
 
 	public static void draw() {
-		layer.setUniformType(layer.getUsedTextureCount() == 0 ? TextureUniformType.NONE : layer.getUsedTextureCount() == 1 ? TextureUniformType.VARIABLE : TextureUniformType.ARRAY);
-		draw(layer.getUsedTextureCount() == 0 ? PROGRAM : layer.getUsedTextureCount() == 1 ? PROGRAM_TEX : PROGRAM_MULTITEX);
+		TextureUniformType type;
+		ShaderProgram program;
+		
+		if(layer.getUsedTextureCount() == 0) {
+			type = TextureUniformType.NONE;
+			program = PROGRAM;
+		}
+		else if(layer.getUsedTextureCount() == 1) {
+			type = TextureUniformType.VARIABLE;
+			program = PROGRAM_TEX;
+		}
+		else {
+			type = TextureUniformType.ARRAY;
+			program = PROGRAM_MULTITEX;
+		}
+		
+		draw(program, type);
 	}
 
-	public static void draw(ShaderProgram program) {
+	public static void draw(ShaderProgram program, TextureUniformType type) {
 		GL.debug("Drawer start", true);
 		
+		layer.setUniformType(type);
 		layer.compile(true);
 
 		GL.debug("Drawer pre vao bind");
@@ -67,6 +84,10 @@ public class Drawer {
 		layer.setShaderProgram(program);
 		layer.render(drawingMode);
 		GL.debug("Draw drawArrays");
+	}
+	
+	public static void texture(Texture2D tex) {
+		layer.setTexture(tex);
 	}
 
 	public static void color(float r, float g, float b, float a) {

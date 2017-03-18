@@ -1,7 +1,7 @@
 package ru.settletale.client.vertex;
 
 import ru.settletale.util.DirectByteBufferUtils;
-import ru.settletale.util.Primitive;
+import ru.settletale.util.PrimitiveType;
 
 public class AttributeStorageInt extends AttributeStorageAbstarct {
 	int i1;
@@ -10,7 +10,7 @@ public class AttributeStorageInt extends AttributeStorageAbstarct {
 	int i4;
 	
 	public AttributeStorageInt(int size) {
-		super(size, Primitive.INT);
+		super(size, PrimitiveType.INT);
 	}
 
 	@Override

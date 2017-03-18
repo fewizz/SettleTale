@@ -86,6 +86,10 @@ public class GLThread extends Thread {
 			if(SEMAPHORE.tryAcquire()) {
 				Runnable r = TASK_QUEUE.poll();
 				
+				if(r == null) {
+					continue;
+				}
+				
 				r.run();
 			}
 			else {

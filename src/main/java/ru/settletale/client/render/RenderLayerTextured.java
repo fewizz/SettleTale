@@ -64,6 +64,10 @@ public class RenderLayerTextured extends RenderLayer {
 	public void compile(boolean allowSubDataIfPossible) {
 		super.compile(allowSubDataIfPossible);
 
+		if(uniformType == TextureUniformType.NONE) {
+			vao.disableVertexAttribArray(textureIDAttributeIndex);
+			return;
+		}
 		textureIDs = MemoryUtil.memAllocInt(textureCount);
 
 		for (int i = 0; i < textureCount; i++) {

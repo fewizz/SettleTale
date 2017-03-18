@@ -1,6 +1,6 @@
 package ru.settletale.client.vertex;
 
-import ru.settletale.util.Primitive;
+import ru.settletale.util.PrimitiveType;
 
 public enum AttributeType {
 	FLOAT_4(new AttributeStorageFloat(4)),
@@ -13,7 +13,7 @@ public enum AttributeType {
 	BYTE_3(new AttribyteStorageByte(3)),
 	BYTE_1(new AttribyteStorageByte(1));
 
-	final Primitive primitiveType;
+	final PrimitiveType primitiveType;
 	//final Primitive attribPrimitiveType;
 	final AttributeStorageAbstarct vs;
 	final int perVertexElementCount;
@@ -47,7 +47,7 @@ public enum AttributeType {
 		return perVertexElementCount;
 	}
 
-	public Primitive getPrimitiveType() {
+	public PrimitiveType getPrimitiveType() {
 		return primitiveType;
 	}
 	
