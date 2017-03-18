@@ -47,4 +47,12 @@ public class ShaderProgram extends NameableAbstract<ShaderProgram> {
 	public void deleteInternal() {
 		GL20.glDeleteProgram(id);
 	}
+	
+	public int getAttributeLocation(String name) {
+		return GL20.glGetAttribLocation(id, name);
+	}
+	
+	public int getUniformLocation(String name) {
+		return GL20.glGetUniformLocation(id, name);
+	}
 }

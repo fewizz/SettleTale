@@ -23,7 +23,7 @@ public class MathUtils {
 	}
 
 	public static float fract(float x) {
-		return (float) (x - floor(x));
+		return (float) (x - (float)floor(x));
 	}
 
 	public static float dot(float x1, float y1, float x2, float y2) {

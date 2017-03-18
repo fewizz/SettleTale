@@ -6,23 +6,23 @@ import ru.settletale.client.gl.GL;
 import ru.settletale.client.gl.ShaderProgram;
 import ru.settletale.client.gl.VertexArrayObject;
 import ru.settletale.client.gl.VertexBufferObject;
-import ru.settletale.client.vertex.VertexArray;
-import ru.settletale.client.vertex.VertexArray.AttributeType;
+import ru.settletale.client.vertex.AttributeType;
+import ru.settletale.client.vertex.VertexAttributeArray;
 import ru.settletale.util.ClientUtils;
 
 public class RenderLayer {
 	int vertexCount;
-	VertexArray vertexArray;
+	VertexAttributeArray vertexArray;
 	VertexArrayObject vao;
 	ShaderProgram program;
 	VertexBufferObject[] buffers;
 	int bufferCount;
 
 	public RenderLayer(AttributeType... storages) {
-		this(new VertexArray(storages));
+		this(new VertexAttributeArray(storages));
 	}
 
-	public RenderLayer(VertexArray va) {
+	public RenderLayer(VertexAttributeArray va) {
 		this();
 		setVertexArray(va);
 	}
@@ -32,14 +32,14 @@ public class RenderLayer {
 		vao = new VertexArrayObject();
 	}
 
-	public void setVertexArray(VertexArray va) {
+	public void setVertexArray(VertexAttributeArray va) {
 		this.vertexArray = va;
 	}
 
-	public VertexArray getVertexArray() {
+	public VertexAttributeArray getVertexAttributeArray() {
 		return this.vertexArray;
 	}
-	
+
 	public boolean hasVertexArray() {
 		return this.vertexArray != null;
 	}
@@ -81,7 +81,12 @@ public class RenderLayer {
 
 			AttributeType si = vertexArray.getAttribute(i);
 
-			vao.vertexAttribPointer(vbo, i, si.getElementCount(), ClientUtils.getGLPrimitive(si.getPrimitiveType()), si.isNormalised());
+			if(si.getPrimitiveType().isInt && !si.isNormalised()) {
+				vao.vertexAttribIntPointer(vbo, i, si.getElementCount(), ClientUtils.getGLPrimitive(si.getPrimitiveType()));
+			}
+			else {
+				vao.vertexAttribPointer(vbo, i, si.getElementCount(), ClientUtils.getGLPrimitive(si.getPrimitiveType()), si.isNormalised());
+			}
 			vao.enableVertexAttribArray(i);
 		}
 	}
@@ -97,12 +102,21 @@ public class RenderLayer {
 		this.program = program;
 	}
 
-	public void delete() {
+	public void clearVertexAttributeArrayIdExists() {
+		if(getVertexAttributeArray() != null) {
+			getVertexAttributeArray().clear();
+		}
+	}
+	
+	public void deleteVertexBuffers() {
 		for (int i = 0; i < bufferCount; i++) {
 			buffers[i].delete();
 		}
-
 		bufferCount = 0;
+	}
+
+	public void delete() {
+		deleteVertexBuffers();
 
 		vao.delete();
 	}

@@ -10,11 +10,11 @@ public abstract class AttributeStorageAbstarct {
 	final int count;
 	final int growBytes;
 	ByteBuffer buff;
-	Primitive primitive;
+	Primitive primitiveType;
 
 	public AttributeStorageAbstarct(int size, Primitive p) {
 		this.count = size;
-		this.primitive = p;
+		this.primitiveType = p;
 		this.growBytes = size * p.sizeInBytes;
 		buff = MemoryUtil.memAlloc(4096);
 		buff.limit(0);

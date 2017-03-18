@@ -47,6 +47,7 @@ public class GLThread extends Thread {
 
 		Window.windowID = glfwCreateWindow(1000, 600, "Settle Tale", MemoryUtil.NULL, MemoryUtil.NULL);
 		Window.onWindowResize(1000, 600);
+		
 		if (Window.windowID == MemoryUtil.NULL)
 			throw new RuntimeException("Failed to create the GLFW window");
 		
@@ -83,7 +84,9 @@ public class GLThread extends Thread {
 	public static void doAvailableTasks() {
 		for(;;) {
 			if(SEMAPHORE.tryAcquire()) {
-				TASK_QUEUE.poll().run();
+				Runnable r = TASK_QUEUE.poll();
+				
+				r.run();
 			}
 			else {
 				return;

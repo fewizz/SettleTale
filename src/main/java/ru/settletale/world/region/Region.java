@@ -29,7 +29,7 @@ public class Region {
 	}
 	
 	public float getHeight(int x, int z) {
-		return heights[z * ((18 * 2) + 1) + x];
+		return heights[(z + 2) * ((18 * 2) + 1) + (x + 2)];
 	}
 	
 	public void setBiomes(byte[] ids) {

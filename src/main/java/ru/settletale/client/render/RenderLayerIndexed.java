@@ -4,7 +4,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.system.MemoryUtil;
 
 import ru.settletale.client.gl.ElementArrayBufferObject;
-import ru.settletale.client.vertex.VertexArray.AttributeType;
+import ru.settletale.client.vertex.AttributeType;
 import ru.settletale.client.vertex.VertexArrayIndexed;
 
 public class RenderLayerIndexed extends RenderLayer {

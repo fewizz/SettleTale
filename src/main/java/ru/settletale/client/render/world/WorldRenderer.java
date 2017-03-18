@@ -12,14 +12,14 @@ import ru.settletale.client.Camera;
 import ru.settletale.client.Window;
 import ru.settletale.client.gl.GL;
 import ru.settletale.client.gl.ShaderProgram;
-import ru.settletale.client.vertex.VertexArray.AttributeType;
+import ru.settletale.client.vertex.AttributeType;
 import ru.settletale.client.vertex.VertexArrayIndexed;
 import ru.settletale.client.render.Color;
 import ru.settletale.client.render.Drawer;
 import ru.settletale.client.render.GLThread;
 import ru.settletale.client.render.RenderLayerList;
-import ru.settletale.client.resource.ObjModelLoader;
 import ru.settletale.client.resource.ShaderLoader;
+import ru.settletale.client.resource.TextureLoader;
 import ru.settletale.world.region.IRegionManagerListener;
 import ru.settletale.world.region.Region;
 
@@ -91,7 +91,7 @@ public class WorldRenderer implements IRegionManagerListener {
 		GL.VIEW_MATRIX.translate(0, 50, 0);
 		GL.VIEW_MATRIX.scale(5);
 		GL.updateTransformUniformBlock();
-		ObjModelLoader.MODELS.get("models/tree/Tree2.obj").render();
+		//ObjModelLoader.MODELS.get("models/tree/Tree2.obj").render();
 		GL.VIEW_MATRIX.pop();
 		//FontLoader.FONTS.get("fonts/font.fnt").render(0, 50, "ׂוסע רנטפעא =D");
 		GL11.glLineWidth(10);
@@ -99,6 +99,30 @@ public class WorldRenderer implements IRegionManagerListener {
 		Drawer.color(Color.RED);
 		Drawer.vertex(0, 50, 0);
 		Drawer.vertex(100, 50, 0);
+		Drawer.draw();
+		
+		Drawer.begin(GL_QUADS);
+		Drawer.color(Color.WHITE);
+		Drawer.layer.setTexture(TextureLoader.TEXTURES.get("textures/grass.png"));
+		Drawer.uv(0, 0);
+		Drawer.vertex(0, 50, 0);
+		Drawer.uv(0, 1);
+		Drawer.vertex(0, 100, 0);
+		Drawer.uv(1, 1);
+		Drawer.vertex(50, 100, 0);
+		Drawer.uv(1, 0);
+		Drawer.vertex(50, 50, 0);
+		
+		Drawer.layer.setTexture(TextureLoader.TEXTURES.get("textures/tom.png"));
+		Drawer.uv(0, 0);
+		Drawer.vertex(50, 50, 0);
+		Drawer.uv(0, 1);
+		Drawer.vertex(50, 100, 0);
+		Drawer.uv(1, 1);
+		Drawer.vertex(150, 100, 0);
+		Drawer.uv(1, 0);
+		Drawer.vertex(150, 50, 0);
+		
 		Drawer.draw();
 		
 		GL.updateTransformUniformBlock();
@@ -162,13 +186,13 @@ public class WorldRenderer implements IRegionManagerListener {
 	static final Vector3f V3_TEMP = new Vector3f();
 
 	private static void fillBuffers(Region r) {
-		for (int x = 2; x < 35; x++) {
-			int nx = x - 2;
+		for (int x = 0; x < 33; x++) {
+			int nx = x;
 			float px = (nx / 2F);
 			float pxf = r.x * 16 + px;
 			float pzf = r.z * 16;
 
-			for (int z = 2; z < 35; z++) {
+			for (int z = 0; z < 33; z++) {
 				NORMAL_TEMP.set(0);
 				TEMP.set(0);
 

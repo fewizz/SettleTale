@@ -1,17 +1,19 @@
 package ru.settletale.util;
 
 public enum Primitive {
-	FLOAT(Float.BYTES),
-	INT(Integer.BYTES),
-	BYTE(Byte.BYTES),
-	DOUBLE(Double.BYTES),
-	SHORT(Short.BYTES),
-	CHAR(Character.BYTES),
-	LONG(Long.BYTES);
+	FLOAT(Float.BYTES, false),
+	INT(Integer.BYTES, true),
+	BYTE(Byte.BYTES, true),
+	DOUBLE(Double.BYTES, false),
+	SHORT(Short.BYTES, true),
+	CHAR(Character.BYTES, true),
+	LONG(Long.BYTES, true);
 	
-	private Primitive(int sizeInBytes) {
+	private Primitive(int sizeInBytes, boolean isInt) {
 		this.sizeInBytes = sizeInBytes;
+		this.isInt = isInt;
 	}
 	
+	public boolean isInt;
 	public int sizeInBytes;
 }

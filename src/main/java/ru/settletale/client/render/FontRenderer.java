@@ -74,7 +74,7 @@ public class FontRenderer {
 
 			GL.debug("Font start");
 			Drawer.begin(GL11.GL_QUADS);
-			Drawer.texture(fch.page.texture);
+			//Drawer.te
 
 			float tu = fch.x / (float)fch.page.texture.width;
 			float tw = fch.width / (float)fch.page.texture.width;

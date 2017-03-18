@@ -30,7 +30,9 @@ public class CompiledRegion {
 
 	public CompiledRegion(Region region) {
 		this.region = region;
+	}
 
+	public void compile(VertexArrayIndexed va) {
 		if (!program.isGenerated()) {
 			GL.debug("CR shader start");
 			program.gen();
@@ -63,9 +65,7 @@ public class CompiledRegion {
 			textureBiomes.buffer = bb;
 			textureBiomes.loadData();
 		}
-	}
-
-	public void compile(VertexArrayIndexed va) {
+		
 		GL.debug("CR compile start");
 
 		this.layer = new RenderLayerIndexed();
@@ -106,7 +106,7 @@ public class CompiledRegion {
 	}
 
 	public void clear() {
-		layer.getVertexArray().clear();
+		layer.getVertexAttributeArray().clear();
 		textureIDs.delete();
 	}
 

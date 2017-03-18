@@ -1,15 +1,19 @@
 #version 140
 #extension GL_ARB_shading_language_420pack : enable
+#extension GL_ARB_explicit_uniform_location : enable
 
-layout(binding = 0) uniform sampler2D tex;
+//layout(binding = 0) uniform sampler2D tex;
+layout (location = 0) uniform sampler2D textures[16];
 
 out vec4 color_out;
 in vec4 color_vs;
 in vec2 uv_out;
+flat in int texID_vs;
+
 float iqnoise(vec2 pos);
 
 void main(void) {
-	vec2 uv = uv_out * textureSize(tex, 0);
+	vec2 uv = uv_out * textureSize(textures[texID_vs], 0);
 	color_out = color_vs * smoothstep(0.5, 0.5, iqnoise(uv));
 }
 
@@ -38,7 +42,7 @@ float iqnoise(vec2 pos) {
 		}
 		
 		ivec2 point = ivec2(floor(samplePos)) + cell;
-		float color = texelFetch(tex, point, 0).w;
+		float color = texelFetch(textures[texID_vs], point, 0).w;
 		
 		value += color * sample;
 		accum += sample;

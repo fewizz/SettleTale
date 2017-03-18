@@ -10,8 +10,8 @@ import org.lwjgl.system.MemoryUtil;
 
 import ru.settletale.client.render.GLThread;
 import ru.settletale.client.render.ObjModel;
-import ru.settletale.client.vertex.VertexArray;
-import ru.settletale.client.vertex.VertexArray.AttributeType;
+import ru.settletale.client.vertex.AttributeType;
+import ru.settletale.client.vertex.VertexAttributeArray;
 import ru.settletale.util.FileUtils;
 import ru.settletale.util.StringUtils;
 
@@ -44,7 +44,7 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 		FloatBuffer uvs = MemoryUtil.memAllocFloat(counts[1] * 2);
 		FloatBuffer normals = MemoryUtil.memAllocFloat(counts[2] * 3);
 		
-		VertexArray pa = new VertexArray(AttributeType.FLOAT_4, AttributeType.FLOAT_3, AttributeType.FLOAT_2, AttributeType.INT_1);
+		VertexAttributeArray pa = new VertexAttributeArray(AttributeType.FLOAT_4, AttributeType.FLOAT_3, AttributeType.FLOAT_2, AttributeType.INT_1);
 
 		String mtlLibPath = "";
 		List<String> materials = new ArrayList<String>();
@@ -130,7 +130,7 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 		fb.put(v);
 	}
 
-	public static void readFace(String str, VertexArray pa, FloatBuffer positions, FloatBuffer normals, FloatBuffer uvs, int matID, int[][] back, float[][] backPos, float[][] backNorm, float[][] backUV) {
+	public static void readFace(String str, VertexAttributeArray pa, FloatBuffer positions, FloatBuffer normals, FloatBuffer uvs, int matID, int[][] back, float[][] backPos, float[][] backNorm, float[][] backUV) {
 		int count = StringUtils.readInts(str, back, ' ', '/', -1);
 
 		boolean isQuad = count == 8 || count == 12;
@@ -218,7 +218,7 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 		}
 	}
 
-	static void fillPA(VertexArray pa, int indx, float[][] backPos, float[][] backNorm, float[][] backUV) {
+	static void fillPA(VertexAttributeArray pa, int indx, float[][] backPos, float[][] backNorm, float[][] backUV) {
 		pa.data(POS, backPos[indx][0], backPos[indx][1], backPos[indx][2], backPos[indx][3]);
 		if (backNorm != null)
 			pa.data(NORM, backNorm[indx][0], backNorm[indx][1], backNorm[indx][2]);

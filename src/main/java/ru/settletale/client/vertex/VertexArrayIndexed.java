@@ -6,7 +6,7 @@ import org.lwjgl.system.MemoryUtil;
 
 import ru.settletale.util.DirectByteBufferUtils;
 
-public class VertexArrayIndexed extends VertexArray {
+public class VertexArrayIndexed extends VertexAttributeArray {
 	private ByteBuffer ib;
 	protected int indexCount = 0;
 

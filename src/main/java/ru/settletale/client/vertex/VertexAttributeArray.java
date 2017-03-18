@@ -2,62 +2,16 @@ package ru.settletale.client.vertex;
 
 import java.nio.ByteBuffer;
 
-import ru.settletale.util.Primitive;
-
-public class VertexArray {
+public class VertexAttributeArray {
 	private final AttributeStorageAbstarct[] attributeStorages;
 	private final AttributeType[] attributes;
 	protected int vertexCount = 0;
 	private int attributeCount = 0;
 
-	public VertexArray(AttributeType... storages) {
+	public VertexAttributeArray(AttributeType... storages) {
 		this.attributeStorages = new AttributeStorageAbstarct[16];
 		this.attributes = new AttributeType[16];
 		addAttibutes(storages);
-	}
-
-	public static enum AttributeType {
-		FLOAT_4(new AttributeStorageFloat(4)),
-		FLOAT_3(new AttributeStorageFloat(3)),
-		FLOAT_2(new AttributeStorageFloat(2)),
-		FLOAT_1(new AttributeStorageFloat(1)),
-		INT_1(new AttributeStorageInt(1)),
-		BYTE_4(new AttribyteStorageByte(4)),
-		BYTE_4_NORMALISED(new AttribyteStorageByte(4), true),
-		BYTE_3(new AttribyteStorageByte(3)),
-		BYTE_1(new AttribyteStorageByte(1));
-
-		final Primitive primitive;
-		final AttributeStorageAbstarct vs;
-		final int perVertexElementCount;
-		final boolean normalised;
-
-		private AttributeType(AttributeStorageAbstarct vs) {
-			this(vs, false);
-		}
-		
-		private AttributeType(AttributeStorageAbstarct vs, boolean normalised) {
-			this.vs = vs;
-			this.perVertexElementCount = vs.count;
-			this.primitive = vs.primitive;
-			this.normalised = normalised;
-		}
-
-		public AttributeStorageAbstarct getAttributeStorage() {
-			return vs;
-		}
-
-		public int getElementCount() {
-			return perVertexElementCount;
-		}
-
-		public Primitive getPrimitiveType() {
-			return primitive;
-		}
-		
-		public boolean isNormalised() {
-			return normalised;
-		}
 	}
 
 	public void addAttibutes(AttributeType... storages) {
