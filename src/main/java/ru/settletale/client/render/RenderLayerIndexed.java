@@ -5,7 +5,7 @@ import org.lwjgl.system.MemoryUtil;
 
 import ru.settletale.client.gl.ElementArrayBufferObject;
 import ru.settletale.client.vertex.AttributeType;
-import ru.settletale.client.vertex.VertexArrayIndexed;
+import ru.settletale.client.vertex.VertexAttributeArrayIndexed;
 
 public class RenderLayerIndexed extends RenderLayer {
 	int indexCount;
@@ -17,7 +17,7 @@ public class RenderLayerIndexed extends RenderLayer {
 	}
 
 	public RenderLayerIndexed(AttributeType... storages) {
-		super(new VertexArrayIndexed(storages));
+		super(new VertexAttributeArrayIndexed(storages));
 		initIndexBuffer();
 	}
 
@@ -29,12 +29,12 @@ public class RenderLayerIndexed extends RenderLayer {
 	public void compile(boolean allowSubDataIfPossible) {
 		super.compile(allowSubDataIfPossible);
 
-		this.indexCount = ((VertexArrayIndexed) vertexArray).getIndexCount();
+		this.indexCount = ((VertexAttributeArrayIndexed) vertexArray).getIndexCount();
 
 		if (!indexBuffer.isGenerated()) {
 			indexBuffer.gen();
 		}
-		indexBuffer.buffer(((VertexArrayIndexed) vertexArray).getIndexBuffer());
+		indexBuffer.buffer(((VertexAttributeArrayIndexed) vertexArray).getIndexBuffer());
 		if (allowSubDataIfPossible) {
 			indexBuffer.loadDataOrSubData();
 		}

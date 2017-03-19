@@ -16,7 +16,7 @@ import ru.settletale.client.resource.ShaderLoader;
 import ru.settletale.client.resource.TextureLoader;
 import ru.settletale.world.biome.BiomeAbstract;
 import ru.settletale.world.region.Region;
-import ru.settletale.client.vertex.VertexArrayIndexed;
+import ru.settletale.client.vertex.VertexAttributeArrayIndexed;
 import ru.settletale.registry.Biomes;
 
 public class CompiledRegion {
@@ -32,7 +32,7 @@ public class CompiledRegion {
 		this.region = region;
 	}
 
-	public void compile(VertexArrayIndexed va) {
+	public void compile(VertexAttributeArrayIndexed va) {
 		if (!program.isGenerated()) {
 			GL.debug("CR shader start");
 			program.gen();

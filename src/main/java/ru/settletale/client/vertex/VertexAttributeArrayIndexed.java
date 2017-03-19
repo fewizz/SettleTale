@@ -6,15 +6,15 @@ import org.lwjgl.system.MemoryUtil;
 
 import ru.settletale.util.DirectByteBufferUtils;
 
-public class VertexArrayIndexed extends VertexAttributeArray {
-	private ByteBuffer ib;
+public class VertexAttributeArrayIndexed extends VertexAttributeArray {
+	private ByteBuffer indexBuffer;
 	protected int indexCount = 0;
 
-	public VertexArrayIndexed(AttributeType... storages) {
+	public VertexAttributeArrayIndexed(AttributeType... storages) {
 		this(false, storages);
 	}
 
-	public VertexArrayIndexed(boolean lazyIndexBufferInitialisation, AttributeType... storages) {
+	public VertexAttributeArrayIndexed(boolean lazyIndexBufferInitialisation, AttributeType... storages) {
 		super(storages);
 		if (!lazyIndexBufferInitialisation) {
 			initIndexBuffer();
@@ -22,8 +22,8 @@ public class VertexArrayIndexed extends VertexAttributeArray {
 	}
 	
 	private void initIndexBuffer() {
-		ib = MemoryUtil.memAlloc(4096);
-		ib.limit(0);
+		indexBuffer = MemoryUtil.memAlloc(4096);
+		indexBuffer.limit(0);
 	}
 
 	public void index(int vertexIndex) {
@@ -34,24 +34,24 @@ public class VertexArrayIndexed extends VertexAttributeArray {
 
 		int limit = id + sizeBytes;
 
-		if(ib == null) {
+		if(indexBuffer == null) {
 			initIndexBuffer();
 		}
 		
-		if (limit > ib.capacity())
-			DirectByteBufferUtils.growBuffer(ib, 1.5F);
+		if (limit > indexBuffer.capacity())
+			DirectByteBufferUtils.growBuffer(indexBuffer, 1.5F);
 
-		ib.limit(limit);
+		indexBuffer.limit(limit);
 
-		ib.putShort(id, (short) vertexIndex);
+		indexBuffer.putShort(id, (short) vertexIndex);
 
-		ib.position(0);
+		indexBuffer.position(0);
 
 		indexCount++;
 	}
 
 	public ByteBuffer getIndexBuffer() {
-		return ib;
+		return indexBuffer;
 	}
 
 	@Override

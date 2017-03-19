@@ -40,7 +40,7 @@ public class Drawer {
 		PROGRAM_MULTITEX.attachShader(ShaderLoader.SHADERS.get("shaders/drawer_multitex.fs"));
 		PROGRAM_MULTITEX.link();
 		
-		layer = new RenderLayerTextured(AttributeType.FLOAT_3, AttributeType.BYTE_4_NORMALISED, AttributeType.FLOAT_2, AttributeType.INT_1);
+		layer = new RenderLayerTextured(AttributeType.FLOAT_3, AttributeType.UBYTE_4_FLOAT_4_NORMALISED, AttributeType.FLOAT_2, AttributeType.UBYTE_1_INT_1);
 		layer.setTextureIDAttributeIndex(TEX_ID);
 		layer.setTextureUniformLocation(0);
 	}

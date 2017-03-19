@@ -17,10 +17,10 @@ public class LayerBiomes extends LayerAbstract {
 		byte[] valuesParent = parent.getValues(x, z, width, length);
 		byte[] values = getByteArray(width, length);//new byte[width * length];
 		
-		for(int x2 = 0; x2 < width; x2++) {
-			for(int z2 = 0; z2 < length; z2++) {
-				int id = z2 * length + x2;
-				
+		for(int z2 = 0; z2 < length; z2++) {
+			int id = z2 * length;
+			
+			for(int x2 = 0; x2 < width; x2++) {
 				Climate climate = Climate.all()[valuesParent[id]];
 				
 				boolean earth = getPRInt(x + x2, z + z2, 100) >= climate.chanceOfWater;
@@ -36,6 +36,8 @@ public class LayerBiomes extends LayerAbstract {
 				int biomeID = biomesByClimate.get(getPRInt(x + x2, z + z2, biomesByClimate.size())).getBiomeID();
 				
 				values[id] = (byte) biomeID;
+				
+				id++;
 			}
 		}
 		

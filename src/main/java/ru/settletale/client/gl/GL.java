@@ -6,6 +6,7 @@ import org.lwjgl.opengl.GL30;
 import org.lwjgl.system.MemoryStack;
 
 import ru.settletale.client.Window;
+import ru.settletale.util.PrimitiveType;
 
 public class GL {
 	public static final boolean DEBUG = true;
@@ -103,5 +104,22 @@ public class GL {
 			}
 			previousMessage = s;
 		}
+	}
+	
+	public static int getGLPrimitiveType(PrimitiveType p) {
+		switch (p) {
+			case FLOAT:
+				return GL11.GL_FLOAT;
+			case BYTE:
+				return GL11.GL_BYTE;
+			case UBYTE:
+				return GL11.GL_UNSIGNED_BYTE;
+			case INT:
+				return GL11.GL_INT;
+			default:
+				break;
+		}
+		
+		return -1;
 	}
 }

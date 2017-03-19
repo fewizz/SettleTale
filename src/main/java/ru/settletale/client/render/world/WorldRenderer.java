@@ -13,7 +13,7 @@ import ru.settletale.client.Window;
 import ru.settletale.client.gl.GL;
 import ru.settletale.client.gl.ShaderProgram;
 import ru.settletale.client.vertex.AttributeType;
-import ru.settletale.client.vertex.VertexArrayIndexed;
+import ru.settletale.client.vertex.VertexAttributeArrayIndexed;
 import ru.settletale.client.render.Color;
 import ru.settletale.client.render.Drawer;
 import ru.settletale.client.render.FontRenderer;
@@ -33,7 +33,7 @@ public class WorldRenderer implements IRegionManagerListener {
 	public static final int POSITION = 0;
 	public static final int NORMAL = 1;
 
-	public static final VertexArrayIndexed VERTEX_ARRAY = new VertexArrayIndexed(AttributeType.FLOAT_3, AttributeType.FLOAT_1);
+	public static final VertexAttributeArrayIndexed VERTEX_ARRAY = new VertexAttributeArrayIndexed(AttributeType.FLOAT_3, AttributeType.FLOAT_1);
 	static ShaderProgram programSky;
 	
 	static RenderLayerList lineList;

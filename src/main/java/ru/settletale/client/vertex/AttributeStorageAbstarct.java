@@ -22,6 +22,9 @@ public abstract class AttributeStorageAbstarct {
 
 	public void data(byte b1, byte b2, byte b3, byte b4) {
 	}
+	
+	public void data(short s1, short s2, short s3, short s4) {
+	}
 
 	public void data(float f1, float f2, float f3, float f4) {
 	}

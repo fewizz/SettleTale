@@ -66,15 +66,15 @@ public class VertexAttributeArray {
 	}
 
 	public void data(int storage, float f1) {
-		this.data(storage, f1, 0, 0, 0);
+		this.data(storage, f1, 0F, 0F, 0F);
 	}
 
 	public void data(int storage, float f1, float f2, float f3) {
-		this.data(storage, f1, f2, f3, 0);
+		this.data(storage, f1, f2, f3, 0F);
 	}
 
 	public void data(int storage, float f1, float f2) {
-		this.data(storage, f1, f2, 0, 0);
+		this.data(storage, f1, f2, 0F, 0F);
 	}
 
 	public void data(int storage, int i1, int i2, int i3, int i4) {
@@ -88,8 +88,16 @@ public class VertexAttributeArray {
 	public void data(int storage, byte b1, byte b2, byte b3, byte b4) {
 		attributeStorages[storage].data(b1, b2, b3, b4);
 	}
+	
+	public void data(int storage, short s1) {
+		data(storage, s1, (short)0, (short)0, (short)0);
+	}
+	
+	public void data(int storage, short s1, short s2, short s3, short s4) {
+		attributeStorages[storage].data(s1, s2, s3, s4);
+	}
 
 	public void data(int storage, byte b1) {
-		this.data(storage, b1, 0, 0, 0);
+		this.data(storage, b1, (byte)0, (byte)0, (byte)0);
 	}
 }

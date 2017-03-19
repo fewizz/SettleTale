@@ -8,7 +8,6 @@ import ru.settletale.client.gl.VertexArrayObject;
 import ru.settletale.client.gl.VertexBufferObject;
 import ru.settletale.client.vertex.AttributeType;
 import ru.settletale.client.vertex.VertexAttributeArray;
-import ru.settletale.util.ClientUtils;
 
 public class RenderLayer {
 	int vertexCount;
@@ -81,11 +80,11 @@ public class RenderLayer {
 
 			AttributeType si = vertexArray.getAttribute(i);
 
-			if(si.getPrimitiveType().isIntegral() && !si.isNormalised()) {
-				vao.vertexAttribIntPointer(vbo, i, si.getElementCount(), ClientUtils.getGLPrimitive(si.getPrimitiveType()));
+			if(si.getAttributeDataType().isIntegral()) {
+				vao.vertexAttribIntPointer(vbo, i, si.getPerVertexElementCount(), GL.getGLPrimitiveType(si.getDataType()));
 			}
 			else {
-				vao.vertexAttribPointer(vbo, i, si.getElementCount(), ClientUtils.getGLPrimitive(si.getPrimitiveType()), si.isNormalised());
+				vao.vertexAttribPointer(vbo, i, si.getPerVertexElementCount(), GL.getGLPrimitiveType(si.getDataType()), si.isNormalised());
 			}
 			vao.enableVertexAttribArray(i);
 		}

@@ -53,7 +53,7 @@ public class RenderLayerTextured extends RenderLayer {
 			}
 		}
 
-		getVertexAttributeArray().data(textureIDAttributeIndex, id);
+		getVertexAttributeArray().data(textureIDAttributeIndex, (byte)id);
 	}
 
 	public int getUsedTextureCount() {
