@@ -14,12 +14,12 @@ public class Texture2D extends TextureAbstract<Texture2D> {
 
 	@Override
 	protected void internalLoadData() {
-		GL11.glTexImage2D(type, 0, internalFormat, width, height, 0, bufferFormat, bufferType, this.buffer);
+		GL11.glTexImage2D(type, 0, internalFormat, width, height, 0, bufferDataFormat, bufferDataType, this.buffer);
 	}
 
 	@Override
 	protected void internalLoadSubData() {
-		GL11.glTexSubImage2D(type, 0, 0, 0, width, height, bufferFormat, bufferType, this.buffer);
+		GL11.glTexSubImage2D(type, 0, 0, 0, width, height, bufferDataFormat, bufferDataType, this.buffer);
 	}
 
 }

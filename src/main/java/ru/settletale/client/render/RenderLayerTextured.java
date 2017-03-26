@@ -13,7 +13,7 @@ import ru.settletale.client.vertex.AttributeType;
 
 public class RenderLayerTextured extends RenderLayer {
 	TextureUniformType uniformType;
-	int textureIDAttributeIndex = -1;
+	int textureAttributeIndex = -1;
 	int textureUniformLocation = -1;
 	final Texture2D[] textures;
 	IntBuffer textureIDs;
@@ -24,8 +24,8 @@ public class RenderLayerTextured extends RenderLayer {
 		textures = new Texture2D[256];
 	}
 
-	public void setTextureIDAttributeIndex(int index) {
-		this.textureIDAttributeIndex = index;
+	public void setTextureAttributeIndex(int index) {
+		this.textureAttributeIndex = index;
 	}
 
 	public void setTextureUniformLocation(int location) {
@@ -53,7 +53,7 @@ public class RenderLayerTextured extends RenderLayer {
 			}
 		}
 
-		getVertexAttributeArray().data(textureIDAttributeIndex, (byte)id);
+		getVertexAttributeArray().dataByte(textureAttributeIndex, (byte)id);
 	}
 
 	public int getUsedTextureCount() {
@@ -65,7 +65,7 @@ public class RenderLayerTextured extends RenderLayer {
 		super.compile(allowSubDataIfPossible);
 
 		if(uniformType == TextureUniformType.NONE) {
-			vao.disableVertexAttribArray(textureIDAttributeIndex);
+			vao.disableVertexAttribArray(textureAttributeIndex);
 			return;
 		}
 		textureIDs = MemoryUtil.memAllocInt(textureCount);

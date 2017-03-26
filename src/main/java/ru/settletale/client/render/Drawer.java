@@ -1,6 +1,7 @@
 package ru.settletale.client.render;
 
 import org.joml.Vector2f;
+import org.joml.Vector3f;
 
 import ru.settletale.client.gl.GL;
 import ru.settletale.client.gl.ShaderProgram;
@@ -18,11 +19,11 @@ public class Drawer {
 	static final ShaderProgram PROGRAM = new ShaderProgram();
 	static final ShaderProgram PROGRAM_TEX = new ShaderProgram();
 	static final ShaderProgram PROGRAM_MULTITEX = new ShaderProgram();
-	static int drawingMode;
-	static int vertexCount;
 	static final Vector2f UV = new Vector2f();
 	static final Color COLOR = new Color(1F, 1F, 1F, 1F);
-	static float scale = 1F;
+	static final Vector3f SCALE = new Vector3f(1F);
+	static int drawingMode;
+	static int vertexCount;
 
 	public static void init() {
 		PROGRAM.gen();
@@ -41,7 +42,7 @@ public class Drawer {
 		PROGRAM_MULTITEX.link();
 		
 		layer = new RenderLayerTextured(AttributeType.FLOAT_3, AttributeType.UBYTE_4_FLOAT_4_NORMALISED, AttributeType.FLOAT_2, AttributeType.UBYTE_1_INT_1);
-		layer.setTextureIDAttributeIndex(TEX_ID);
+		layer.setTextureAttributeIndex(TEX_ID);
 		layer.setTextureUniformLocation(0);
 	}
 
@@ -49,7 +50,7 @@ public class Drawer {
 		drawingMode = mode;
 		vertexCount = 0;
 
-		layer.clearVertexAttributeArrayIdExists();
+		layer.clearVertexAttributeArrayIfExists();
 		layer.clearTextures();
 	}
 
@@ -99,11 +100,11 @@ public class Drawer {
 	}
 	
 	public static void scale(float scale) {
-		Drawer.scale = scale;
+		SCALE.set(scale);
 	}
 
 	public static void uv(float u, float v) {
-		Drawer.UV.set(u, v);
+		UV.set(u, v);
 	}
 
 	public static void vertex(float x, float y) {
@@ -111,9 +112,9 @@ public class Drawer {
 	}
 	
 	public static void vertex(float x, float y, float z) {
-		layer.getVertexAttributeArray().data(POSITION_ID, x * scale, y * scale, z * scale);
-		layer.getVertexAttributeArray().data(COLOR_ID, COLOR.r(), COLOR.g(), COLOR.b(), COLOR.a());
-		layer.getVertexAttributeArray().data(UV_ID, UV.x, UV.y);
+		layer.getVertexAttributeArray().dataFloat(POSITION_ID, x * SCALE.x, y * SCALE.y, z * SCALE.z);
+		layer.getVertexAttributeArray().dataByte(COLOR_ID, COLOR.r(), COLOR.g(), COLOR.b(), COLOR.a());
+		layer.getVertexAttributeArray().dataFloat(UV_ID, UV.x, UV.y);
 		layer.getVertexAttributeArray().endVertex();
 	}
 }

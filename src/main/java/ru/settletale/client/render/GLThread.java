@@ -1,9 +1,5 @@
 package ru.settletale.client.render;
 
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.concurrent.Semaphore;
-
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.system.MemoryUtil;
@@ -14,26 +10,32 @@ import ru.settletale.client.MouseButtonListener;
 import ru.settletale.client.Window;
 import ru.settletale.client.WindowResizeListener;
 import ru.settletale.client.gl.GL;
+import ru.settletale.util.ThreadWithTasks;
 
 import static org.lwjgl.glfw.GLFW.*;
 
-public class GLThread extends Thread {
-	private static final Queue<Runnable> TASK_QUEUE = new LinkedList<>();
-	private static final Semaphore SEMAPHORE = new Semaphore(0);
-	private static volatile Stage stage = Stage.ONLY_DO_TASKS;
-	private static GLThread instance;
+public class GLThread extends ThreadWithTasks {
+	public static final GLThread INSTANCE = new GLThread();
 
 	public GLThread() {
-		super("Render thread");
-		instance = this;
+		super(Stage.ONLY_DO_TASKS, "Render thread");
 	}
 	
 	@Override
-	public void run() {
+	public void init() {
 		initGLFW();
 		initGL();
 		GL.init();
-		mainLoop();
+	}
+	
+	public static void addTask(Runnable runnable) {
+		INSTANCE.addRunnableTask(runnable);
+	}
+	
+	@Override
+	public void doStuff() {
+		doAvailableTasks();
+		MainRenderer.render();
 	}
 	
 	public static void initGLFW() {
@@ -45,97 +47,25 @@ public class GLThread extends Thread {
 		glfwWindowHint(GLFW_VISIBLE, GLFW_TRUE);
 		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
-		Window.windowID = glfwCreateWindow(1000, 600, "Settle Tale", MemoryUtil.NULL, MemoryUtil.NULL);
+		Window.id = glfwCreateWindow(1000, 600, "Settle Tale", MemoryUtil.NULL, MemoryUtil.NULL);
 		Window.onWindowResize(1000, 600);
 		
-		if (Window.windowID == MemoryUtil.NULL)
+		if (Window.id == MemoryUtil.NULL)
 			throw new RuntimeException("Failed to create the GLFW window");
 		
-		glfwSetKeyCallback(Window.windowID, KeyListener.INSTANCE);
-		glfwSetMouseButtonCallback(Window.windowID, new MouseButtonListener());
-		glfwSetFramebufferSizeCallback(Window.windowID, new WindowResizeListener());
-		glfwSetCursorPosCallback(Window.windowID, new CursorListener());
+		glfwSetKeyCallback(Window.id, KeyListener.INSTANCE);
+		glfwSetMouseButtonCallback(Window.id, new MouseButtonListener());
+		glfwSetFramebufferSizeCallback(Window.id, new WindowResizeListener());
+		glfwSetCursorPosCallback(Window.id, new CursorListener());
 
 		GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-		glfwSetWindowPos(Window.windowID, (vidmode.width() - Window.width) / 2, (vidmode.height() - Window.height) / 2);
-		glfwShowWindow(Window.windowID);
+		glfwSetWindowPos(Window.id, (vidmode.width() - Window.width) / 2, (vidmode.height() - Window.height) / 2);
+		glfwShowWindow(Window.id);
 	}
 	
 	static void initGL() {
-		glfwMakeContextCurrent(Window.windowID);
+		glfwMakeContextCurrent(Window.id);
 		org.lwjgl.opengl.GL.createCapabilities();
 		glfwSwapInterval(0);
-	}
-
-	private static void mainLoop() {
-		for(;;) {
-			if(interrupted()) {
-				break;
-			}
-			stage.doStuff();
-		}
-	}
-
-	private static void waitAndDoAvailableTask() throws InterruptedException {
-		SEMAPHORE.acquire();
-		TASK_QUEUE.poll().run();
-	}
-	
-	public static void doAvailableTasks() {
-		for(;;) {
-			if(SEMAPHORE.tryAcquire()) {
-				Runnable r = TASK_QUEUE.poll();
-				
-				if(r == null) {
-					continue;
-				}
-				
-				r.run();
-			}
-			else {
-				return;
-			}
-		}
-	}
-
-	public static synchronized void addTask(Runnable runnable) {
-		TASK_QUEUE.add(runnable);
-		SEMAPHORE.release();
-	}
-	
-	public static synchronized void setStage(Stage stage) {
-		GLThread.stage = stage;
-		if(instance.getState() == Thread.State.WAITING) {
-			instance.interrupt();
-		}
-	}
-	
-	public enum Stage {
-		ONLY_DO_TASKS {
-			@Override
-			public void doStuff() {
-				try {
-					waitAndDoAvailableTask();
-				} catch (InterruptedException e) {
-					interrupted();
-				}
-			}
-		},
-		RENDER {
-			@Override
-			public void doStuff() {
-				MainRenderer.render();
-			}
-		},
-		STOP {
-			@Override
-			public void doStuff() {
-				instance.interrupt();
-				
-				System.out.println("GLThread stopped!");
-			}
-		};
-		
-		public void doStuff() {}
 	}
 }

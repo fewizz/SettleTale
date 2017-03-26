@@ -101,7 +101,7 @@ public class RenderLayer {
 		this.program = program;
 	}
 
-	public void clearVertexAttributeArrayIdExists() {
+	public void clearVertexAttributeArrayIfExists() {
 		if(getVertexAttributeArray() != null) {
 			getVertexAttributeArray().clear();
 		}

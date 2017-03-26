@@ -5,6 +5,7 @@ import java.nio.ByteBuffer;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL30;
 
 import ru.settletale.client.gl.GL;
 import ru.settletale.client.gl.ShaderProgram;
@@ -20,9 +21,9 @@ import ru.settletale.client.vertex.VertexAttributeArrayIndexed;
 import ru.settletale.registry.Biomes;
 
 public class CompiledRegion {
-	static Texture1D textureBiomes;
+	static final Texture1D TEXTURE_BIOMES = new Texture1D(256);
 	static Texture2D textureGrass;
-	static final ByteBuffer textureIDsTempBuffer = BufferUtils.createByteBuffer(18 * 20);
+	static final ByteBuffer textureIDsTempBuffer = BufferUtils.createByteBuffer(18 * 20 * 2);
 	static final ShaderProgram program = new ShaderProgram();
 	Region region;
 	RenderLayer layer;
@@ -46,8 +47,8 @@ public class CompiledRegion {
 			textureGrass.parameter(GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
 			textureGrass.parameter(GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
 		}
-		if (textureBiomes == null) {
-			textureBiomes = new Texture1D(256).gen().internalFormat(GL11.GL_RGB8).bufferFormat(GL11.GL_RGB).bufferType(GL11.GL_UNSIGNED_BYTE);
+		if (!TEXTURE_BIOMES.isGenerated()) {
+			TEXTURE_BIOMES.gen().format(GL11.GL_RGB8).bufferDataFormat(GL11.GL_RGB).bufferDataType(GL11.GL_UNSIGNED_BYTE);
 
 			ByteBuffer bb = BufferUtils.createByteBuffer(256 * 3);
 
@@ -62,26 +63,26 @@ public class CompiledRegion {
 				bb.put(b.getBiomeID() * 3 + 2, (byte) c.getBlue());
 			}
 
-			textureBiomes.buffer = bb;
-			textureBiomes.loadData();
+			TEXTURE_BIOMES.buffer = bb;
+			TEXTURE_BIOMES.loadData();
 		}
-		
+
 		GL.debug("CR compile start");
 
 		this.layer = new RenderLayerIndexed();
 		this.layer.setVertexArray(va);
 		this.layer.compile();
+		this.layer.setVertexArray(null);
 		this.layer.setShaderProgram(program);
 
-		textureIDs = new Texture2D(18, 18).gen().internalFormat(GL11.GL_RED).bufferFormat(GL11.GL_RED).bufferType(GL11.GL_UNSIGNED_BYTE);
+		textureIDs = new Texture2D(18, 18).gen().format(GL30.GL_R8).bufferDataFormat(GL11.GL_RED).bufferDataType(GL11.GL_UNSIGNED_BYTE);
 
 		int byteIndex = 0;
 		for (int z = -1; z < 17; z++) {
 			for (int x = -1; x < 17; x++) {
-				textureIDsTempBuffer.put(byteIndex + 0, (byte) region.getBiome(x, z).getBiomeID());
-				byteIndex++;
+				textureIDsTempBuffer.put(byteIndex++, (byte) region.getBiome(x, z).getBiomeID());
 			}
-			byteIndex += 2; // WTF?
+			byteIndex += 2; // WTF? It's not RGB, but neeeds 3 bytes...
 		}
 
 		GL.debug("CR compile texture");
@@ -96,7 +97,7 @@ public class CompiledRegion {
 		GL.debug("CR rend shader start");
 
 		GL.activeTexture(0, textureIDs);
-		GL.activeTexture(1, textureBiomes);
+		GL.activeTexture(1, TEXTURE_BIOMES);
 		GL.activeTexture(2, textureGrass);
 
 		GL.debug("CR bind texture units end");
@@ -106,7 +107,6 @@ public class CompiledRegion {
 	}
 
 	public void clear() {
-		layer.getVertexAttributeArray().clear();
 		textureIDs.delete();
 	}
 

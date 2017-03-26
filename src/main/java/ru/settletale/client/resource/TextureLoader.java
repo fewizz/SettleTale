@@ -31,6 +31,7 @@ public class TextureLoader extends ResourceLoaderAbstract {
 			image = ImageIO.read(resourceFile.fullPath);
 		} catch (IOException e) {
 			e.printStackTrace();
+			System.exit(1);
 		}
 
 		int width = image.getWidth();
@@ -54,7 +55,7 @@ public class TextureLoader extends ResourceLoaderAbstract {
 
 		Texture2D tex = new Texture2D(width, height);
 		tex.buffer = buffer;
-		tex.bufferType = GL11.GL_UNSIGNED_BYTE;
+		tex.bufferDataType = GL11.GL_UNSIGNED_BYTE;
 		
 		GLThread.addTask(() -> {
 			tex.gen().setDefaultParams().loadData();

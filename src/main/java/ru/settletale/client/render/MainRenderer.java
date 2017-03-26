@@ -13,35 +13,35 @@ public class MainRenderer {
 	public static final TickTimer TIMER = new TickTimer(Window.frameRate);
 	static int frames = 0;
 	static long start = System.nanoTime();
-	public static int lastFPSCount;
-	
+	public static int lastFPS;
+
 	public static void render() {
 		TIMER.start();
-		
+
 		glfwPollEvents();
-		glfwSetCursorPos(Window.windowID, Window.width / 2, Window.height / 2);
-		
-		GLThread.doAvailableTasks();
-		
+		glfwSetCursorPos(Window.id, Window.width / 2, Window.height / 2);
+
 		KeyListener.updateForCurrentThread();
 		Camera.update();
-		
-		WorldRenderer.render();
-		
-		glfwSwapBuffers(Window.windowID);
-		
-		frames++;
-		
-		if (System.nanoTime() - start > 1_000_000_000L) {
-			start += 1_000_000_000;
 
-			if(GL.DEBUG)
+		WorldRenderer.render();
+
+		glfwSwapBuffers(Window.id);
+
+		frames++;
+
+		long time = System.nanoTime();
+
+		if (time - start > 1_000_000_000L) {
+			start = time;
+
+			if (GL.DEBUG)
 				System.out.println("FPS: " + frames);
-			
-			lastFPSCount = frames;
+
+			lastFPS = frames;
 			frames = 0;
 		}
-		
+
 		TIMER.waitAndEndTimer();
 	}
 }

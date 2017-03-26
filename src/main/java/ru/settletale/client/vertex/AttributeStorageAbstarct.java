@@ -41,5 +41,9 @@ public abstract class AttributeStorageAbstarct {
 	public void clear() {
 		buff.clear();
 	}
+	
+	public void delete() {
+		MemoryUtil.memFree(buff);
+	}
 
 }

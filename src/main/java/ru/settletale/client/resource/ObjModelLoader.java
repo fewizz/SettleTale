@@ -150,7 +150,7 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 		int flags = matID;
 		flags |= (hasUV ? 1 : 0) << 8;
 		flags |= (hasNormal ? 1 : 0) << 9;
-		pa.data(FLAGS, flags);
+		pa.dataInt(FLAGS, flags);
 		
 		for (int k = 0; k < vertCount; k++) {
 			int v = back[k + 1][0];
@@ -198,11 +198,11 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 				}
 			}
 			else {
-				pa.data(POS, positions.get(posIndex + 0), positions.get(posIndex + 1), positions.get(posIndex + 2), positions.get(posIndex + 3));
+				pa.dataFloat(POS, positions.get(posIndex + 0), positions.get(posIndex + 1), positions.get(posIndex + 2), positions.get(posIndex + 3));
 				if (hasNormal)
-					pa.data(NORM, normals.get(normIndex + 0), normals.get(normIndex + 1), normals.get(normIndex + 2));
+					pa.dataFloat(NORM, normals.get(normIndex + 0), normals.get(normIndex + 1), normals.get(normIndex + 2));
 				if (hasUV)
-					pa.data(UV, uvs.get(uvIndex + 0), uvs.get(uvIndex + 1));
+					pa.dataFloat(UV, uvs.get(uvIndex + 0), uvs.get(uvIndex + 1));
 				pa.endVertex();
 			}
 		}
@@ -219,11 +219,11 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 	}
 
 	static void fillPA(VertexAttributeArray pa, int indx, float[][] backPos, float[][] backNorm, float[][] backUV) {
-		pa.data(POS, backPos[indx][0], backPos[indx][1], backPos[indx][2], backPos[indx][3]);
+		pa.dataFloat(POS, backPos[indx][0], backPos[indx][1], backPos[indx][2], backPos[indx][3]);
 		if (backNorm != null)
-			pa.data(NORM, backNorm[indx][0], backNorm[indx][1], backNorm[indx][2]);
+			pa.dataFloat(NORM, backNorm[indx][0], backNorm[indx][1], backNorm[indx][2]);
 		if (backUV != null)
-			pa.data(UV, backUV[indx][0], backUV[indx][1]);
+			pa.dataFloat(UV, backUV[indx][0], backUV[indx][1]);
 		pa.endVertex();
 	}
 

@@ -22,7 +22,7 @@ public class StringUtils {
 	}
 
 	public static int readFloats(String str, float[] arr) {
-		PrimitivePart part = PrimitivePart.Left;
+		PrimitivePart part = PrimitivePart.LEFT;
 
 		float val = 0;
 
@@ -53,15 +53,15 @@ public class StringUtils {
 				}
 			}
 			else if (ch == '.') {
-				if (part == PrimitivePart.Left) {
-					part = PrimitivePart.Right;
+				if (part == PrimitivePart.LEFT) {
+					part = PrimitivePart.RIGHT;
 					numPow = 1;
 					val = num;
 					num = 0;
 				}
 			}
 			else if (ch == 'e') {
-				if (part == PrimitivePart.Right) {
+				if (part == PrimitivePart.RIGHT) {
 					part = PrimitivePart.E;
 					val += num / (float) numPow;
 					num = 0;
@@ -69,7 +69,7 @@ public class StringUtils {
 			}
 			else {
 				if (prevWasNum) {
-					if (part == PrimitivePart.Right) {
+					if (part == PrimitivePart.RIGHT) {
 						val += num / (float) numPow;
 					}
 					else if (part == PrimitivePart.E) {
@@ -82,16 +82,15 @@ public class StringUtils {
 					num = 0;
 					numPow = 1;
 					val = 0;
-					part = PrimitivePart.Left;
+					part = PrimitivePart.LEFT;
+					prevWasNum = false;
 				}
-
-				prevWasNum = false;
 			}
 
 		}
 
 		if (prevWasNum) {
-			if (part == PrimitivePart.Right) {
+			if (part == PrimitivePart.RIGHT) {
 				val += num / (float) numPow;
 			}
 			else if (part == PrimitivePart.E) {
@@ -104,8 +103,8 @@ public class StringUtils {
 		return count;
 	}
 
-	public static int readFloats(String str, float[][] arr, char split1, char spli2) {
-		PrimitivePart part = PrimitivePart.Left;
+	public static int readFloats(String str, float[][] arr, char split1, char split2) {
+		PrimitivePart part = PrimitivePart.LEFT;
 
 		float val = 0;
 
@@ -138,15 +137,15 @@ public class StringUtils {
 				}
 			}
 			else if (ch == '.') {
-				if (part == PrimitivePart.Left) {
-					part = PrimitivePart.Right;
+				if (part == PrimitivePart.LEFT) {
+					part = PrimitivePart.RIGHT;
 					numPow = 1;
 					val = num;
 					num = 0;
 				}
 			}
 			else if (ch == 'e') {
-				if (part == PrimitivePart.Right) {
+				if (part == PrimitivePart.RIGHT) {
 					part = PrimitivePart.E;
 					val += num / (float) numPow;
 					num = 0;
@@ -156,8 +155,8 @@ public class StringUtils {
 				mainIndex++;
 				index = 0;
 			}
-			else if (ch == spli2 || spli2 == -1) {
-				if (part == PrimitivePart.Right) {
+			else if (ch == split2) {
+				if (part == PrimitivePart.RIGHT) {
 					val += num / (float) numPow;
 				}
 				else if (part == PrimitivePart.E) {
@@ -171,7 +170,7 @@ public class StringUtils {
 				num = 0;
 				numPow = 1;
 				val = 0;
-				part = PrimitivePart.Left;
+				part = PrimitivePart.LEFT;
 
 				prevWasNum = false;
 			}
@@ -179,7 +178,7 @@ public class StringUtils {
 		}
 
 		if (prevWasNum) {
-			if (part == PrimitivePart.Right) {
+			if (part == PrimitivePart.RIGHT) {
 				val += num / (float) numPow;
 			}
 			else if (part == PrimitivePart.E) {
@@ -193,8 +192,8 @@ public class StringUtils {
 		return count;
 	}
 
-	public static int readInts(String str, int[][] arr, char split1, char spli2, int def) {
-		PrimitivePart part = PrimitivePart.Left;
+	public static int readInts(String str, int[][] arr, char split1, char split2, int def) {
+		PrimitivePart part = PrimitivePart.LEFT;
 		for(int i = 0; i < arr.length; i++) {
 			Arrays.fill(arr[i], -1);
 		}
@@ -228,15 +227,15 @@ public class StringUtils {
 				}
 			}
 			else if (ch == 'e') {
-				if (part == PrimitivePart.Left) {
+				if (part == PrimitivePart.LEFT) {
 					part = PrimitivePart.E;
 					val = num;
 					num = 0;
 				}
 			}
-			else if (ch == spli2 || ch == split1 || spli2 == -1) {
+			else if (ch == split2 || ch == split1) {
 				if (prevWasNum) {
-					if (part == PrimitivePart.Left) {
+					if (part == PrimitivePart.LEFT) {
 						val = num;
 					}
 					else if (part == PrimitivePart.E) {
@@ -249,7 +248,7 @@ public class StringUtils {
 					signE = false;
 					num = 0;
 					val = 0;
-					part = PrimitivePart.Left;
+					part = PrimitivePart.LEFT;
 				}
 				else {
 					arr[mainIndex][index++] = def;
@@ -266,7 +265,7 @@ public class StringUtils {
 		}
 
 		if (prevWasNum) {
-			if (part == PrimitivePart.Left) {
+			if (part == PrimitivePart.LEFT) {
 				val = num;
 			}
 			else if (part == PrimitivePart.E) {
@@ -284,8 +283,8 @@ public class StringUtils {
 	}
 
 	enum PrimitivePart {
-		Left,
-		Right,
+		LEFT,
+		RIGHT,
 		E
 	}
 }

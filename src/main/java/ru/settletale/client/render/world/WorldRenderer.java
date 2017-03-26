@@ -135,7 +135,7 @@ public class WorldRenderer implements IRegionManagerListener {
 		FontRenderer.setSize(25);
 		FontRenderer.setColor(Color.WHITE);
 		FontRenderer.getPosition().set(10, Window.height - 30, 0);
-		FontRenderer.setText("FPS: " + MainRenderer.lastFPSCount);
+		FontRenderer.setText("FPS: " + MainRenderer.lastFPS);
 		FontRenderer.render();
 		
 		GL.PROJ_MATRIX.pop();
@@ -232,8 +232,8 @@ public class WorldRenderer implements IRegionManagerListener {
 
 				NORMAL_TEMP.normalize();
 
-				VERTEX_ARRAY.data(POSITION, pxf, r.getHeight(x, z), pzf);
-				VERTEX_ARRAY.data(NORMAL, NORMAL_TEMP.y);
+				VERTEX_ARRAY.dataFloat(POSITION, pxf, r.getHeight(x, z), pzf);
+				VERTEX_ARRAY.dataFloat(NORMAL, NORMAL_TEMP.y);
 
 				VERTEX_ARRAY.endVertex();
 				
@@ -245,8 +245,8 @@ public class WorldRenderer implements IRegionManagerListener {
 	@Override
 	public void onRegionAdded(Region r) {
 		GLThread.addTask(() -> {
+			r.increaseThreadUsage();
 			REGIONS.put(r.coord, r);
-			r.threads++;
 		});
 
 	}
@@ -259,7 +259,7 @@ public class WorldRenderer implements IRegionManagerListener {
 				REGIONS_TO_RENDER.get(r.coord).clear();
 				REGIONS_TO_RENDER.remove(r.coord);
 			}
-			r.threads--;
+			r.decreaseThreadUsage();
 		});
 
 	}

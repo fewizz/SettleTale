@@ -5,14 +5,14 @@ import org.lwjgl.opengl.GL11;
 public abstract class TextureAbstract<T> extends NameableDataContainerAbstract<T> {
 	public final int type;
 	public int internalFormat;
-	public int bufferFormat;
-	public int bufferType;
+	public int bufferDataFormat;
+	public int bufferDataType;
 	
 	public TextureAbstract(int type) {
 		this.type = type; 
 		internalFormat = GL11.GL_RGBA;
-		bufferFormat = GL11.GL_RGBA;
-		bufferType = GL11.GL_FLOAT;
+		bufferDataFormat = GL11.GL_RGBA;
+		bufferDataType = GL11.GL_FLOAT;
 	}
 	
 	@Override
@@ -32,18 +32,18 @@ public abstract class TextureAbstract<T> extends NameableDataContainerAbstract<T
 		return GL11.glGenTextures();
 	}
 	
-	public T internalFormat(int internalFormat) {
+	public T format(int internalFormat) {
 		this.internalFormat = internalFormat;
 		return getThis();
 	}
 	
-	public T bufferFormat(int bufferFormat) {
-		this.bufferFormat = bufferFormat;
+	public T bufferDataFormat(int texelDataFormat) {
+		this.bufferDataFormat = texelDataFormat;
 		return getThis();
 	}
 	
-	public T bufferType(int bufferType) {
-		this.bufferType = bufferType;
+	public T bufferDataType(int bufferDataType) {
+		this.bufferDataType = bufferDataType;
 		return getThis();
 	}
 	

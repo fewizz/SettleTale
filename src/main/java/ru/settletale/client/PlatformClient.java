@@ -3,16 +3,15 @@ package ru.settletale.client;
 import ru.settletale.PlatformAbstract;
 import ru.settletale.client.render.Drawer;
 import ru.settletale.client.render.GLThread;
-import ru.settletale.client.render.GLThread.Stage;
 import ru.settletale.client.render.world.WorldRenderer;
 import ru.settletale.client.resource.ResourceManager;
 import ru.settletale.entity.EntityPlayer;
 import ru.settletale.util.Side;
+import ru.settletale.util.ThreadWithTasks.Stage;
 import ru.settletale.world.World;
 import ru.settletale.world.region.RegionManagerOnePlayer;
 
 public class PlatformClient extends PlatformAbstract {
-	private static final GLThread GL_THREAD = new GLThread();
 	public static EntityPlayer player;
 	
 	@Override
@@ -24,7 +23,7 @@ public class PlatformClient extends PlatformAbstract {
 	public void start() {
 		ru.settletale.client.LWJGL.initLWJGL();
 		
-		GL_THREAD.start(); /** Starting rendering **/
+		GLThread.INSTANCE.start(); /** Starting rendering **/
 		
 		ResourceManager.loadResources();
 		
@@ -40,6 +39,6 @@ public class PlatformClient extends PlatformAbstract {
 		world.updateThread.start();
 		/********************/
 		
-		GLThread.setStage(Stage.RENDER);
+		GLThread.INSTANCE.setStage(Stage.DO_STUFF);
 	}
 }

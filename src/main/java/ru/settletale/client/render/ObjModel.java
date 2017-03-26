@@ -29,7 +29,7 @@ public class ObjModel {
 	private UniformBufferObject ubo;
 	private IntBuffer textureIDs;
 	
-	static ShaderProgram programObj;
+	static final ShaderProgram PROGRAM = new ShaderProgram();
 	
 	public void compile() {
 		GL.debug("ModelObj compile start");
@@ -79,11 +79,11 @@ public class ObjModel {
 		ubo.buffer(uBuff);
 		ubo.loadData();
 		
-		if(programObj == null) {
-			programObj = new ShaderProgram().gen();
-			programObj.attachShader(ShaderLoader.SHADERS.get("shaders/obj.vs"));
-			programObj.attachShader(ShaderLoader.SHADERS.get("shaders/obj.fs"));
-			programObj.link();
+		if(!PROGRAM.isGenerated()) {
+			PROGRAM.gen();
+			PROGRAM.attachShader(ShaderLoader.SHADERS.get("shaders/obj.vs"));
+			PROGRAM.attachShader(ShaderLoader.SHADERS.get("shaders/obj.fs"));
+			PROGRAM.link();
 		}
 		GL.debug("ModelObj compile end");
 	}
@@ -94,7 +94,7 @@ public class ObjModel {
 			GL.activeTexture(i, mtl.getMaterial(materialNames.get(i)).textureDiffuse);
 		}
 		
-		programObj.bind();
+		PROGRAM.bind();
 		GL.debug("ModelObj program bind");
 		vao.bind();
 		GL.debug("ModelObj vao bind");

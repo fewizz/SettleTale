@@ -9,7 +9,7 @@ public class Window {
 	public static float frameRate = 100F;
 	public static int width = -1;
 	public static int height = -1;
-	public static long windowID;
+	public static long id;
 
 	public static void onWindowResize(int w, int h) {
 		if (w == Window.width && h == Window.height) {

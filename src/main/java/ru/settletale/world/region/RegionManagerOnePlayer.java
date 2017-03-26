@@ -52,7 +52,6 @@ public class RegionManagerOnePlayer extends RegionManagerAbstract {
 					region = readOrGenerateRegion(x, z);
 					
 					this.regions.put(region.coord, region);
-					region.threads++;
 					
 					for (IRegionManagerListener listener : listeners) {
 						listener.onRegionAdded(region);
@@ -65,14 +64,13 @@ public class RegionManagerOnePlayer extends RegionManagerAbstract {
 		for (Iterator<Region> it = regions.values().iterator(); it.hasNext();) {
 			Region region = it.next();
 			if (!region.active) {
-				it.remove();
-				region.threads--;
 				
 				for (IRegionManagerListener listener : listeners) {
 					listener.onRegionRemoved(region);
 				}
 				
-				RegionCache.returnRegion(region);
+				it.remove();
+				region.decreaseThreadUsage();
 			}
 		}
 

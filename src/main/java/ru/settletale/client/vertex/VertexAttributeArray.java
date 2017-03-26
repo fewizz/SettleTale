@@ -19,11 +19,11 @@ public class VertexAttributeArray {
 			addStorage(storage);
 		}
 	}
-	
+
 	public int getStorageCount() {
 		return this.attributeCount;
 	}
-	
+
 	public AttributeStorageAbstarct[] getStorages() {
 		return this.attributeStorages;
 	}
@@ -37,7 +37,7 @@ public class VertexAttributeArray {
 	public AttributeType getAttribute(int index) {
 		return attributes[index];
 	}
-	
+
 	public void endVertex() {
 		for (int i = 0; i < attributeCount; i++) {
 			attributeStorages[i].dataEnd(vertexCount);
@@ -57,47 +57,54 @@ public class VertexAttributeArray {
 		vertexCount = 0;
 	}
 
+	public void delete() {
+		clear();
+		for (int i = 0; i < attributeCount; i++) {
+			attributeStorages[i].delete();
+		}
+	}
+	
 	public int getVertexCount() {
 		return this.vertexCount;
 	}
 
-	public void data(int storage, float f1, float f2, float f3, float f4) {
+	public void dataFloat(int storage, float f1, float f2, float f3, float f4) {
 		attributeStorages[storage].data(f1, f2, f3, f4);
 	}
 
-	public void data(int storage, float f1) {
-		this.data(storage, f1, 0F, 0F, 0F);
+	public void dataFloat(int storage, float f1) {
+		this.dataFloat(storage, f1, 0F, 0F, 0F);
 	}
 
-	public void data(int storage, float f1, float f2, float f3) {
-		this.data(storage, f1, f2, f3, 0F);
+	public void dataFloat(int storage, float f1, float f2, float f3) {
+		this.dataFloat(storage, f1, f2, f3, 0F);
 	}
 
-	public void data(int storage, float f1, float f2) {
-		this.data(storage, f1, f2, 0F, 0F);
+	public void dataFloat(int storage, float f1, float f2) {
+		this.dataFloat(storage, f1, f2, 0F, 0F);
 	}
 
-	public void data(int storage, int i1, int i2, int i3, int i4) {
+	public void dataInt(int storage, int i1, int i2, int i3, int i4) {
 		attributeStorages[storage].data(i1, i2, i3, i4);
 	}
 
-	public void data(int storage, int i1) {
-		this.data(storage, i1, 0, 0, 0);
+	public void dataInt(int storage, int i1) {
+		this.dataInt(storage, i1, 0, 0, 0);
 	}
 
-	public void data(int storage, byte b1, byte b2, byte b3, byte b4) {
-		attributeStorages[storage].data(b1, b2, b3, b4);
+	public void dataShort(int storage, short s1) {
+		dataShort(storage, s1, (short) 0, (short) 0, (short) 0);
 	}
-	
-	public void data(int storage, short s1) {
-		data(storage, s1, (short)0, (short)0, (short)0);
-	}
-	
-	public void data(int storage, short s1, short s2, short s3, short s4) {
+
+	public void dataShort(int storage, short s1, short s2, short s3, short s4) {
 		attributeStorages[storage].data(s1, s2, s3, s4);
 	}
+	
+	public void dataByte(int storage, byte b1, byte b2, byte b3, byte b4) {
+		attributeStorages[storage].data(b1, b2, b3, b4);
+	}
 
-	public void data(int storage, byte b1) {
-		this.data(storage, b1, (byte)0, (byte)0, (byte)0);
+	public void dataByte(int storage, byte b1) {
+		this.dataByte(storage, b1, (byte) 0, (byte) 0, (byte) 0);
 	}
 }
