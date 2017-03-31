@@ -4,12 +4,14 @@
 
 //layout(binding = 0) uniform sampler2D tex;
 layout (location = 0) uniform sampler2D textures[16];
+layout (location = 1) uniform vec4 diffuseColors[];
 
 out vec4 color_out;
 in vec4 color_vs;
 in vec2 uv_vs;
-flat in int texID_vs;
+in vec3 normal_vs;
+flat in int matID_vs;
 
 void main(void) {
-	color_out = color_vs * texture(textures[texID_vs], uv_vs);
+	color_out = color_vs * texture(textures[matID_vs], uv_vs) * diffuseColors[matID_vs] * normal_vs.y;
 }

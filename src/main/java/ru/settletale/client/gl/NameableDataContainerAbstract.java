@@ -5,21 +5,15 @@ import java.nio.FloatBuffer;
 
 import org.lwjgl.system.MemoryUtil;
 
-public abstract class NameableDataContainerAbstract<T> extends NameableAbstract<T> implements IBufferContainer<T> {
-	public ByteBuffer buffer;
-
-	public T buffer(ByteBuffer buffer) {
-		this.buffer = buffer;
-		return getThis();
-	}
-
-	public T buffer(FloatBuffer buffer) {
-		this.buffer = MemoryUtil.memByteBuffer(MemoryUtil.memAddress(buffer), buffer.capacity() * Float.BYTES);
-		return getThis();
+public abstract class NameableDataContainerAbstract<T> extends NameableAbstract<T> {
+	public abstract void loadData(ByteBuffer buffer);
+	public abstract void loadSubData(ByteBuffer buffer);
+	
+	public void loadData(FloatBuffer buffer) {
+		loadData(MemoryUtil.memByteBuffer(MemoryUtil.memAddress(buffer), buffer.capacity() * 4));
 	}
 	
-	@Override
-	public ByteBuffer getBuffer() {
-		return buffer;
+	public void loadSubData(FloatBuffer buffer) {
+		loadSubData(MemoryUtil.memByteBuffer(MemoryUtil.memAddress(buffer), buffer.capacity() * 4));
 	}
 }

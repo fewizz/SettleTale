@@ -1,11 +1,13 @@
 package ru.settletale.client.render;
 
+import java.nio.ByteBuffer;
+
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.system.MemoryUtil;
 
 import ru.settletale.client.gl.ElementArrayBufferObject;
-import ru.settletale.client.vertex.AttributeType;
-import ru.settletale.client.vertex.VertexAttributeArrayIndexed;
+import ru.settletale.client.vertex.VertexAttribType;
+import ru.settletale.client.vertex.VertexArrayDataBakerIndexed;
 
 public class RenderLayerIndexed extends RenderLayer {
 	int indexCount;
@@ -16,8 +18,8 @@ public class RenderLayerIndexed extends RenderLayer {
 		initIndexBuffer();
 	}
 
-	public RenderLayerIndexed(AttributeType... storages) {
-		super(new VertexAttributeArrayIndexed(storages));
+	public RenderLayerIndexed(VertexAttribType... storages) {
+		super(storages);
 		initIndexBuffer();
 	}
 
@@ -26,20 +28,22 @@ public class RenderLayerIndexed extends RenderLayer {
 	}
 
 	@Override
-	public void compile(boolean allowSubDataIfPossible) {
-		super.compile(allowSubDataIfPossible);
+	public void compile() {
+		super.compile();
 
-		this.indexCount = ((VertexAttributeArrayIndexed) vertexArray).getIndexCount();
+		this.indexCount = ((VertexArrayDataBakerIndexed) attribs).getIndexCount();
 
 		if (!indexBuffer.isGenerated()) {
 			indexBuffer.gen();
 		}
-		indexBuffer.buffer(((VertexAttributeArrayIndexed) vertexArray).getIndexBuffer());
-		if (allowSubDataIfPossible) {
-			indexBuffer.loadDataOrSubData();
+		
+		ByteBuffer buffer = ((VertexArrayDataBakerIndexed) attribs).getIndexBuffer();
+		
+		if (allowSubData) {
+			indexBuffer.loadDataOrSubData(buffer);
 		}
 		else {
-			indexBuffer.loadData();
+			indexBuffer.loadData(buffer);
 		}
 	}
 

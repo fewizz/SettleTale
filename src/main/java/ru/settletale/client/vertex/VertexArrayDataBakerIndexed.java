@@ -6,16 +6,17 @@ import org.lwjgl.system.MemoryUtil;
 
 import ru.settletale.util.DirectByteBufferUtils;
 
-public class VertexAttributeArrayIndexed extends VertexAttributeArray {
+public class VertexArrayDataBakerIndexed extends VertexArrayDataBaker {
 	private ByteBuffer indexBuffer;
 	protected int indexCount = 0;
 
-	public VertexAttributeArrayIndexed(AttributeType... storages) {
-		this(false, storages);
+	public VertexArrayDataBakerIndexed(VertexAttribType... attribTypes) {
+		this(false, attribTypes);
 	}
 
-	public VertexAttributeArrayIndexed(boolean lazyIndexBufferInitialisation, AttributeType... storages) {
-		super(storages);
+	public VertexArrayDataBakerIndexed(boolean lazyIndexBufferInitialisation, VertexAttribType... attribTypes) {
+		super(attribTypes);
+		
 		if (!lazyIndexBufferInitialisation) {
 			initIndexBuffer();
 		}
@@ -39,7 +40,7 @@ public class VertexAttributeArrayIndexed extends VertexAttributeArray {
 		}
 		
 		if (limit > indexBuffer.capacity())
-			DirectByteBufferUtils.growBuffer(indexBuffer, 1.5F);
+			indexBuffer = DirectByteBufferUtils.growBuffer(indexBuffer, 1.5F);
 
 		indexBuffer.limit(limit);
 
@@ -55,8 +56,8 @@ public class VertexAttributeArrayIndexed extends VertexAttributeArray {
 	}
 
 	@Override
-	public void clear() {
-		super.clear();
+	public void clearData() {
+		super.clearData();
 		indexCount = 0;
 	}
 

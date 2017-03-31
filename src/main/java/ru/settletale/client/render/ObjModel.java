@@ -41,11 +41,11 @@ public class ObjModel {
 			mtl = MTLLib.DEFAULT;
 		}
 		
-		positionVBO.gen().loadData();
-		normalVBO.gen().loadData();
-		flagsVBO.gen().loadData();
-		uvVBO.gen().loadData();
-		ubo = new UniformBufferObject().gen();
+		//positionVBO.gen().loadData();
+		//normalVBO.gen().loadData();
+		//flagsVBO.gen().loadData();
+		//uvVBO.gen().loadData();
+		//ubo = new UniformBufferObject().gen();
 		
 		vao = new VertexArrayObject().gen();
 		vao.vertexAttribPointer(positionVBO, 0, 4, GL11.GL_FLOAT, false, 0);
@@ -60,24 +60,24 @@ public class ObjModel {
 		vao.vertexAttribIntPointer(flagsVBO, 3, 1, GL11.GL_INT, 0);
 		vao.enableVertexAttribArray(3);
 		
-		ByteBuffer uBuff = MemoryUtil.memAlloc(materialNames.size() * Float.BYTES * 4);
+		ByteBuffer buff = MemoryUtil.memAlloc(materialNames.size() * Float.BYTES * 4);
 		textureIDs = MemoryUtil.memAllocInt(materialNames.size());
 		
 		for(int i = 0; i < materialNames.size(); i++) {
 			Material m = mtl.getMaterial(materialNames.get(i));
 			
-			uBuff.putFloat(m.colorDiffuse.x);
-			uBuff.putFloat(m.colorDiffuse.y);
-			uBuff.putFloat(m.colorDiffuse.z);
-			uBuff.putFloat(1F);
+			buff.putFloat(m.colorDiffuse.x);
+			buff.putFloat(m.colorDiffuse.y);
+			buff.putFloat(m.colorDiffuse.z);
+			buff.putFloat(1F);
 			
 			textureIDs.put(i);
 		}
-		uBuff.flip();
+		buff.flip();
 		textureIDs.flip();
 		
-		ubo.buffer(uBuff);
-		ubo.loadData();
+		//ubo.buffer(uBuff);
+		//ubo.loadData();
 		
 		if(!PROGRAM.isGenerated()) {
 			PROGRAM.gen();
@@ -112,10 +112,10 @@ public class ObjModel {
 		uvVBO = new VertexBufferObject();
 		flagsVBO = new VertexBufferObject();
 		
-		positionVBO.buffer(positions);
-		normalVBO.buffer(normals);
-		uvVBO.buffer(uvs);
-		flagsVBO.buffer(flags);
+		//positionVBO.buffer(positions);
+		//normalVBO.buffer(normals);
+		//uvVBO.buffer(uvs);
+		//flagsVBO.buffer(flags);
 		
 		this.vertexCount = vertexCount;
 	}

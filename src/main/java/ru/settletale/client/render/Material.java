@@ -1,18 +1,18 @@
 package ru.settletale.client.render;
 
-import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 import ru.settletale.client.gl.Texture2D;
 
 public class Material {
-	static final Vector3f WHITE = new Vector3f(1F);
+	static final Vector4f WHITE = new Vector4f(1F);
 	
 	public Material() {
-		colorDiffuse = new Vector3f(WHITE);
+		colorDiffuse = new Vector4f(WHITE);
 	}
 	
 	public String name;
 	public String texturePathDiffuse;
-	final public Vector3f colorDiffuse;
+	final public Vector4f colorDiffuse;
 	public Texture2D textureDiffuse;
 }

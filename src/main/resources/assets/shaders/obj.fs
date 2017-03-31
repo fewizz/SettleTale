@@ -10,6 +10,7 @@ flat in int matID;
 out vec4 color_out;
 
 layout (location = 0) uniform sampler2D textures[16];
+layout (location = 1) uniform vec4 diffuseColors[];
 
 struct MaterialStruct {
 	vec4 diffuseColor;

@@ -6,6 +6,8 @@ import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL45;
 import org.lwjgl.system.MemoryUtil;
 
+import ru.settletale.client.vertex.VertexAttribType;
+
 public class VertexArrayObject extends NameableAbstract<VertexArrayObject> {
 	
 	@Override
@@ -42,6 +44,15 @@ public class VertexArrayObject extends NameableAbstract<VertexArrayObject> {
 	
 	public void vertexAttribIntPointer(BufferObject<?> buffer, int index, int size, int type) {
 		vertexAttribIntPointer(buffer, index, size, type, 0);
+	}
+	
+	public void bindAttribPointer(BufferObject<?> buffer, int index, VertexAttribType type) {
+		if (type.getServerDataType().isIntegral())
+			vertexAttribIntPointer(buffer, index, type.getPerVertexElementCount(), GL.getGLPrimitiveType(type.getClientDataType()));
+		else
+			vertexAttribPointer(buffer, index, type.getPerVertexElementCount(), GL.getGLPrimitiveType(type.getClientDataType()), type.isNormalised());
+		
+		enableVertexAttribArray(index);
 	}
 	
 	public void vertexAttribIntPointer(BufferObject<?> buffer, int index, int size, int type, int stride) {

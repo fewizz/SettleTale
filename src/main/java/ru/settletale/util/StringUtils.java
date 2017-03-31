@@ -1,8 +1,34 @@
 package ru.settletale.util;
 
-import java.util.Arrays;
-
 public class StringUtils {
+	public static final byte RIGHT = 0;
+	public static final byte LEFT = 1;
+	public static final byte E = 2;
+	
+	public static final float f = 0.546F;
+
+	public static void main(String[] args) {
+		String str = "0.456 5.456 8646.87987 654.56465 6546.4444";//"1/2 3/4 5/3";
+
+		System.out.println(Float.toHexString(f));
+		/*int[][] arr = new int[3][6];
+
+		readInts(str, arr, ' ', '/', -1);
+
+		for (int i = 0; i < 3; i++) {
+			for (int z = 0; z < 2; z++) {
+				System.out.println(arr[i][z]);
+			}
+		}*/
+		
+		float[] arr = new float[5];
+		readFloats(str, arr);
+		
+		for (int i = 0; i < 5; i++) {
+			System.out.println(arr[i]);
+		}
+	}
+
 	public static boolean isSharpCommentLine(String str) {
 		return str.startsWith("#");
 	}
@@ -22,7 +48,7 @@ public class StringUtils {
 	}
 
 	public static int readFloats(String str, float[] arr) {
-		PrimitivePart part = PrimitivePart.LEFT;
+		byte part = LEFT;
 
 		float val = 0;
 
@@ -53,26 +79,29 @@ public class StringUtils {
 				}
 			}
 			else if (ch == '.') {
-				if (part == PrimitivePart.LEFT) {
-					part = PrimitivePart.RIGHT;
+				if (part == LEFT) {
+					part = RIGHT;
 					numPow = 1;
 					val = num;
 					num = 0;
 				}
+				else {
+					throw new Error("Two dots in one number?!");
+				}
 			}
 			else if (ch == 'e') {
-				if (part == PrimitivePart.RIGHT) {
-					part = PrimitivePart.E;
+				if (part == RIGHT) {
+					part = E;
 					val += num / (float) numPow;
 					num = 0;
 				}
 			}
 			else {
 				if (prevWasNum) {
-					if (part == PrimitivePart.RIGHT) {
+					if (part == RIGHT) {
 						val += num / (float) numPow;
 					}
-					else if (part == PrimitivePart.E) {
+					else if (part == E) {
 						val = val * (float) Math.pow(10, num * (signE ? -1 : 1));
 					}
 
@@ -82,7 +111,7 @@ public class StringUtils {
 					num = 0;
 					numPow = 1;
 					val = 0;
-					part = PrimitivePart.LEFT;
+					part = LEFT;
 					prevWasNum = false;
 				}
 			}
@@ -90,10 +119,10 @@ public class StringUtils {
 		}
 
 		if (prevWasNum) {
-			if (part == PrimitivePart.RIGHT) {
+			if (part == RIGHT) {
 				val += num / (float) numPow;
 			}
-			else if (part == PrimitivePart.E) {
+			else if (part == E) {
 				val = val * (float) Math.pow(10, num * (signE ? -1 : 1));
 			}
 
@@ -103,105 +132,9 @@ public class StringUtils {
 		return count;
 	}
 
-	public static int readFloats(String str, float[][] arr, char split1, char split2) {
-		PrimitivePart part = PrimitivePart.LEFT;
-
-		float val = 0;
-
-		boolean sign = false;
-		boolean signE = false;
-		int numPow = 1;
-		float num = 0;
-		int count = 0;
-		int mainIndex = 0;
-		int index = 0;
-		boolean prevWasNum = false;
-
-		int len = str.length();
-
-		for (int i = 0; i < len; i++) {
-			char ch = str.charAt(i);
-
-			if (ch >= '0' && ch <= '9') {
-				num *= 10;
-				num += ch - '0';
-				numPow *= 10;
-				prevWasNum = true;
-			}
-			else if (ch == '-') {
-				if (!prevWasNum) {
-					sign = true;
-				}
-				else {
-					signE = true;
-				}
-			}
-			else if (ch == '.') {
-				if (part == PrimitivePart.LEFT) {
-					part = PrimitivePart.RIGHT;
-					numPow = 1;
-					val = num;
-					num = 0;
-				}
-			}
-			else if (ch == 'e') {
-				if (part == PrimitivePart.RIGHT) {
-					part = PrimitivePart.E;
-					val += num / (float) numPow;
-					num = 0;
-				}
-			}
-			else if (ch == split1) {
-				mainIndex++;
-				index = 0;
-			}
-			else if (ch == split2) {
-				if (part == PrimitivePart.RIGHT) {
-					val += num / (float) numPow;
-				}
-				else if (part == PrimitivePart.E) {
-					val = val * (float) Math.pow(10, num * (signE ? -1 : 1));
-				}
-
-				arr[mainIndex][index++] = val * (sign ? -1 : 1);
-				count++;
-				sign = false;
-				signE = false;
-				num = 0;
-				numPow = 1;
-				val = 0;
-				part = PrimitivePart.LEFT;
-
-				prevWasNum = false;
-			}
-
-		}
-
-		if (prevWasNum) {
-			if (part == PrimitivePart.RIGHT) {
-				val += num / (float) numPow;
-			}
-			else if (part == PrimitivePart.E) {
-				val = val * (float) Math.pow(10, num * (signE ? -1 : 1));
-			}
-
-			arr[mainIndex][index++] = val * (sign ? -1 : 1);
-			count++;
-		}
-
-		return count;
-	}
-
+	/** Example: 1/2*3/4*5/3. Here, s1 - '*', s2 - '/'. Def uses if number between splits is undefinded. **/
 	public static int readInts(String str, int[][] arr, char split1, char split2, int def) {
-		PrimitivePart part = PrimitivePart.LEFT;
-		for(int i = 0; i < arr.length; i++) {
-			Arrays.fill(arr[i], -1);
-		}
-
-		int val = 0;
-
 		boolean sign = false;
-		boolean signE = false;
 		int num = 0;
 		int count = 0;
 		int index = 0;
@@ -218,42 +151,20 @@ public class StringUtils {
 				num += ch - '0';
 				prevWasNum = true;
 			}
-			else if (ch == '-') {
-				if (!prevWasNum) {
-					sign = true;
-				}
-				else {
-					signE = true;
-				}
+			else if (ch == '-' && !prevWasNum) {
+				sign = true;
 			}
-			else if (ch == 'e') {
-				if (part == PrimitivePart.LEFT) {
-					part = PrimitivePart.E;
-					val = num;
-					num = 0;
-				}
-			}
-			else if (ch == split2 || ch == split1) {
+			else if (ch == split1 || ch == split2) {
 				if (prevWasNum) {
-					if (part == PrimitivePart.LEFT) {
-						val = num;
-					}
-					else if (part == PrimitivePart.E) {
-						val = (int) (val * Math.pow(10, num * (signE ? -1 : 1)));
-					}
-
-					arr[mainIndex][index++] = val * (sign ? -1 : 1);
+					arr[mainIndex][index++] = num * (sign ? -1 : 1);
 					count++;
 					sign = false;
-					signE = false;
 					num = 0;
-					val = 0;
-					part = PrimitivePart.LEFT;
 				}
 				else {
 					arr[mainIndex][index++] = def;
 				}
-				
+
 				if (ch == split1) {
 					mainIndex++;
 					index = 0;
@@ -261,18 +172,10 @@ public class StringUtils {
 
 				prevWasNum = false;
 			}
-
 		}
-
+		
 		if (prevWasNum) {
-			if (part == PrimitivePart.LEFT) {
-				val = num;
-			}
-			else if (part == PrimitivePart.E) {
-				val = (int) (val * Math.pow(10, num * (signE ? -1 : 1)));
-			}
-
-			arr[mainIndex][index++] = val * (sign ? -1 : 1);
+			arr[mainIndex][index++] = num * (sign ? -1 : 1);
 			count++;
 		}
 		else {
@@ -280,11 +183,5 @@ public class StringUtils {
 		}
 
 		return count;
-	}
-
-	enum PrimitivePart {
-		LEFT,
-		RIGHT,
-		E
 	}
 }

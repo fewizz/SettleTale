@@ -9,7 +9,9 @@ import java.util.Map;
 import javax.imageio.ImageIO;
 
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.system.MemoryUtil;
 
+import ru.settletale.client.gl.GL;
 import ru.settletale.client.gl.Texture2D;
 import ru.settletale.client.render.GLThread;
 
@@ -18,9 +20,9 @@ public class TextureLoader extends ResourceLoaderAbstract {
 
 	@Override
 	public String[] getRequiredExtensions() {
-		return new String[] {"png", "jpg"};
+		return new String[] { "png", "jpg" };
 	}
-	
+
 	@Override
 	public void loadResource(ResourceFile resourceFile) {
 		System.out.println("Loading texture: " + resourceFile.key);
@@ -37,28 +39,22 @@ public class TextureLoader extends ResourceLoaderAbstract {
 		int width = image.getWidth();
 		int height = image.getHeight();
 		int size = width * height;
-		ByteBuffer buffer = ByteBuffer.allocateDirect(size * 4);
+		ByteBuffer buffer = MemoryUtil.memAlloc(size * 4);
 
-		int index = 0;
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
 				int color = image.getRGB(x, height - y - 1);
-				int r = (color >>> 16) & 0xFF;
-				int g = (color >>> 8) & 0xFF;
-				int b = color & 0xFF;
-				int a = (color >>> 24) & 0xFF;
-
-				buffer.putInt(index, (r << 24) | (g << 16) | (b << 8) | a);
-				index += 4;
+				buffer.putInt((color & 0xFF000000) | ((color << 16) & 0x00FF0000) | (color & 0x0000FF00) | ((color >>> 16) & 0xFF));
 			}
 		}
+		buffer.flip();
 
 		Texture2D tex = new Texture2D(width, height);
-		tex.buffer = buffer;
-		tex.bufferDataType = GL11.GL_UNSIGNED_BYTE;
-		
+
 		GLThread.addTask(() -> {
-			tex.gen().setDefaultParams().loadData();
+			tex.gen().setDefaultParams().bufferDataFormat(GL11.GL_RGBA).bufferDataType(GL11.GL_UNSIGNED_BYTE).loadData(buffer);
+			GL.debug("Load texture: " + resourceFile.key);
+			MemoryUtil.memFree(buffer);
 		});
 
 		TEXTURES.put(resourceFile.key, tex);

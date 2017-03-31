@@ -4,18 +4,16 @@ import java.nio.ByteBuffer;
 
 import org.lwjgl.system.MemoryUtil;
 
-import ru.settletale.util.PrimitiveType;
-
-public abstract class AttributeStorageAbstarct {
-	final int count;
+public abstract class AttribArrayData {
+	VertexAttribType attribType;
+	final int perVertexElemrntCount;
 	final int growBytes;
 	ByteBuffer buff;
-	PrimitiveType primitiveType;
 
-	public AttributeStorageAbstarct(int size, PrimitiveType primitiveType) {
-		this.count = size;
-		this.primitiveType = primitiveType;
-		this.growBytes = size * primitiveType.getSizeInBytes();
+	public AttribArrayData(int size, VertexAttribType attribType) {
+		this.attribType = attribType;
+		this.perVertexElemrntCount = size;
+		this.growBytes = size * attribType.clientDataType.getSizeInBytes();
 		buff = MemoryUtil.memAlloc(4096);
 		buff.limit(0);
 	}

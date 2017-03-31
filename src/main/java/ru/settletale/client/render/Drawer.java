@@ -6,12 +6,11 @@ import org.joml.Vector3f;
 import ru.settletale.client.gl.GL;
 import ru.settletale.client.gl.ShaderProgram;
 import ru.settletale.client.gl.Texture2D;
-import ru.settletale.client.render.RenderLayerTextured.TextureUniformType;
 import ru.settletale.client.resource.ShaderLoader;
-import ru.settletale.client.vertex.AttributeType;
+import ru.settletale.client.vertex.VertexAttribType;
 
 public class Drawer {
-	public static RenderLayerTextured layer;
+	public static final RenderLayerTextured LAYER = new RenderLayerTextured(VertexAttribType.FLOAT_3, VertexAttribType.UBYTE_4_FLOAT_4_NORMALISED, VertexAttribType.FLOAT_2, VertexAttribType.UBYTE_1_INT_1);;
 	static final int POSITION_ID = 0;
 	static final int COLOR_ID = 1;
 	static final int UV_ID = 2;
@@ -41,54 +40,54 @@ public class Drawer {
 		PROGRAM_MULTITEX.attachShader(ShaderLoader.SHADERS.get("shaders/drawer_multitex.fs"));
 		PROGRAM_MULTITEX.link();
 		
-		layer = new RenderLayerTextured(AttributeType.FLOAT_3, AttributeType.UBYTE_4_FLOAT_4_NORMALISED, AttributeType.FLOAT_2, AttributeType.UBYTE_1_INT_1);
-		layer.setTextureAttributeIndex(TEX_ID);
-		layer.setTextureUniformLocation(0);
+		LAYER.setTextureAttribIndex(TEX_ID);
+		LAYER.setTextureUniformLocation(0);
+		LAYER.setAllowSubData(true);
 	}
 
 	public static void begin(int mode) {
 		drawingMode = mode;
 		vertexCount = 0;
 
-		layer.clearVertexAttributeArrayIfExists();
-		layer.clearTextures();
+		LAYER.clearVertexAttribArrayIfExists();
+		LAYER.clearTextures();
 	}
 
 	public static void draw() {
-		TextureUniformType type;
+		UniformType type;
 		ShaderProgram program;
 		
-		if(layer.getUsedTextureCount() == 0) {
-			type = TextureUniformType.NONE;
+		if(LAYER.getUsedTextureCount() == 0) {
 			program = PROGRAM;
+			type = null;
 		}
-		else if(layer.getUsedTextureCount() == 1) {
-			type = TextureUniformType.VARIABLE;
+		else if(LAYER.getUsedTextureCount() == 1) {
+			type = UniformType.INT;
 			program = PROGRAM_TEX;
 		}
 		else {
-			type = TextureUniformType.ARRAY;
+			type = UniformType.INT_ARRAY;
 			program = PROGRAM_MULTITEX;
 		}
 		
 		draw(program, type);
 	}
 
-	public static void draw(ShaderProgram program, TextureUniformType type) {
+	public static void draw(ShaderProgram program, UniformType type) {
 		GL.debug("Drawer start", true);
 		
-		layer.setUniformType(type);
-		layer.compile(true);
+		LAYER.setUniformType(type);
+		LAYER.compile();
 
 		GL.debug("Drawer pre vao bind");
 
-		layer.setShaderProgram(program);
-		layer.render(drawingMode);
+		LAYER.setShaderProgram(program);
+		LAYER.render(drawingMode);
 		GL.debug("Draw drawArrays");
 	}
 	
 	public static void texture(Texture2D tex) {
-		layer.setTexture(tex);
+		LAYER.setTexture(tex);
 	}
 
 	public static void color(float r, float g, float b, float a) {
@@ -112,9 +111,9 @@ public class Drawer {
 	}
 	
 	public static void vertex(float x, float y, float z) {
-		layer.getVertexAttributeArray().dataFloat(POSITION_ID, x * SCALE.x, y * SCALE.y, z * SCALE.z);
-		layer.getVertexAttributeArray().dataByte(COLOR_ID, COLOR.r(), COLOR.g(), COLOR.b(), COLOR.a());
-		layer.getVertexAttributeArray().dataFloat(UV_ID, UV.x, UV.y);
-		layer.getVertexAttributeArray().endVertex();
+		LAYER.getVertexArrayDataBaker().putFloat(POSITION_ID, x * SCALE.x, y * SCALE.y, z * SCALE.z);
+		LAYER.getVertexArrayDataBaker().putByte(COLOR_ID, COLOR.r(), COLOR.g(), COLOR.b(), COLOR.a());
+		LAYER.getVertexArrayDataBaker().putFloat(UV_ID, UV.x, UV.y);
+		LAYER.getVertexArrayDataBaker().endVertex();
 	}
 }

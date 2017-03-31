@@ -2,7 +2,6 @@ package ru.settletale.client.render.world;
 
 import static org.lwjgl.opengl.GL11.*;
 
-import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
 
 import com.koloboke.collect.map.hash.HashLongObjMap;
@@ -12,8 +11,6 @@ import ru.settletale.client.Camera;
 import ru.settletale.client.Window;
 import ru.settletale.client.gl.GL;
 import ru.settletale.client.gl.ShaderProgram;
-import ru.settletale.client.vertex.AttributeType;
-import ru.settletale.client.vertex.VertexAttributeArrayIndexed;
 import ru.settletale.client.render.Color;
 import ru.settletale.client.render.Drawer;
 import ru.settletale.client.render.FontRenderer;
@@ -30,12 +27,8 @@ public class WorldRenderer implements IRegionManagerListener {
 	public static final HashLongObjMap<Region> REGIONS = HashLongObjMaps.newMutableMap();
 	public static final HashLongObjMap<CompiledRegion> REGIONS_TO_RENDER = HashLongObjMaps.newMutableMap();
 
-	public static final int POSITION = 0;
-	public static final int NORMAL = 1;
-
-	public static final VertexAttributeArrayIndexed VERTEX_ARRAY = new VertexAttributeArrayIndexed(AttributeType.FLOAT_3, AttributeType.FLOAT_1);
 	static ShaderProgram programSky;
-	
+
 	static RenderLayerList lineList;
 
 	public static void init() {
@@ -56,13 +49,14 @@ public class WorldRenderer implements IRegionManagerListener {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		GL.PROJ_MATRIX.identity();
-		GL.PROJ_MATRIX.perspectiveDeg(120F, (float) Window.width / (float) Window.height, 0.1F, 1000);
+		GL.PROJ_MATRIX.perspectiveDeg(95F, (float) Window.width / (float) Window.height, 0.1F, 1000);
 		GL.VIEW_MATRIX.push();
 		GL.PROJ_MATRIX.push();
-		
+
 		GL.VIEW_MATRIX.rotateDeg(Camera.rotationX, 1, 0, 0);
 		GL.VIEW_MATRIX.rotateDeg(Camera.rotationY, 0, 1, 0);
 		GL.VIEW_MATRIX.translate(-Camera.position.x, -Camera.position.y, -Camera.position.z);
+		GL.debug("First translates");
 
 		GL.updateTransformUniformBlock();
 
@@ -73,12 +67,10 @@ public class WorldRenderer implements IRegionManagerListener {
 
 			if (cr == null) {
 				GL.debug("Fill buffers");
-				renderRegion(r);
 				GL.debug("Fill VBOs");
 				cr = new CompiledRegion(r);
-				cr.compile(VERTEX_ARRAY);
+				cr.compile();
 				GL.debug("Array clear");
-				VERTEX_ARRAY.clear();
 				REGIONS_TO_RENDER.put(r.coord, cr);
 			}
 			cr.render();
@@ -88,6 +80,7 @@ public class WorldRenderer implements IRegionManagerListener {
 		GL.bindDefaultVAO();
 		programSky.bind();
 		GL11.glDrawArrays(GL11.GL_QUADS, 0, 4);
+		GL.debug("Render sky end");
 
 		GL.VIEW_MATRIX.push();
 		GL.VIEW_MATRIX.translate(0, 50, 0);
@@ -100,7 +93,7 @@ public class WorldRenderer implements IRegionManagerListener {
 		Drawer.vertex(0, 50, 0);
 		Drawer.vertex(100, 50, 0);
 		Drawer.draw();
-		
+
 		Drawer.begin(GL_QUADS);
 		Drawer.color(Color.WHITE);
 		Drawer.texture(TextureLoader.TEXTURES.get("textures/grass.png"));
@@ -112,7 +105,7 @@ public class WorldRenderer implements IRegionManagerListener {
 		Drawer.vertex(50, 100, 0);
 		Drawer.uv(1, 0);
 		Drawer.vertex(50, 50, 0);
-		
+
 		Drawer.texture(TextureLoader.TEXTURES.get("textures/tom.png"));
 		Drawer.uv(0, 0);
 		Drawer.vertex(50, 50, 0);
@@ -122,124 +115,37 @@ public class WorldRenderer implements IRegionManagerListener {
 		Drawer.vertex(150, 100, 0);
 		Drawer.uv(1, 0);
 		Drawer.vertex(150, 50, 0);
-		
 		Drawer.draw();
 		
+		Drawer.begin(GL11.GL_LINES);
+		Drawer.vertex(-50, 50, 50);
+		Drawer.vertex(-50, 50, 0);
+		Drawer.draw();
+		
+		Drawer.color(Color.RED);
+		Drawer.begin(GL11.GL_TRIANGLES);
+		Drawer.vertex(-20, 25, 20);
+		Drawer.vertex(-50, 75, 20);
+		Drawer.vertex(-70, 25, 20);
+		Drawer.draw();
+
 		GL.updateTransformUniformBlock();
 
 		GL.PROJ_MATRIX.identity();
 		GL.PROJ_MATRIX.ortho2D(0, Window.width, 0, Window.height);
 		GL.VIEW_MATRIX.identity();
 		GL.updateTransformUniformBlock();
-		
+
 		FontRenderer.setSize(25);
 		FontRenderer.setColor(Color.WHITE);
 		FontRenderer.getPosition().set(10, Window.height - 30, 0);
 		FontRenderer.setText("FPS: " + MainRenderer.lastFPS);
 		FontRenderer.render();
-		
+
 		GL.PROJ_MATRIX.pop();
 		GL.VIEW_MATRIX.pop();
 
 		GL.debug("World rend end");
-	}
-
-	private static void renderRegion(Region r) {
-		fillBuffers(r);
-
-		GL.debug("Fill buffers0");
-
-		for (int x = 0; x < 16; x++) {
-			int nx = x * 2;
-			
-			for (int z = 0; z < 16; z++) {
-				int nz = z * 2;
-
-				int i1 = nx * 33 + nz;
-				int i2 = i1 + 1;
-				int i3 = i2 + 33;
-				int i4 = i1 + 33;
-
-				for (int x2 = 0; x2 < 2; x2++) {
-
-					for (int z2 = 0; z2 < 2; z2++) {
-						VERTEX_ARRAY.index(i1++);
-						VERTEX_ARRAY.index(i2++);
-						VERTEX_ARRAY.index(i3++);
-						VERTEX_ARRAY.index(i4++);
-					}
-
-					i1 -= 2;
-					i2 -= 2;
-					i3 -= 2;
-					i4 -= 2;
-
-					i1 += 33;
-					i2 += 33;
-					i3 += 33;
-					i4 += 33;
-				}
-			}
-		}
-	}
-
-	static final Vector3f NORMAL_TEMP = new Vector3f();
-	static final Vector3f TEMP = new Vector3f();
-	static final Vector3f V1_TEMP = new Vector3f();
-	static final Vector3f V2_TEMP = new Vector3f();
-	static final Vector3f V3_TEMP = new Vector3f();
-
-	private static void fillBuffers(Region r) {
-		for (int x = 0; x < 33; x++) {
-			int nx = x;
-			float px = (nx / 2F);
-			float pxf = r.x * 16 + px;
-			float pzf = r.z * 16;
-
-			for (int z = 0; z < 33; z++) {
-				NORMAL_TEMP.set(0);
-				TEMP.set(0);
-
-				V1_TEMP.set(x, r.getHeight(x, z), z);
-
-				V2_TEMP.set(x, r.getHeight(x, z + 1), z + 1);
-				V3_TEMP.set(x + 1, r.getHeight(x + 1, z), z);
-				V2_TEMP.sub(V2_TEMP, V2_TEMP);
-				V1_TEMP.sub(V3_TEMP, V3_TEMP);
-				V2_TEMP.cross(V3_TEMP, TEMP);
-				NORMAL_TEMP.add(TEMP);
-
-				V2_TEMP.set(x + 1, r.getHeight(x + 1, z), z);
-				V3_TEMP.set(x, r.getHeight(x, z - 1), z - 1);
-				V1_TEMP.sub(V2_TEMP, V2_TEMP);
-				V1_TEMP.sub(V3_TEMP, V3_TEMP);
-				V2_TEMP.cross(V3_TEMP, TEMP);
-				NORMAL_TEMP.add(TEMP);
-
-				V2_TEMP.set(x, r.getHeight(x, z - 1), z - 1);
-				V3_TEMP.set(x - 1, r.getHeight(x - 1, z), z);
-				V1_TEMP.sub(V2_TEMP, V2_TEMP);
-				V1_TEMP.sub(V3_TEMP, V3_TEMP);
-				V2_TEMP.cross(V3_TEMP, TEMP);
-				NORMAL_TEMP.add(TEMP);
-
-				V2_TEMP.set(x - 1, r.getHeight(x - 1, z), z);
-				V3_TEMP.set(x, r.getHeight(x, z + 1), z + 1);
-				V1_TEMP.sub(V2_TEMP, V2_TEMP);
-				V1_TEMP.sub(V3_TEMP, V3_TEMP);
-				V2_TEMP.cross(V3_TEMP, TEMP);
-				NORMAL_TEMP.add(TEMP);
-
-				NORMAL_TEMP.normalize();
-
-				VERTEX_ARRAY.dataFloat(POSITION, pxf, r.getHeight(x, z), pzf);
-				VERTEX_ARRAY.dataFloat(NORMAL, NORMAL_TEMP.y);
-
-				VERTEX_ARRAY.endVertex();
-				
-				pzf += 0.5F;
-			}
-		}
 	}
 
 	@Override

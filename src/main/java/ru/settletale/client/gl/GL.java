@@ -32,8 +32,8 @@ public class GL {
 		debug("GL init start");
 
 		try (MemoryStack ms = MemoryStack.stackPush()) {
-			UBO_MATRICES.gen().buffer(ms.callocFloat(32)).loadData();
-			UBO_DISPLAY_SIZE.gen().buffer(ms.callocFloat(2)).loadData();
+			UBO_MATRICES.gen().loadData(ms.callocFloat(32));
+			UBO_DISPLAY_SIZE.gen().loadData(ms.callocFloat(2));
 		}
 
 		versionMajor = GL11.glGetInteger(GL30.GL_MAJOR_VERSION);
@@ -48,8 +48,8 @@ public class GL {
 
 		PROJ_MATRIX.updateBuffer();
 		VIEW_MATRIX.updateBuffer();
-		UBO_MATRICES.buffer(PROJ_MATRIX.buffer).offset(0).loadSubData();
-		UBO_MATRICES.buffer(VIEW_MATRIX.buffer).offset(16 * Float.BYTES).loadSubData();
+		UBO_MATRICES.offset(0).loadSubData(PROJ_MATRIX.buffer);
+		UBO_MATRICES.offset(16 * Float.BYTES).loadSubData(VIEW_MATRIX.buffer);
 
 		bindBufferBase(UBO_MATRICES, 0);
 
@@ -60,7 +60,7 @@ public class GL {
 		debug("UpdateDisplaySizeUniformBlock start");
 
 		try (MemoryStack ms = MemoryStack.stackPush()) {
-			UBO_DISPLAY_SIZE.buffer(ms.floats(Window.width, Window.height)).loadSubData();
+			UBO_DISPLAY_SIZE.loadSubData(ms.floats(Window.width, Window.height));
 			bindBufferBase(UBO_DISPLAY_SIZE, 1);
 		}
 
@@ -121,7 +121,7 @@ public class GL {
 					}
 				}
 
-				System.out.println("OpenGL Error 0x" + Integer.toHexString(error) + " \"" + errorName + "\"" + ": " + s + (printParent ? " | Previous: " + previousMessage : ""));
+				throw new Error("OpenGL Error 0x" + Integer.toHexString(error) + " \"" + errorName + "\"" + ": " + s + (printParent ? " | Previous: " + previousMessage : ""));
 			}
 			
 			previousMessage = s;

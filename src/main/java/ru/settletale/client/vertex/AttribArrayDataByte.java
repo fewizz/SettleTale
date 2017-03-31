@@ -1,16 +1,15 @@
 package ru.settletale.client.vertex;
 
 import ru.settletale.util.DirectByteBufferUtils;
-import ru.settletale.util.PrimitiveType;
 
-public class AttribyteStorageByte extends AttributeStorageAbstarct {
+public class AttribArrayDataByte extends AttribArrayData {
 	byte b1;
 	byte b2;
 	byte b3;
 	byte b4;
 	
-	public AttribyteStorageByte(int size) {
-		super(size, PrimitiveType.BYTE);
+	public AttribArrayDataByte(int size, VertexAttribType attribType) {
+		super(size, attribType);
 	}
 
 	@Override
@@ -28,13 +27,13 @@ public class AttribyteStorageByte extends AttributeStorageAbstarct {
 		int limit = id + growBytes;
 		
 		if(limit > buff.capacity())
-			DirectByteBufferUtils.growBuffer(buff, 1.5F);
+			buff = DirectByteBufferUtils.growBuffer(buff, 1.5F);
 		
 		buff.limit(limit);
 		
 		buff.put(id, b1);
 		
-		switch (count) {
+		switch (perVertexElemrntCount) {
 			case 2:
 				buff.put(id + 1, b2);
 				break;

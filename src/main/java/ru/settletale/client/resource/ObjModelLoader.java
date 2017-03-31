@@ -10,8 +10,8 @@ import org.lwjgl.system.MemoryUtil;
 
 import ru.settletale.client.render.GLThread;
 import ru.settletale.client.render.ObjModel;
-import ru.settletale.client.vertex.AttributeType;
-import ru.settletale.client.vertex.VertexAttributeArray;
+import ru.settletale.client.vertex.VertexAttribType;
+import ru.settletale.client.vertex.VertexArrayDataBaker;
 import ru.settletale.util.FileUtils;
 import ru.settletale.util.StringUtils;
 
@@ -44,7 +44,7 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 		FloatBuffer uvs = MemoryUtil.memAllocFloat(counts[1] * 2);
 		FloatBuffer normals = MemoryUtil.memAllocFloat(counts[2] * 3);
 		
-		VertexAttributeArray pa = new VertexAttributeArray(AttributeType.FLOAT_4, AttributeType.FLOAT_3, AttributeType.FLOAT_2, AttributeType.INT_1);
+		VertexArrayDataBaker pa = new VertexArrayDataBaker(VertexAttribType.FLOAT_4, VertexAttribType.FLOAT_3, VertexAttribType.FLOAT_2, VertexAttribType.INT_1);
 
 		String mtlLibPath = "";
 		List<String> materials = new ArrayList<String>();
@@ -130,13 +130,17 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 		fb.put(v);
 	}
 
-	public static void readFace(String str, VertexAttributeArray pa, FloatBuffer positions, FloatBuffer normals, FloatBuffer uvs, int matID, int[][] back, float[][] backPos, float[][] backNorm, float[][] backUV) {
+	public static void readFace(String str, VertexArrayDataBaker pa, FloatBuffer positions, FloatBuffer normals, FloatBuffer uvs, int matID, int[][] back, float[][] backPos, float[][] backNorm, float[][] backUV) {
+		//Needs to know, if they uses
+		back[0][1] = -1; //For UV
+		back[0][2] = -1; //For Normal
+		
 		int count = StringUtils.readInts(str, back, ' ', '/', -1);
 
+		boolean hasUV = back[0][1] != -1;
+		boolean hasNormal = back[0][2] != -1;
+		
 		boolean isQuad = count == 8 || count == 12;
-
-		boolean hasUV = back[1][1] != -1;
-		boolean hasNormal = back[1][2] != -1;
 
 		if (!hasUV) {
 			backUV = null;
@@ -150,7 +154,7 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 		int flags = matID;
 		flags |= (hasUV ? 1 : 0) << 8;
 		flags |= (hasNormal ? 1 : 0) << 9;
-		pa.dataInt(FLAGS, flags);
+		pa.putInt(FLAGS, flags);
 		
 		for (int k = 0; k < vertCount; k++) {
 			int v = back[k + 1][0];
@@ -198,11 +202,11 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 				}
 			}
 			else {
-				pa.dataFloat(POS, positions.get(posIndex + 0), positions.get(posIndex + 1), positions.get(posIndex + 2), positions.get(posIndex + 3));
+				pa.putFloat(POS, positions.get(posIndex + 0), positions.get(posIndex + 1), positions.get(posIndex + 2), positions.get(posIndex + 3));
 				if (hasNormal)
-					pa.dataFloat(NORM, normals.get(normIndex + 0), normals.get(normIndex + 1), normals.get(normIndex + 2));
+					pa.putFloat(NORM, normals.get(normIndex + 0), normals.get(normIndex + 1), normals.get(normIndex + 2));
 				if (hasUV)
-					pa.dataFloat(UV, uvs.get(uvIndex + 0), uvs.get(uvIndex + 1));
+					pa.putFloat(UV, uvs.get(uvIndex + 0), uvs.get(uvIndex + 1));
 				pa.endVertex();
 			}
 		}
@@ -218,12 +222,12 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 		}
 	}
 
-	static void fillPA(VertexAttributeArray pa, int indx, float[][] backPos, float[][] backNorm, float[][] backUV) {
-		pa.dataFloat(POS, backPos[indx][0], backPos[indx][1], backPos[indx][2], backPos[indx][3]);
+	static void fillPA(VertexArrayDataBaker pa, int indx, float[][] backPos, float[][] backNorm, float[][] backUV) {
+		pa.putFloat(POS, backPos[indx][0], backPos[indx][1], backPos[indx][2], backPos[indx][3]);
 		if (backNorm != null)
-			pa.dataFloat(NORM, backNorm[indx][0], backNorm[indx][1], backNorm[indx][2]);
+			pa.putFloat(NORM, backNorm[indx][0], backNorm[indx][1], backNorm[indx][2]);
 		if (backUV != null)
-			pa.dataFloat(UV, backUV[indx][0], backUV[indx][1]);
+			pa.putFloat(UV, backUV[indx][0], backUV[indx][1]);
 		pa.endVertex();
 	}
 

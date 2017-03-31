@@ -6,10 +6,12 @@
 layout (location = 0) in vec3 pos;
 layout (location = 1) in vec4 color;
 layout (location = 2) in vec2 uv;
-layout (location = 3) in int texID;
+layout (location = 3) in vec3 normal;
+layout (location = 4) in int matID;
 
 out vec4 color_vs;
 out vec2 uv_vs;
+out vec3 normal_vs
 flat out int texID_vs;
 
 layout (binding = 0, std140) uniform Transform {
@@ -20,6 +22,7 @@ layout (binding = 0, std140) uniform Transform {
 void main(void) {
 	color_vs = color;
 	uv_vs = uv;
-	texID_vs = texID;
+	normal_vs = normal;
+	matID_vs = texID;
 	gl_Position = projMat * viewMat * vec4(pos, 1);
 }

@@ -1,5 +1,7 @@
 package ru.settletale.client.gl;
 
+import java.nio.ByteBuffer;
+
 import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL30;
 
@@ -22,13 +24,15 @@ public class Texture2DArray extends TextureAbstract<Texture2DArray> {
 	}
 
 	@Override
-	protected void internalLoadData() {
-		GL12.glTexImage3D(type, 0, internalFormat, width, height, depth, 0, bufferDataFormat, bufferDataType, this.buffer);
+	public void loadData(ByteBuffer buffer) {
+		bind();
+		GL12.glTexImage3D(type, 0, internalFormat, width, height, depth, 0, bufferDataFormat, bufferDataType, buffer);
 	}
 
 	@Override
-	protected void internalLoadSubData() {
-		GL12.glTexSubImage3D(type, 0, 0, 0, zOffset, width, height, depth, bufferDataFormat, bufferDataType, this.buffer);
+	public void loadSubData(ByteBuffer buffer) {
+		bind();
+		GL12.glTexSubImage3D(type, 0, 0, 0, zOffset, width, height, depth, bufferDataFormat, bufferDataType, buffer);
 	}
 
 }

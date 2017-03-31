@@ -12,7 +12,7 @@ public abstract class TextureAbstract<T> extends NameableDataContainerAbstract<T
 		this.type = type; 
 		internalFormat = GL11.GL_RGBA;
 		bufferDataFormat = GL11.GL_RGBA;
-		bufferDataType = GL11.GL_FLOAT;
+		bufferDataType = GL11.GL_UNSIGNED_BYTE;
 	}
 	
 	@Override
@@ -52,26 +52,6 @@ public abstract class TextureAbstract<T> extends NameableDataContainerAbstract<T
 		GL.activeTextureUnitTexture(this);
 		return super.bind();
 	}
-	
-	public T loadData() {
-		bind();
-		internalLoadData();
-		unbind();
-		
-		return getThis();
-	}
-	
-	public T loadSubData() {
-		bind();
-		internalLoadSubData();
-		unbind();
-		
-		return getThis();
-	}
-	
-	abstract protected void internalLoadData();
-	
-	abstract protected void internalLoadSubData();
 	
 	public T setDefaultParams() {
 		parameter(GL11.GL_TEXTURE_WRAP_S, GL11.GL_REPEAT);

@@ -1,13 +1,15 @@
 package ru.settletale.client.gl;
 
+import java.nio.ByteBuffer;
+
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL45;
 
 public class BufferObject<T> extends NameableDataContainerAbstract<T> {
 	protected int type;
-	int loadedSize;
-	Usage usage;
-	int offset;
+	private int loadedSize;
+	private Usage usage;
+	private int offset;
 	
 	public BufferObject(int type) {
 		this.type = type;
@@ -44,38 +46,36 @@ public class BufferObject<T> extends NameableDataContainerAbstract<T> {
 		GL15.glBindBuffer(type, 0);
 	}
 	
-	public T loadData() {
+	@Override
+	public void loadData(ByteBuffer buffer) {
 		loadedSize = buffer.remaining();
 		
 		if(GL.version >= 45) {
 			GL45.glNamedBufferData(id, buffer, usage.glCode);
-			return getThis();
 		}
 
 		bind();
 		GL15.glBufferData(type, buffer, usage.glCode);
-		return getThis();
 	}
 
-	public T loadSubData() {
+	@Override
+	public void loadSubData(ByteBuffer buffer) {
 		if(GL.version >= 45) {
 			GL45.glNamedBufferSubData(id, offset, buffer);
-			return getThis();
 		}
 
 		bind();
 		GL15.glBufferSubData(type, offset, buffer);
-		return getThis();
 	}
 	
-	public T loadDataOrSubData() {
+	public T loadDataOrSubData(ByteBuffer buffer) {
 		int size = buffer.remaining();
 		
 		if(size <= loadedSize) {
-			loadSubData();
+			loadSubData(buffer);
 		}
 		else {
-			loadData();
+			loadData(buffer);
 		}
 		
 		return getThis();
@@ -84,7 +84,6 @@ public class BufferObject<T> extends NameableDataContainerAbstract<T> {
 	@Override
 	public void delete() {
 		super.delete();
-		
 		this.loadedSize = 0;
 	}
 	
