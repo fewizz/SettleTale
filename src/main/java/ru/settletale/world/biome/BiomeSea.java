@@ -6,8 +6,8 @@ public class BiomeSea extends BiomeAbstract {
 
 	public BiomeSea() {
 		super(Color.DARK_GRAY, BiomeType.OCEAN, Climate.CONTINENTAL, Climate.MODERATE, Climate.TROPICAL, Climate.DRY);
-		this.minHeight = 22;
-		this.amplitude = 8;
+		this.minHeight = 20;
+		this.amplitude = 11;
 	}
 
 }

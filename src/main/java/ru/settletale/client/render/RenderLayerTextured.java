@@ -1,66 +1,48 @@
 package ru.settletale.client.render;
 
-import java.nio.IntBuffer;
-
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL20;
-import org.lwjgl.system.MemoryUtil;
+
+import com.koloboke.collect.map.hash.HashObjIntMap;
+import com.koloboke.collect.map.hash.HashObjIntMaps;
 
 import ru.settletale.client.gl.GL;
-import ru.settletale.client.gl.Texture2D;
-import ru.settletale.client.resource.TextureLoader;
+import ru.settletale.client.gl.Texture;
 import ru.settletale.client.vertex.VertexAttribType;
 
 public class RenderLayerTextured extends RenderLayer {
-	private UniformType uniformType = null;
-	private int textureAttribIndex = -1;
-	private int textureUniformLocation = -1;
-	private final Texture2D[] textures;
-	private IntBuffer textureIDs;
-	private int textureCount = 0;
+	final HashObjIntMap<Texture<?>> textures;
 
 	public RenderLayerTextured(VertexAttribType... storages) {
 		super(storages);
-		textures = new Texture2D[256];
+		textures = HashObjIntMaps.newMutableMap();
 	}
 
-	public void setTexture(Texture2D texture) {
-		if (textureAttribIndex == -1)
-			throw new RuntimeException("textureAttributeIndex not specified");
-
-		for (int id = 0; id < textures.length; id++) {
-			if (textures[id] == null) { // Not used yet
-				textures[id] = texture;
-				textureCount++;
-			}
-
-			if (textures[id] != texture)
-				continue;
-
-			getVertexArrayDataBaker().putByte(textureAttribIndex, (byte) id);
-			return;
+	public int setTexture(Texture<?> texture) {
+		if (!textures.containsKey(texture)) {
+			int id = getFreeTextureID();
+			textures.put(texture, getFreeTextureID());
+			return id;
 		}
-
-		throw new Error("Too many used textures");
+		return textures.getInt(texture);
 	}
 
-	@Override
-	public void compile() {
-		if (textureAttribIndex == -1)
-			throw new RuntimeException("textureAttributeIndex not specified");
-
-		super.compile();
-
-		if (uniformType == null) { // If without textures
-			vao.disableVertexAttribArray(textureAttribIndex);
-			return;
+	public int setTexture(Texture<?> texture, int id) {
+		if (textures.containsKey(texture)) {
+			throw new Error("Already exists");
 		}
+		return textures.put(texture, id);
+	}
 
-		textureIDs = MemoryUtil.memAllocInt(textureCount);
+	public int getTextureID(Texture<?> tex) {
+		return textures.getInt(tex);
+	}
 
-		for (int i = 0; i < textureCount; i++) {
-			textureIDs.put(i, i);
-		}
+	public int getFreeTextureID() {
+		return textures.size();
+	}
+
+	public boolean isTextureUsed(Texture<?> tex) {
+		return textures.containsKey(tex);
 	}
 
 	@Override
@@ -68,54 +50,18 @@ public class RenderLayerTextured extends RenderLayer {
 		program.bind();
 		vao.bind();
 
-		if (uniformType == UniformType.INT_ARRAY) {
-			for (int i = 0; i < textureCount; i++) {
-				GL.activeTexture(i, textures[i]);
-			}
-
-			GL20.glUniform1iv(textureUniformLocation, textureIDs);
-		}
-		if (uniformType == UniformType.INT) {
-			GL.activeTexture(0, textures[0]);
-			GL20.glUniform1i(textureUniformLocation, 0);
-		}
+		textures.forEach((Texture<?> texture, int id) -> {
+			GL.setActiveTexture(id, texture);
+		});
 
 		GL11.glDrawArrays(mode, 0, vertexCount);
 	}
 
-	public void setTextureAttribIndex(int index) {
-		this.textureAttribIndex = index;
-	}
-
-	public void setTextureUniformLocation(int location) {
-		this.textureUniformLocation = location;
-	}
-
-	public void setUniformType(UniformType uniformType) {
-		this.uniformType = uniformType;
-	}
-
-	public void setEmptyTexture() {
-		setTexture(TextureLoader.TEXTURES.get("textures/white.png"));
-	}
-
 	public void clearTextures() {
-		for (int i = 0; i < textureCount; i++) {
-			textures[i] = null;
-		}
-
-		textureCount = 0;
+		textures.clear();
 	}
 
 	public int getUsedTextureCount() {
-		return textureCount;
-	}
-
-	@Override
-	public void delete() {
-		super.delete();
-		
-		if (textureIDs != null)
-			MemoryUtil.memFree(textureIDs);
+		return textures.size();
 	}
 }

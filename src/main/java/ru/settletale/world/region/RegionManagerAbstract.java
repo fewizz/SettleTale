@@ -31,18 +31,16 @@ public abstract class RegionManagerAbstract {
 	}
 
 	public float getHeight(float x, float z) {
-		int x2 = MathUtils.floor(MathUtils.fract(x / 16F) * 32F);
-		int z2 = MathUtils.floor(MathUtils.fract(z / 16F) * 32F);
+		int x2 = MathUtils.floor(MathUtils.fract(x / Region.WIDTH_F) * (Region.WIDTH_F * 2F));
+		int z2 = MathUtils.floor(MathUtils.fract(z / Region.WIDTH_F) * (Region.WIDTH_F * 2F));
 
-		/*if (x2 < 0) {
-			x2 += 32;
-		}
+		/*
+		 * if (x2 < 0) { x2 += 32; }
+		 * 
+		 * if (z2 < 0) { z2 += 32;d }
+		 */
 
-		if (z2 < 0) {
-			z2 += 32;d
-		}*/
-
-		Region r = getRegion(MathUtils.floor(x / 16F), MathUtils.floor(z / 16F));
+		Region r = getRegion(MathUtils.floor(x / Region.WIDTH_F), MathUtils.floor(z / Region.WIDTH_F));
 
 		if (r == null) {
 			System.out.println(0);

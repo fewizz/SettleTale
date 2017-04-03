@@ -2,13 +2,13 @@ package ru.settletale.client.gl;
 
 import org.lwjgl.opengl.GL11;
 
-public abstract class TextureAbstract<T> extends NameableDataContainerAbstract<T> {
+public abstract class Texture<T> extends NameableDataContainerAbstract<T> {
 	public final int type;
 	public int internalFormat;
 	public int bufferDataFormat;
 	public int bufferDataType;
 	
-	public TextureAbstract(int type) {
+	public Texture(int type) {
 		this.type = type; 
 		internalFormat = GL11.GL_RGBA;
 		bufferDataFormat = GL11.GL_RGBA;
@@ -49,7 +49,7 @@ public abstract class TextureAbstract<T> extends NameableDataContainerAbstract<T
 	
 	@Override
 	public boolean bind() {
-		GL.activeTextureUnitTexture(this);
+		GL.setActiveTextureUnitTexture(this);
 		return super.bind();
 	}
 	
@@ -77,6 +77,7 @@ public abstract class TextureAbstract<T> extends NameableDataContainerAbstract<T
 	@Override
 	public void deleteInternal() {
 		GL11.glDeleteTextures(id);
+		GL.onTextureDeleted(this);
 	}
 
 	@Override

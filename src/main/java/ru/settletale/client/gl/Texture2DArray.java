@@ -5,7 +5,7 @@ import java.nio.ByteBuffer;
 import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL30;
 
-public class Texture2DArray extends TextureAbstract<Texture2DArray> {
+public class Texture2DArray extends Texture<Texture2DArray> {
 	public final int width;
 	public final int height;
 	public final int depth;

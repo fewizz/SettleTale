@@ -1,7 +1,10 @@
 package ru.settletale.client.render;
 
+import java.nio.IntBuffer;
+
 import org.joml.Vector2f;
 import org.joml.Vector3f;
+import org.lwjgl.system.MemoryStack;
 
 import ru.settletale.client.gl.GL;
 import ru.settletale.client.gl.ShaderProgram;
@@ -10,7 +13,7 @@ import ru.settletale.client.resource.ShaderLoader;
 import ru.settletale.client.vertex.VertexAttribType;
 
 public class Drawer {
-	public static final RenderLayerTextured LAYER = new RenderLayerTextured(VertexAttribType.FLOAT_3, VertexAttribType.UBYTE_4_FLOAT_4_NORMALISED, VertexAttribType.FLOAT_2, VertexAttribType.UBYTE_1_INT_1);;
+	public static final RenderLayerTextured LAYER = new RenderLayerTextured(VertexAttribType.FLOAT_3, VertexAttribType.UBYTE_4_FLOAT_4_NORMALISED, VertexAttribType.FLOAT_2, VertexAttribType.UBYTE_1_INT_1);
 	static final int POSITION_ID = 0;
 	static final int COLOR_ID = 1;
 	static final int UV_ID = 2;
@@ -40,8 +43,6 @@ public class Drawer {
 		PROGRAM_MULTITEX.attachShader(ShaderLoader.SHADERS.get("shaders/drawer_multitex.fs"));
 		PROGRAM_MULTITEX.link();
 		
-		LAYER.setTextureAttribIndex(TEX_ID);
-		LAYER.setTextureUniformLocation(0);
 		LAYER.setAllowSubData(true);
 	}
 
@@ -54,29 +55,34 @@ public class Drawer {
 	}
 
 	public static void draw() {
-		UniformType type;
 		ShaderProgram program;
+		int textureCount = LAYER.getUsedTextureCount();
 		
-		if(LAYER.getUsedTextureCount() == 0) {
+		if(textureCount == 0) {
 			program = PROGRAM;
-			type = null;
 		}
-		else if(LAYER.getUsedTextureCount() == 1) {
-			type = UniformType.INT;
+		else if(textureCount == 1) {
 			program = PROGRAM_TEX;
 		}
 		else {
-			type = UniformType.INT_ARRAY;
 			program = PROGRAM_MULTITEX;
+			try (MemoryStack ms = MemoryStack.stackPush()) {
+				IntBuffer buff = ms.mallocInt(textureCount);
+				
+				for(int i = 0; i < textureCount; i++) {
+					buff.put(i, i);
+				}
+				
+				program.setUniformIntArray(0, buff);
+			}
 		}
 		
-		draw(program, type);
+		draw(program);
 	}
 
-	public static void draw(ShaderProgram program, UniformType type) {
+	public static void draw(ShaderProgram program) {
 		GL.debug("Drawer start", true);
 		
-		LAYER.setUniformType(type);
 		LAYER.compile();
 
 		GL.debug("Drawer pre vao bind");
@@ -87,7 +93,7 @@ public class Drawer {
 	}
 	
 	public static void texture(Texture2D tex) {
-		LAYER.setTexture(tex);
+		LAYER.getVertexArrayDataBaker().putByte(TEX_ID, (byte) LAYER.setTexture(tex));
 	}
 
 	public static void color(float r, float g, float b, float a) {

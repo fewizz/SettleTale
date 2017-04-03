@@ -10,13 +10,17 @@ import ru.settletale.world.biome.BiomeAbstract;
 
 public class Region {
 	static final Queue<Region> FREE_REGION_CACHE = new ArrayDeque<>();
+	public static final int WIDTH = 32;
+	public static final int EXTENSION = 1;
+	public static final int WIDTH_F = WIDTH;
+	public static final int WIDTH_EXTENDED = WIDTH + (EXTENSION * 2);
 	public byte[] biomeIDs;
 	public float[] heights;
 	public int x;
 	public int z;
 	public boolean active;
 	public long coord;
-	private AtomicInteger threadsUses = new AtomicInteger();
+	private AtomicInteger threadsUses = new AtomicInteger(0);
 
 	private Region() {
 	}
@@ -26,6 +30,9 @@ public class Region {
 		if(r == null) {
 			r = new Region();
 		}
+		if(r.threadsUses.get() != 0) {
+			System.out.println("LOL!!!");
+		}
 		
 		r.initInfo(x, z);
 		r.increaseThreadUsage();
@@ -33,6 +40,9 @@ public class Region {
 	}
 
 	public void increaseThreadUsage() {
+		if(FREE_REGION_CACHE.contains(this)) {
+			throw new Error("It's in cache");
+		}
 		threadsUses.incrementAndGet();
 	}
 
@@ -55,22 +65,22 @@ public class Region {
 	}
 
 	public BiomeAbstract getBiome(int x, int z) {
-		return Biomes.getBiomeByID(biomeIDs[(z + 1) * 18 + x + 1]);
+		return Biomes.getBiomeByID(biomeIDs[(z + 1) * WIDTH_EXTENDED + x + 1]);
 	}
 
 	public float getHeight(int x, int z) {
-		return heights[(z + 2) * ((18 * 2) + 1) + (x + 2)];
+		return heights[(z + 2) * ((WIDTH_EXTENDED * 2) + 1) + (x + 2)];
 	}
 
 	public void setBiomes(byte[] ids) {
-		if (ids.length != 18 * 18) {
+		if (ids.length != WIDTH_EXTENDED * WIDTH_EXTENDED) {
 			throw new Error("Array for biomes has invalid len!");
 		}
 		this.biomeIDs = ids;
 	}
 
 	public void setHeights(float[] array) {
-		if (array.length != ((18 * 2) + 1) * ((18 * 2) + 1)) {
+		if (array.length != ((WIDTH_EXTENDED * 2) + 1) * ((WIDTH_EXTENDED * 2) + 1)) {
 			throw new Error("Array for heights has invalid len!");
 		}
 		this.heights = array;

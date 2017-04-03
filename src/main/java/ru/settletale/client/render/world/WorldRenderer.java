@@ -2,8 +2,6 @@ package ru.settletale.client.render.world;
 
 import static org.lwjgl.opengl.GL11.*;
 
-import org.lwjgl.opengl.GL11;
-
 import com.koloboke.collect.map.hash.HashLongObjMap;
 import com.koloboke.collect.map.hash.HashLongObjMaps;
 
@@ -16,7 +14,6 @@ import ru.settletale.client.render.Drawer;
 import ru.settletale.client.render.FontRenderer;
 import ru.settletale.client.render.GLThread;
 import ru.settletale.client.render.MainRenderer;
-import ru.settletale.client.render.RenderLayerList;
 import ru.settletale.client.resource.ShaderLoader;
 import ru.settletale.client.resource.TextureLoader;
 import ru.settletale.world.region.IRegionManagerListener;
@@ -26,10 +23,7 @@ public class WorldRenderer implements IRegionManagerListener {
 	public static final WorldRenderer INSTANCE = new WorldRenderer();
 	public static final HashLongObjMap<Region> REGIONS = HashLongObjMaps.newMutableMap();
 	public static final HashLongObjMap<CompiledRegion> REGIONS_TO_RENDER = HashLongObjMaps.newMutableMap();
-
-	static ShaderProgram programSky;
-
-	static RenderLayerList lineList;
+	static final ShaderProgram PROGRAM_SKY = new ShaderProgram();
 
 	public static void init() {
 		glColor4f(1, 1, 1, 1);
@@ -38,10 +32,11 @@ public class WorldRenderer implements IRegionManagerListener {
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glEnable(GL_ALPHA_TEST);
-		programSky = new ShaderProgram().gen();
-		programSky.attachShader(ShaderLoader.SHADERS.get("shaders/sky.vs"));
-		programSky.attachShader(ShaderLoader.SHADERS.get("shaders/sky.fs"));
-		programSky.link();
+		glCullFace(GL_BACK);
+		PROGRAM_SKY.gen();
+		PROGRAM_SKY.attachShader(ShaderLoader.SHADERS.get("shaders/sky.vs"));
+		PROGRAM_SKY.attachShader(ShaderLoader.SHADERS.get("shaders/sky.fs"));
+		PROGRAM_SKY.link();
 	}
 
 	public static void render() {
@@ -49,10 +44,8 @@ public class WorldRenderer implements IRegionManagerListener {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		GL.PROJ_MATRIX.identity();
+		GL.VIEW_MATRIX.identity();
 		GL.PROJ_MATRIX.perspectiveDeg(95F, (float) Window.width / (float) Window.height, 0.1F, 1000);
-		GL.VIEW_MATRIX.push();
-		GL.PROJ_MATRIX.push();
-
 		GL.VIEW_MATRIX.rotateDeg(Camera.rotationX, 1, 0, 0);
 		GL.VIEW_MATRIX.rotateDeg(Camera.rotationY, 0, 1, 0);
 		GL.VIEW_MATRIX.translate(-Camera.position.x, -Camera.position.y, -Camera.position.z);
@@ -62,7 +55,8 @@ public class WorldRenderer implements IRegionManagerListener {
 
 		GL.debug("World rend after transforms");
 
-		for (Region r : REGIONS.values()) {
+		glEnable(GL_CULL_FACE);
+		REGIONS.forEach((long l, Region r) -> {
 			CompiledRegion cr = REGIONS_TO_RENDER.get(r.coord);
 
 			if (cr == null) {
@@ -74,20 +68,16 @@ public class WorldRenderer implements IRegionManagerListener {
 				REGIONS_TO_RENDER.put(r.coord, cr);
 			}
 			cr.render();
-
-		}
+		});
+		
+		glDisable(GL_CULL_FACE);
 
 		GL.bindDefaultVAO();
-		programSky.bind();
-		GL11.glDrawArrays(GL11.GL_QUADS, 0, 4);
+		PROGRAM_SKY.bind();
+		glDrawArrays(GL_QUADS, 0, 4);
 		GL.debug("Render sky end");
 
-		GL.VIEW_MATRIX.push();
-		GL.VIEW_MATRIX.translate(0, 50, 0);
-		GL.VIEW_MATRIX.scale(5);
-		GL.updateTransformUniformBlock();
-		GL.VIEW_MATRIX.pop();
-		GL11.glLineWidth(10);
+		glLineWidth(10);
 		Drawer.begin(GL_LINES);
 		Drawer.color(Color.RED);
 		Drawer.vertex(0, 50, 0);
@@ -117,13 +107,13 @@ public class WorldRenderer implements IRegionManagerListener {
 		Drawer.vertex(150, 50, 0);
 		Drawer.draw();
 		
-		Drawer.begin(GL11.GL_LINES);
+		Drawer.begin(GL_LINES);
 		Drawer.vertex(-50, 50, 50);
 		Drawer.vertex(-50, 50, 0);
 		Drawer.draw();
 		
 		Drawer.color(Color.RED);
-		Drawer.begin(GL11.GL_TRIANGLES);
+		Drawer.begin(GL_TRIANGLES);
 		Drawer.vertex(-20, 25, 20);
 		Drawer.vertex(-50, 75, 20);
 		Drawer.vertex(-70, 25, 20);
@@ -142,16 +132,13 @@ public class WorldRenderer implements IRegionManagerListener {
 		FontRenderer.setText("FPS: " + MainRenderer.lastFPS);
 		FontRenderer.render();
 
-		GL.PROJ_MATRIX.pop();
-		GL.VIEW_MATRIX.pop();
-
 		GL.debug("World rend end");
 	}
 
 	@Override
 	public void onRegionAdded(Region r) {
+		r.increaseThreadUsage();
 		GLThread.addTask(() -> {
-			r.increaseThreadUsage();
 			REGIONS.put(r.coord, r);
 		});
 

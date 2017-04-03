@@ -6,7 +6,7 @@ import ru.settletale.client.gl.GL;
 import ru.settletale.client.render.GLThread;
 
 public class Window {
-	public static float frameRate = 100F;
+	public static float frameRate = 1000F;
 	public static int width = -1;
 	public static int height = -1;
 	public static long id;

@@ -28,7 +28,7 @@ public class KeyListener extends GLFWKeyCallback {
 		HashIntObjMap<KeyState> updates = KEY_UPDATES.get(t);
 		
 		if(updates == null) {
-			updates = HashIntObjMaps.newUpdatableMap();
+			updates = HashIntObjMaps.newMutableMap();
 			KEY_UPDATES.put(t, updates);
 		}
 		
@@ -71,11 +71,11 @@ public class KeyListener extends GLFWKeyCallback {
 
 	public static void updateForCurrentThread() {
 		Thread t = Thread.currentThread();
-		HashIntObjMap<KeyState> states = KEY_STATES.get();
+		final HashIntObjMap<KeyState> states = KEY_STATES.get();
 		HashIntObjMap<KeyState> updates = KEY_UPDATES.get(t);
 		
 		if(updates == null) {
-			updates = HashIntObjMaps.newUpdatableMap();
+			updates = HashIntObjMaps.newMutableMap();
 			KEY_UPDATES.put(t, updates);
 			return; //Bcs map is empty
 		}

@@ -51,7 +51,7 @@ void main(void) {
 	
 	float ay = abs(eye.y);
 	
-	color = vec4(0, eye.y > 0 ? 1 - sqrt(ay / 1500.) : 1, 1, 1);
+	color = vec4(0, eye.y > 0 ? 1 - sqrt(ay / 500.) : 1, 1, 1);
 }
 
 float iqnoise(vec3 pos) {

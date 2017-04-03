@@ -8,8 +8,8 @@ public class AttribArrayDataInt extends AttribArrayData {
 	int i3;
 	int i4;
 	
-	public AttribArrayDataInt(int size, VertexAttribType attribType) {
-		super(size, attribType);
+	public AttribArrayDataInt(VertexAttribType attribType) {
+		super(attribType);
 	}
 
 	@Override

@@ -8,8 +8,8 @@ public class AttribArrayDataByte extends AttribArrayData {
 	byte b3;
 	byte b4;
 	
-	public AttribArrayDataByte(int size, VertexAttribType attribType) {
-		super(size, attribType);
+	public AttribArrayDataByte(VertexAttribType attribType) {
+		super(attribType);
 	}
 
 	@Override

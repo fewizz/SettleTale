@@ -19,7 +19,7 @@ public class Matrix4fv extends Matrix4f {
 	}
 
 	public void push() {
-		updateBuffer();
+		updateBackedBuffer();
 		stack[currentIndex].put(buffer);
 		stack[currentIndex].position(0);
 		buffer.position(0);
@@ -36,7 +36,7 @@ public class Matrix4fv extends Matrix4f {
 		super.set(buffer);
 	}
 
-	public void updateBuffer() {
+	public void updateBackedBuffer() {
 		buffer.position(0);
 		super.get(buffer);
 	}

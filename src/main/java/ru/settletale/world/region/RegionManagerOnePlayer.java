@@ -9,7 +9,7 @@ import ru.settletale.util.TickTimer;
 
 public class RegionManagerOnePlayer extends RegionManagerAbstract {
 	protected RegionGenerator regionGenerator;
-	public static final int REGION_LOAD_RADIUS = 30;
+	public static final int REGION_LOAD_RADIUS = 6;
 
 	public RegionManagerOnePlayer() {
 		super();
@@ -20,23 +20,19 @@ public class RegionManagerOnePlayer extends RegionManagerAbstract {
 	public void start() {
 		regionGenerator.start();
 	}
-	
+
 	@Override
 	public void update() {
-		int regX = MathUtils.floor(PlatformClient.player.position.x / 16F);
-		int regZ = MathUtils.floor(PlatformClient.player.position.z / 16F);
-		
+		int regX = MathUtils.floor(PlatformClient.player.position.x / Region.WIDTH_F);
+		int regZ = MathUtils.floor(PlatformClient.player.position.z / Region.WIDTH_F);
+
 		regions.forEach((long key, Region obj) -> obj.active = false);
-		
+
 		TickTimer worldTimer = Game.getWorld().updateThread.timer;
 
 		for (int x = -REGION_LOAD_RADIUS + regX; x <= REGION_LOAD_RADIUS + regX; x++) {
 			for (int z = -REGION_LOAD_RADIUS + regZ; z <= REGION_LOAD_RADIUS + regZ; z++) {
-				
-				if(System.nanoTime() - worldTimer.startTimeNano > worldTimer.waitTimeNano - (worldTimer.waitTimeNano / 10)) {
-					return;
-				}
-				
+
 				float w = x - regX;
 				float l = z - regZ;
 
@@ -49,10 +45,13 @@ public class RegionManagerOnePlayer extends RegionManagerAbstract {
 				Region region = getRegion(x, z);
 
 				if (region == null) {
+					if (System.nanoTime() - worldTimer.startTimeNano > worldTimer.waitTimeNano - (worldTimer.waitTimeNano / 10)) {
+						continue;
+					}
 					region = readOrGenerateRegion(x, z);
-					
+
 					this.regions.put(region.coord, region);
-					
+
 					for (IRegionManagerListener listener : listeners) {
 						listener.onRegionAdded(region);
 					}
@@ -64,11 +63,11 @@ public class RegionManagerOnePlayer extends RegionManagerAbstract {
 		for (Iterator<Region> it = regions.values().iterator(); it.hasNext();) {
 			Region region = it.next();
 			if (!region.active) {
-				
+
 				for (IRegionManagerListener listener : listeners) {
 					listener.onRegionRemoved(region);
 				}
-				
+
 				it.remove();
 				region.decreaseThreadUsage();
 			}

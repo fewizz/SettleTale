@@ -1,11 +1,11 @@
 package ru.settletale.util;
 
 import java.util.ArrayDeque;
-import java.util.Queue;
+import java.util.Deque;
 import java.util.concurrent.Semaphore;
 
 public abstract class ThreadWithTasks extends Thread {
-	private final Queue<ThreadTask> taskQueue = new ArrayDeque<>();
+	private final Deque<ThreadTask> taskQueue = new ArrayDeque<>();
 	private final Semaphore semaphore = new Semaphore(0);
 	private volatile Stage stage = Stage.DO_STUFF;
 

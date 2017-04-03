@@ -2,46 +2,48 @@ package ru.settletale.client.render;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.lwjgl.system.MemoryUtil;
 
 import ru.settletale.client.vertex.VertexAttribType;
 
-public class RenderLayerMaterialised extends RenderLayer {
-	final Material[] materials;
+public class RenderLayerMaterialised extends RenderLayerTextured {
+	List<Material> materials;
 	IntBuffer diffuseTextures;
 	FloatBuffer diffuseColors;
-	int materialCount = 0;
+	int materialAttribIndex = -1;
 
 	public RenderLayerMaterialised(VertexAttribType... storages) {
 		super(storages);
-		this.materials = new Material[256];
+		this.materials = new ArrayList<>();
+	}
+
+	public void setMaterialAttribIndex(int index) {
+		this.materialAttribIndex = index;
 	}
 
 	public void setMaterial(Material m) {
-		for (int i = 0; i < materials.length; i++) {
-			if (materials[i] != null) {
-				continue;
-			}
-			materials[i] = m;
-			materialCount++;
+		if(materialAttribIndex == -1) {
+			throw new Error("Material attribute index not set");
 		}
+		
+		if(!materials.contains(m)) {
+			materials.add(m);
+		}
+		
+		int matID = materials.indexOf(m);
+		getVertexArrayDataBaker().putByte(matID, (byte)matID);
 	}
 
 	@Override
 	public void compile() {
 		super.compile();
 
-		this.diffuseTextures = MemoryUtil.memAllocInt(materialCount);
-		this.diffuseColors = MemoryUtil.memAllocFloat(materialCount * 4);
+		this.diffuseTextures = MemoryUtil.memAllocInt(materials.size());
+		this.diffuseColors = MemoryUtil.memAllocFloat(materials.size() * 4);
 
-		for (int i = 0; i < materialCount; i++) {
-			Material m = materials[i];
-
-			diffuseTextures.put(i);
-			m.colorDiffuse.get(diffuseColors);
-		}
-		
 		diffuseTextures.flip();
 		diffuseColors.flip();
 	}

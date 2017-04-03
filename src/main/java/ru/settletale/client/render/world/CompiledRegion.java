@@ -25,10 +25,10 @@ import ru.settletale.registry.Biomes;
 public class CompiledRegion {
 	public static final int POSITION = 0;
 	public static final int NORMAL = 1;
-	public static final VertexArrayDataBakerIndexed VERTEX_ARRAY = new VertexArrayDataBakerIndexed(VertexAttribType.FLOAT_3, VertexAttribType.FLOAT_1);
-	static final Texture1D TEXTURE_BIOMES = new Texture1D(256);
+	public static final VertexArrayDataBakerIndexed SHARED_VERTEX_ARRAY = new VertexArrayDataBakerIndexed(VertexAttribType.FLOAT_3, VertexAttribType.FLOAT_1);
+	static final Texture1D TEXTURE_BIOMES = new Texture1D(Region.WIDTH * Region.WIDTH);
 	static Texture2D textureGrass;
-	static final ByteBuffer TEMP_BUFFER = MemoryUtil.memAlloc(18 * 20 * 2);
+	static final ByteBuffer TEMP_BUFFER = MemoryUtil.memAlloc(Region.WIDTH_EXTENDED * Region.WIDTH_EXTENDED * 2);
 	static final ShaderProgram PROGRAM = new ShaderProgram();
 	final Region region;
 	RenderLayer layer;
@@ -76,17 +76,17 @@ public class CompiledRegion {
 		GL.debug("CR compile start");
 
 		this.layer = new RenderLayerIndexed();
-		this.layer.setVertexArrayDataBaker(VERTEX_ARRAY);
+		this.layer.setVertexArrayDataBaker(SHARED_VERTEX_ARRAY);
 		this.layer.compile();
 		this.layer.setVertexArrayDataBaker(null);
-		VERTEX_ARRAY.clearData();
+		SHARED_VERTEX_ARRAY.clearData();
 		this.layer.setShaderProgram(PROGRAM);
 
-		textureIDs = new Texture2D(18, 18).gen().format(GL30.GL_R8).bufferDataFormat(GL_RED).bufferDataType(GL_UNSIGNED_BYTE);
+		textureIDs = new Texture2D(Region.WIDTH_EXTENDED, Region.WIDTH_EXTENDED).gen().format(GL30.GL_R8).bufferDataFormat(GL_RED).bufferDataType(GL_UNSIGNED_BYTE);
 
 		int byteIndex = 0;
-		for (int z = -1; z < 17; z++) {
-			for (int x = -1; x < 17; x++) {
+		for (int z = -1; z < Region.WIDTH + 1; z++) {
+			for (int x = -1; x < Region.WIDTH + 1; x++) {
 				TEMP_BUFFER.put(byteIndex++, (byte) region.getBiome(x, z).getBiomeID());
 			}
 			byteIndex += 2; // WTF? It's not RGB, but neeeds 3 bytes...
@@ -101,9 +101,9 @@ public class CompiledRegion {
 	public void render() {
 		GL.debug("CR rend shader start");
 
-		GL.activeTexture(0, textureIDs);
-		GL.activeTexture(1, TEXTURE_BIOMES);
-		GL.activeTexture(2, textureGrass);
+		GL.setActiveTexture(0, textureIDs);
+		GL.setActiveTexture(1, TEXTURE_BIOMES);
+		GL.setActiveTexture(2, textureGrass);
 
 		GL.debug("CR bind texture units end");
 
@@ -119,25 +119,26 @@ public class CompiledRegion {
 	
 	private void compileVertexAttributeArrays() {
 		GL.debug("Fill buffers0");
+		int rendWidth = ((Region.WIDTH * 2) + 1);
 
-		for (int x = 0; x < 16; x++) {
+		for (int x = 0; x < Region.WIDTH; x++) {
 			int nx = x * 2;
 
-			for (int z = 0; z < 16; z++) {
+			for (int z = 0; z < Region.WIDTH; z++) {
 				int nz = z * 2;
 
-				int i1 = nx * 33 + nz;
+				int i1 = nx * rendWidth + nz;
 				int i2 = i1 + 1;
-				int i3 = i2 + 33;
-				int i4 = i1 + 33;
+				int i3 = i2 + rendWidth;
+				int i4 = i1 + rendWidth;
 
 				for (int x2 = 0; x2 < 2; x2++) {
 
 					for (int z2 = 0; z2 < 2; z2++) {
-						VERTEX_ARRAY.index(i1++);
-						VERTEX_ARRAY.index(i2++);
-						VERTEX_ARRAY.index(i3++);
-						VERTEX_ARRAY.index(i4++);
+						SHARED_VERTEX_ARRAY.index(i1++);
+						SHARED_VERTEX_ARRAY.index(i2++);
+						SHARED_VERTEX_ARRAY.index(i3++);
+						SHARED_VERTEX_ARRAY.index(i4++);
 					}
 
 					i1 -= 2;
@@ -145,21 +146,21 @@ public class CompiledRegion {
 					i3 -= 2;
 					i4 -= 2;
 
-					i1 += 33;
-					i2 += 33;
-					i3 += 33;
-					i4 += 33;
+					i1 += rendWidth;
+					i2 += rendWidth;
+					i3 += rendWidth;
+					i4 += rendWidth;
 				}
 			}
 		}
 		
-		for (int x = 0; x < 33; x++) {
+		for (int x = 0; x < rendWidth; x++) {
 			int nx = x;
 			float px = (nx / 2F);
-			float pxf = region.x * 16 + px;
-			float pzf = region.z * 16;
+			float pxf = region.x * Region.WIDTH + px;
+			float pzf = region.z * Region.WIDTH;
 
-			for (int z = 0; z < 33; z++) {
+			for (int z = 0; z < rendWidth; z++) {
 				NORMAL_TEMP.set(0);
 				TEMP.set(0);
 
@@ -195,10 +196,10 @@ public class CompiledRegion {
 
 				NORMAL_TEMP.normalize();
 
-				VERTEX_ARRAY.putFloat(POSITION, pxf, region.getHeight(x, z), pzf);
-				VERTEX_ARRAY.putFloat(NORMAL, NORMAL_TEMP.y);
+				SHARED_VERTEX_ARRAY.putFloat(POSITION, pxf, region.getHeight(x, z), pzf);
+				SHARED_VERTEX_ARRAY.putFloat(NORMAL, NORMAL_TEMP.y);
 
-				VERTEX_ARRAY.endVertex();
+				SHARED_VERTEX_ARRAY.endVertex();
 
 				pzf += 0.5F;
 			}

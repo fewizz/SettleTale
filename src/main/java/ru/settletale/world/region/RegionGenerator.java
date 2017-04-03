@@ -10,16 +10,13 @@ import ru.settletale.world.layer.LayerScaleX2Random;
 import ru.settletale.world.layer.LayerSmoother;
 
 public class RegionGenerator {
-	public static final int CHUNK_LEN = 16;
-	public static final int CHUNK_EXT = 1;
-	public static final int CHUNK_LEN_EXT = CHUNK_LEN + CHUNK_EXT * 2;
-	public static final int SMOOTH = 5;
-	public static final int SMOOTH_EXT = SMOOTH + CHUNK_EXT;
+	public static final int SMOOTH = 4;
+	public static final int SMOOTH_EXTENDED = SMOOTH + Region.EXTENSION;
 	public static final int SMOOTH_2 = SMOOTH * 2;
 	public static final int SMOOTH_2_QUAD = SMOOTH_2 * SMOOTH_2;
-	public static final int CHUNK_LEN_EXT_SMOOTH = CHUNK_LEN_EXT + (SMOOTH * 2);
-	public static final int HEIGHTS_LEN_EXT = (CHUNK_LEN_EXT * 2) + 1;
-	public static final int HEIGHTS_LEN_EXT_SMOOTH = (CHUNK_LEN_EXT_SMOOTH * 2) + 2;
+	public static final int REGION_WIDTH_EXTENDED_SMOOTHED = Region.WIDTH_EXTENDED + SMOOTH_2;
+	public static final int HEIGHTS_LEN_EXT = (Region.WIDTH_EXTENDED * 2) + 1;
+	public static final int HEIGHTS_LEN_EXT_SMOOTH = (REGION_WIDTH_EXTENDED_SMOOTHED * 2) + 2;
 	LayerAbstract mainLayer;
 	OpenSimplexNoise noise;
 	
@@ -46,17 +43,17 @@ public class RegionGenerator {
 	public Region generateRegion(int cx, int cz) {
 		Region reg = Region.getFreeRegion(cx, cz);
 		
-		biomeIDs = mainLayer.getValues((cx * 16) - SMOOTH_EXT, (cz * 16) - SMOOTH_EXT, CHUNK_LEN_EXT_SMOOTH + 1, CHUNK_LEN_EXT_SMOOTH + 1);
-		biomeIDsNorm = new byte[CHUNK_LEN_EXT * CHUNK_LEN_EXT];
-		float[] heights = new float[HEIGHTS_LEN_EXT * HEIGHTS_LEN_EXT];
+		biomeIDs = mainLayer.getValues((cx * Region.WIDTH) - SMOOTH_EXTENDED, (cz * Region.WIDTH) - SMOOTH_EXTENDED, REGION_WIDTH_EXTENDED_SMOOTHED + 1, REGION_WIDTH_EXTENDED_SMOOTHED + 1);
+		biomeIDsNorm = reg.biomeIDs != null ? reg.biomeIDs : new byte[Region.WIDTH_EXTENDED * Region.WIDTH_EXTENDED];
+		float[] heights = reg.heights != null ? reg.heights : new float[HEIGHTS_LEN_EXT * HEIGHTS_LEN_EXT];
 
-		for (int z = -SMOOTH_EXT; z <= CHUNK_LEN_EXT_SMOOTH - SMOOTH_EXT; z++) {
-			int index = (z + SMOOTH_EXT) * (CHUNK_LEN_EXT_SMOOTH + 1);
+		for (int z = -SMOOTH_EXTENDED; z <= REGION_WIDTH_EXTENDED_SMOOTHED - SMOOTH_EXTENDED; z++) {
+			int index = (z + SMOOTH_EXTENDED) * (REGION_WIDTH_EXTENDED_SMOOTHED + 1);
 
-			for (int x = -SMOOTH_EXT; x <= CHUNK_LEN_EXT_SMOOTH - SMOOTH_EXT; x++) {
+			for (int x = -SMOOTH_EXTENDED; x <= REGION_WIDTH_EXTENDED_SMOOTHED - SMOOTH_EXTENDED; x++) {
 
-				int z3 = (z + SMOOTH_EXT) * 2;
-				int x3 = (x + SMOOTH_EXT) * 2;
+				int z3 = (z + SMOOTH_EXTENDED) * 2;
+				int x3 = (x + SMOOTH_EXTENDED) * 2;
 
 				int indexH1 = z3 * HEIGHTS_LEN_EXT_SMOOTH + x3;
 				int indexH2 = (z3 + 1) * HEIGHTS_LEN_EXT_SMOOTH + x3;
@@ -68,8 +65,8 @@ public class RegionGenerator {
 
 				float noiseVal;
 
-				float xp = cx * 16 + x;
-				float zp = cz * 16 + z;
+				float xp = cx * Region.WIDTH + x;
+				float zp = cz * Region.WIDTH + z;
 
 				noiseVal = (float) ((noise.eval(xp / 25F, zp / 25F) + 1F)) / 2F;
 				heightsOrgnl[indexH1] = biome.minHeight + (noiseVal * biome.amplitude);
@@ -83,28 +80,30 @@ public class RegionGenerator {
 				noiseVal = (float) ((noise.eval((xp + 0.5F) / 25F, zp / 25F) + 1F)) / 2F;
 				heightsOrgnl[indexH4] = biome.minHeight + (noiseVal * biome.amplitude);
 
-				if (x >= -CHUNK_EXT && x < CHUNK_LEN + CHUNK_EXT && z >= -CHUNK_EXT && z < CHUNK_LEN + CHUNK_EXT) {
-					biomeIDsNorm[(z + CHUNK_EXT) * CHUNK_LEN_EXT + (x + CHUNK_EXT)] = biomeID;
+				if (x >= -Region.EXTENSION && x < Region.WIDTH + Region.EXTENSION && z >= -Region.EXTENSION && z < Region.WIDTH + Region.EXTENSION) {
+					biomeIDsNorm[(z + Region.EXTENSION) * Region.WIDTH_EXTENDED + (x + Region.EXTENSION)] = biomeID;
 				}
 
 				index++;
 			}
 		}
 
-		for (int x = -CHUNK_EXT * 2; x < HEIGHTS_LEN_EXT - CHUNK_EXT * 2; x++) {
-			int indxX = x + CHUNK_EXT * 2;
+		for (int x = -Region.EXTENSION * 2; x < HEIGHTS_LEN_EXT - Region.EXTENSION * 2; x++) {
+			int indxX = x + Region.EXTENSION * 2;
 
-			for (int z = -CHUNK_EXT * 2; z < HEIGHTS_LEN_EXT - CHUNK_EXT * 2; z++) {
-				int indxZ = z + CHUNK_EXT * 2;
+			for (int z = -Region.EXTENSION * 2; z < HEIGHTS_LEN_EXT - Region.EXTENSION * 2; z++) {
+				int indxZ = z + Region.EXTENSION * 2;
 				float centerValue = 0;
 				int count = 0;
 
-				for (int z2 = -SMOOTH * 2; z2 < SMOOTH * 2; z2++) {
-					int index = (z2 + SMOOTH * 2 + indxZ) * HEIGHTS_LEN_EXT_SMOOTH + indxX;
+				for (int z2 = -SMOOTH_2; z2 < SMOOTH_2; z2++) {
+					int zQuad = z2 * z2;
+					
+					int index = (z2 + SMOOTH_2 + indxZ) * HEIGHTS_LEN_EXT_SMOOTH + indxX;
 
-					for (int x2 = -SMOOTH * 2; x2 < SMOOTH * 2; x2++) {
+					for (int x2 = -SMOOTH_2; x2 < SMOOTH_2; x2++) {
 
-						float hyp = (z2 * z2) + (x2 * x2);
+						float hyp = zQuad + (x2 * x2);
 
 						if (hyp >= SMOOTH_2_QUAD) {
 							continue;

@@ -1,5 +1,7 @@
 package ru.settletale.client.gl;
 
+import java.nio.IntBuffer;
+
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 
@@ -54,5 +56,15 @@ public class ShaderProgram extends NameableAbstract<ShaderProgram> {
 	
 	public int getUniformLocation(String name) {
 		return GL20.glGetUniformLocation(id, name);
+	}
+	
+	public void setUniformInt(int location, int value) {
+		bind();
+		GL20.glUniform1i(location, value);
+	}
+	
+	public void setUniformIntArray(int location, IntBuffer value) {
+		bind();
+		GL20.glUniform1iv(location, value);
 	}
 }

@@ -1,10 +1,14 @@
 package ru.settletale.client.render;
 
+import java.nio.IntBuffer;
+
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.system.MemoryStack;
 
 import ru.settletale.client.gl.GL;
 import ru.settletale.client.gl.ShaderProgram;
+import ru.settletale.client.gl.Texture2D;
 import ru.settletale.client.resource.FontLoader;
 import ru.settletale.client.resource.ShaderLoader;
 
@@ -89,7 +93,8 @@ public class FontRenderer {
 			float width = fch.width * scale;
 			float height = fch.height * scale;
 
-			Drawer.texture(fch.page.texture);
+			Texture2D tex = fch.page.texture;
+			Drawer.texture(tex);
 			Drawer.color(COLOR);
 
 			Drawer.uv(tu, tv - th);
@@ -108,7 +113,18 @@ public class FontRenderer {
 		}
 
 		GL.debug("Font predraw");
-		Drawer.draw(program, UniformType.INT_ARRAY);
+		
+		try(MemoryStack stack = MemoryStack.stackPush()) {
+			int usedTextureCount = Drawer.LAYER.getUsedTextureCount();
+			IntBuffer buff = stack.mallocInt(usedTextureCount);
+			
+			for(int i = 0; i < usedTextureCount; i++) {
+				buff.put(i, i);
+			}
+			
+			DEFAULT_PROGRAM.setUniformIntArray(0, buff);
+		}
+		Drawer.draw(program);
 
 		GL.debug("Font end");
 	}

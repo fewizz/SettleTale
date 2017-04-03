@@ -1,6 +1,8 @@
 package ru.settletale.client.render;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.lwjgl.opengl.GL11;
 
@@ -15,9 +17,8 @@ public class RenderLayer {
 	protected VertexArrayDataBaker attribs;
 	protected VertexArrayObject vao;
 	protected ShaderProgram program;
-	protected VertexBufferObject[] vboArray;
+	protected List<VertexBufferObject> vboList;
 	protected boolean allowSubData = false;
-	private int bufferCount;
 	protected int vertexCount;
 
 	public RenderLayer(VertexAttribType... storages) {
@@ -31,7 +32,7 @@ public class RenderLayer {
 	}
 
 	public RenderLayer() {
-		vboArray = new VertexBufferObject[16];
+		vboList = new ArrayList<>();
 		vao = new VertexArrayObject();
 	}
 
@@ -43,17 +44,16 @@ public class RenderLayer {
 
 		GL.debug("RenderLayer vao creating");
 
-		this.bufferCount = attribs.getCount();
 		this.vertexCount = attribs.getVertexCount();
-
-		for (int attribIndex = 0; attribIndex < bufferCount; attribIndex++) {
-			VertexBufferObject vbo = vboArray[attribIndex];
-
-			if (vbo == null) {
-				vbo = new VertexBufferObject().gen();
-				vboArray[attribIndex] = vbo;
+		
+		for(int index = 0; index < attribs.getCount(); index++) {
+			if(vboList.size() <= index || vboList.get(index) == null) {
+				vboList.add(new VertexBufferObject().gen());
 			}
+		}
 
+		for (int attribIndex = 0; attribIndex < attribs.getCount(); attribIndex++) {
+			VertexBufferObject vbo = vboList.get(attribIndex);
 			ByteBuffer buffer = attribs.getBuffer(attribIndex);
 
 			if (allowSubData)
@@ -71,7 +71,6 @@ public class RenderLayer {
 	public void render(int mode) {
 		program.bind();
 		vao.bind();
-
 		GL11.glDrawArrays(mode, 0, vertexCount);
 	}
 
@@ -101,10 +100,7 @@ public class RenderLayer {
 	}
 
 	public void deleteVertexBuffers() {
-		for (int i = 0; i < bufferCount; i++) {
-			vboArray[i].delete();
-		}
-		bufferCount = 0;
+		vboList.forEach(vbo -> vbo.delete());
 	}
 
 	public void delete() {

@@ -10,10 +10,10 @@ public abstract class AttribArrayData {
 	final int growBytes;
 	ByteBuffer buff;
 
-	public AttribArrayData(int size, VertexAttribType attribType) {
+	public AttribArrayData(VertexAttribType attribType) {
 		this.attribType = attribType;
-		this.perVertexElemrntCount = size;
-		this.growBytes = size * attribType.clientDataType.getSizeInBytes();
+		this.perVertexElemrntCount = attribType.perVertexElementCount;
+		this.growBytes = attribType.perVertexElementCount * attribType.clientDataType.getSizeInBytes();
 		buff = MemoryUtil.memAlloc(4096);
 		buff.limit(0);
 	}

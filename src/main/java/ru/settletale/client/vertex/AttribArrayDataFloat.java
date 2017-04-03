@@ -8,8 +8,8 @@ public class AttribArrayDataFloat extends AttribArrayData {
 	float f3;
 	float f4;
 	
-	public AttribArrayDataFloat(int size, VertexAttribType attribType) {
-		super(size, attribType);
+	public AttribArrayDataFloat(VertexAttribType attribType) {
+		super(attribType);
 	}
 
 	@Override

@@ -45,6 +45,8 @@ public class EntityPlayer extends Entity {
 		V.add(a.div(20F, new Vector3f()));
 		
 		Vector3fp newPos = new Vector3fp(position);
+		
+		keyborardSpeed.mul(10);
 		newPos.add(V).add(keyborardSpeed);
 		newPos.previous.set(position);
 		checkCollision(newPos);
@@ -75,15 +77,15 @@ public class EntityPlayer extends Entity {
 		Vector3f v3 = new Vector3f();
 
 		for (int i = 0; i < stepCount; i++) {
-			Region r = Game.getWorld().getRegion(MathUtils.floor(current.x / 16F), MathUtils.floor(current.z / 16F));
+			Region r = Game.getWorld().getRegion(MathUtils.floor(current.x / Region.WIDTH_F), MathUtils.floor(current.z / Region.WIDTH_F));
 			if(r == null) {
 				continue;
 			}
 			
 			float x = MathUtils.floor(current.x * 2F) / 2F;
 			float z = MathUtils.floor(current.z * 2F) / 2F;
-			int xi = MathUtils.floor(MathUtils.fract((current.x) / 16F) * 32F);
-			int zi = MathUtils.floor(MathUtils.fract((current.z) / 16F) * 32F);
+			int xi = MathUtils.floor(MathUtils.fract((current.x) / Region.WIDTH_F) * (Region.WIDTH_F * 2F));
+			int zi = MathUtils.floor(MathUtils.fract((current.z) / Region.WIDTH_F) * (Region.WIDTH_F * 2F));
 			
 			float h1 = r.getHeight(xi, zi);
 			float h2 = r.getHeight(xi, zi + 1);

@@ -3,7 +3,7 @@ package ru.settletale.client.vertex;
 import ru.settletale.util.PrimitiveType;
 
 public enum VertexAttribType {
-	UBYTE_1_INT_1(1, PrimitiveType.BYTE, PrimitiveType.INT),
+	UBYTE_1_INT_1(1, PrimitiveType.UBYTE, PrimitiveType.INT),
 	UBYTE_4_FLOAT_4_NORMALISED(4, PrimitiveType.UBYTE, PrimitiveType.FLOAT, true),
 	
 	INT_1(1, PrimitiveType.INT),
@@ -41,11 +41,11 @@ public enum VertexAttribType {
 		switch (clientDataType) {
 			case BYTE:
 			case UBYTE:
-				return new AttribArrayDataByte(perVertexElementCount, this);
+				return new AttribArrayDataByte(this);
 			case INT:
-				return new AttribArrayDataInt(perVertexElementCount, this);
+				return new AttribArrayDataInt(this);
 			case FLOAT:
-				return new AttribArrayDataFloat(perVertexElementCount, this);
+				return new AttribArrayDataFloat(this);
 			default:
 				return null;
 		}
