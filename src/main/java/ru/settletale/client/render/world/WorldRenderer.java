@@ -9,6 +9,7 @@ import ru.settletale.client.Camera;
 import ru.settletale.client.Window;
 import ru.settletale.client.gl.GL;
 import ru.settletale.client.gl.ShaderProgram;
+import ru.settletale.client.gl.Texture2D;
 import ru.settletale.client.render.Color;
 import ru.settletale.client.render.Drawer;
 import ru.settletale.client.render.FontRenderer;
@@ -24,6 +25,7 @@ public class WorldRenderer implements IRegionManagerListener {
 	public static final HashLongObjMap<Region> REGIONS = HashLongObjMaps.newMutableMap();
 	public static final HashLongObjMap<CompiledRegion> REGIONS_TO_RENDER = HashLongObjMaps.newMutableMap();
 	static final ShaderProgram PROGRAM_SKY = new ShaderProgram();
+	static Texture2D textureNoise;
 
 	public static void init() {
 		glColor4f(1, 1, 1, 1);
@@ -37,6 +39,9 @@ public class WorldRenderer implements IRegionManagerListener {
 		PROGRAM_SKY.attachShader(ShaderLoader.SHADERS.get("shaders/sky.vs"));
 		PROGRAM_SKY.attachShader(ShaderLoader.SHADERS.get("shaders/sky.fs"));
 		PROGRAM_SKY.link();
+		textureNoise = TextureLoader.TEXTURES.get("textures/noise.png");
+		textureNoise.parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		textureNoise.parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	}
 
 	public static void render() {
@@ -45,13 +50,13 @@ public class WorldRenderer implements IRegionManagerListener {
 
 		GL.PROJ_MATRIX.identity();
 		GL.VIEW_MATRIX.identity();
-		GL.PROJ_MATRIX.perspectiveDeg(95F, (float) Window.width / (float) Window.height, 0.1F, 1000);
+		GL.PROJ_MATRIX.perspectiveDeg(95F, (float) Window.width / (float) Window.height, 0.1F, 1000F);
 		GL.VIEW_MATRIX.rotateDeg(Camera.rotationX, 1, 0, 0);
 		GL.VIEW_MATRIX.rotateDeg(Camera.rotationY, 0, 1, 0);
 		GL.VIEW_MATRIX.translate(-Camera.position.x, -Camera.position.y, -Camera.position.z);
 		GL.debug("First translates");
 
-		GL.updateTransformUniformBlock();
+		GL.updateMatrixCombinedUniformBlock();
 
 		GL.debug("World rend after transforms");
 
@@ -72,8 +77,10 @@ public class WorldRenderer implements IRegionManagerListener {
 		
 		glDisable(GL_CULL_FACE);
 
+		GL.updateMatricesInversedUniformBlock();
 		GL.bindDefaultVAO();
 		PROGRAM_SKY.bind();
+		GL.bindTextureUnit(0, textureNoise);
 		glDrawArrays(GL_QUADS, 0, 4);
 		GL.debug("Render sky end");
 
@@ -119,12 +126,10 @@ public class WorldRenderer implements IRegionManagerListener {
 		Drawer.vertex(-70, 25, 20);
 		Drawer.draw();
 
-		GL.updateTransformUniformBlock();
-
 		GL.PROJ_MATRIX.identity();
 		GL.PROJ_MATRIX.ortho2D(0, Window.width, 0, Window.height);
 		GL.VIEW_MATRIX.identity();
-		GL.updateTransformUniformBlock();
+		GL.updateMatrixCombinedUniformBlock();
 
 		FontRenderer.setSize(25);
 		FontRenderer.setColor(Color.WHITE);

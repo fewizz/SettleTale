@@ -10,13 +10,12 @@ layout (location = 2) in vec2 uv;
 out vec4 color_vs;
 out vec2 uv_out;
 
-layout (binding = 0, std140) uniform Transform {
-	mat4 projMat;
-	mat4 viewMat;
+layout (binding = 2, std140) uniform Transform {
+	mat4 combinedMat;
 };
 
 void main(void) {
 	color_vs = color;
 	uv_out = uv;
-	gl_Position = projMat * viewMat * vec4(pos, 1);
+	gl_Position = combinedMat * vec4(pos, 1);
 }

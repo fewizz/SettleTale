@@ -9,13 +9,12 @@ layout (location = 1) in float normal;
 out float normal_vs;
 out vec3 pos_vs;
 
-layout (binding = 0, std140) uniform Transform {
-	mat4 projMat;
-	mat4 viewMat;
+layout (binding = 2, std140) uniform Transform {
+	mat4 combinedMat;
 };
 
 void main(void) {
 	normal_vs = normal;
 	pos_vs = pos;
-	gl_Position = projMat * viewMat * vec4(pos, 1);
+	gl_Position = combinedMat * vec4(pos, 1);
 }

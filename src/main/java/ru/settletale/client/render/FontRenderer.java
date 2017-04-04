@@ -115,7 +115,7 @@ public class FontRenderer {
 		GL.debug("Font predraw");
 		
 		try(MemoryStack stack = MemoryStack.stackPush()) {
-			int usedTextureCount = Drawer.LAYER.getUsedTextureCount();
+			int usedTextureCount = Drawer.TEXTURE_UNIT_CONTAINER.getAmount();
 			IntBuffer buff = stack.mallocInt(usedTextureCount);
 			
 			for(int i = 0; i < usedTextureCount; i++) {

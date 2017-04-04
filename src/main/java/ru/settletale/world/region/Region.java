@@ -27,32 +27,30 @@ public class Region {
 
 	public static Region getFreeRegion(int x, int z) {
 		Region r = FREE_REGION_CACHE.poll();
-		if(r == null) {
+		if (r == null) {
 			r = new Region();
 		}
-		if(r.threadsUses.get() != 0) {
-			System.out.println("LOL!!!");
+		if (r.threadsUses.get() != 0) {
+			throw new Error("Is already uses");
 		}
-		
+
 		r.initInfo(x, z);
 		r.increaseThreadUsage();
 		return r;
 	}
 
 	public void increaseThreadUsage() {
-		if(FREE_REGION_CACHE.contains(this)) {
-			throw new Error("It's in cache");
-		}
+		FREE_REGION_CACHE.poll();
 		threadsUses.incrementAndGet();
 	}
 
 	public void decreaseThreadUsage() {
 		int val = threadsUses.decrementAndGet();
 
-		if(val < 0) {
+		if (val < 0) {
 			throw new Error("Too many region thread usage decreases");
 		}
-		if(val == 0) {
+		if (val == 0) {
 			FREE_REGION_CACHE.add(this);
 		}
 	}

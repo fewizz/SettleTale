@@ -5,13 +5,13 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class NameableAbstract<T> implements INameable<T> {
+public abstract class GLObject<T> {
 	protected int id = -1;
 	protected GlobalID idGlobal;
 	private static final Map<Class<?>, Class<?>> CLASS_TO_CLASS = new HashMap<>();
 	private static final Map<Class<?>, GlobalID> CLASS_TO_GLOBAL_ID = new HashMap<>();
 
-	public NameableAbstract() {
+	public GLObject() {
 		Class<?> clazz = CLASS_TO_CLASS.get(getClass());
 
 		if (clazz == null) {
@@ -28,13 +28,11 @@ public abstract class NameableAbstract<T> implements INameable<T> {
 		}
 	}
 
-	@Override
 	public T gen() {
 		id = genInternal();
 		return getThis();
 	}
 	
-	@Override
 	public void delete() {
 		bind();
 		deleteInternal();
@@ -42,7 +40,6 @@ public abstract class NameableAbstract<T> implements INameable<T> {
 		id = -1;
 	}
 
-	@Override
 	public int getID() {
 		return id;
 	}
@@ -60,7 +57,6 @@ public abstract class NameableAbstract<T> implements INameable<T> {
 		return (T) this;
 	}
 
-	@Override
 	public boolean bind() {
 		if (!isGenerated()) {
 			throw new Error("Object is not generated!");
@@ -77,12 +73,10 @@ public abstract class NameableAbstract<T> implements INameable<T> {
 		return id == getLastGlobalID();
 	}
 
-	@Override
 	public boolean isGenerated() {
 		return id != -1;
 	}
 
-	@Override
 	public boolean unbind() {
 		if (getLastGlobalID() == 0) {
 			return false;
@@ -124,7 +118,7 @@ public abstract class NameableAbstract<T> implements INameable<T> {
 
 		}
 
-		if (!NameableAbstract.class.isAssignableFrom(result)) {
+		if (!GLObject.class.isAssignableFrom(result)) {
 			throw new Error("Class + " + result.getName() + " is not base!");
 		}
 

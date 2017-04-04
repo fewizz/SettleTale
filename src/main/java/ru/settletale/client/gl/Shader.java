@@ -4,7 +4,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL32;
 
-public class Shader extends NameableAbstract<Shader> {
+public class Shader extends GLObject<Shader> {
 	final Type type;
 	final String source;
 	

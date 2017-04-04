@@ -13,11 +13,8 @@ import ru.settletale.client.resource.ShaderLoader;
 import ru.settletale.client.vertex.VertexAttribType;
 
 public class Drawer {
-	public static final RenderLayerTextured LAYER = new RenderLayerTextured(VertexAttribType.FLOAT_3, VertexAttribType.UBYTE_4_FLOAT_4_NORMALISED, VertexAttribType.FLOAT_2, VertexAttribType.UBYTE_1_INT_1);
-	static final int POSITION_ID = 0;
-	static final int COLOR_ID = 1;
-	static final int UV_ID = 2;
-	static final int TEX_ID = 3;
+	public static final RenderLayer LAYER = new RenderLayer(VertexAttribType.FLOAT_3, VertexAttribType.UBYTE_4_FLOAT_4_NORMALISED, VertexAttribType.FLOAT_2, VertexAttribType.UBYTE_1_INT_1);
+	static final TextureUnitContainer TEXTURE_UNIT_CONTAINER = new TextureUnitContainer();
 	static final ShaderProgram PROGRAM = new ShaderProgram();
 	static final ShaderProgram PROGRAM_TEX = new ShaderProgram();
 	static final ShaderProgram PROGRAM_MULTITEX = new ShaderProgram();
@@ -26,6 +23,11 @@ public class Drawer {
 	static final Vector3f SCALE = new Vector3f(1F);
 	static int drawingMode;
 	static int vertexCount;
+	
+	static final int POSITION_ID = 0;
+	static final int COLOR_ID = 1;
+	static final int UV_ID = 2;
+	static final int TEX_ID = 3;
 
 	public static void init() {
 		PROGRAM.gen();
@@ -51,12 +53,12 @@ public class Drawer {
 		vertexCount = 0;
 
 		LAYER.clearVertexAttribArrayIfExists();
-		LAYER.clearTextures();
+		TEXTURE_UNIT_CONTAINER.clear();
 	}
 
 	public static void draw() {
 		ShaderProgram program;
-		int textureCount = LAYER.getUsedTextureCount();
+		int textureCount = TEXTURE_UNIT_CONTAINER.getAmount();
 		
 		if(textureCount == 0) {
 			program = PROGRAM;
@@ -66,11 +68,12 @@ public class Drawer {
 		}
 		else {
 			program = PROGRAM_MULTITEX;
+			
 			try (MemoryStack ms = MemoryStack.stackPush()) {
 				IntBuffer buff = ms.mallocInt(textureCount);
 				
-				for(int i = 0; i < textureCount; i++) {
-					buff.put(i, i);
+				for(int index = 0; index < textureCount; index++) {
+					buff.put(index, index);
 				}
 				
 				program.setUniformIntArray(0, buff);
@@ -86,14 +89,21 @@ public class Drawer {
 		LAYER.compile();
 
 		GL.debug("Drawer pre vao bind");
-
+		TEXTURE_UNIT_CONTAINER.bind();
 		LAYER.setShaderProgram(program);
 		LAYER.render(drawingMode);
 		GL.debug("Draw drawArrays");
 	}
 	
 	public static void texture(Texture2D tex) {
-		LAYER.getVertexArrayDataBaker().putByte(TEX_ID, (byte) LAYER.setTexture(tex));
+		byte index;
+		if(!TEXTURE_UNIT_CONTAINER.isContains(tex)) {
+			index = (byte) TEXTURE_UNIT_CONTAINER.add(tex);
+		}
+		else {
+			index = (byte) TEXTURE_UNIT_CONTAINER.getIndex(tex);
+		}
+		LAYER.getVertexArrayDataBaker().putByte(TEX_ID, index);
 	}
 
 	public static void color(float r, float g, float b, float a) {

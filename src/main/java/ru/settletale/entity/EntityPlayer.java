@@ -7,6 +7,9 @@ import org.joml.Vector3f;
 import ru.settletale.Game;
 import ru.settletale.client.Camera;
 import ru.settletale.client.KeyListener;
+import ru.settletale.math.Intersection;
+import ru.settletale.math.Line;
+import ru.settletale.math.Plane;
 import ru.settletale.util.MathUtils;
 import ru.settletale.util.Vector3fp;
 import ru.settletale.world.region.Region;
@@ -46,7 +49,7 @@ public class EntityPlayer extends Entity {
 		
 		Vector3fp newPos = new Vector3fp(position);
 		
-		keyborardSpeed.mul(10);
+		keyborardSpeed.mul(1);
 		newPos.add(V).add(keyborardSpeed);
 		newPos.previous.set(position);
 		checkCollision(newPos);
@@ -55,7 +58,11 @@ public class EntityPlayer extends Entity {
 	}
 
 	public void checkCollision(Vector3fp newPos) {
+		Line line = new Line();
+		line.initBy2Ponits(newPos, newPos.previous == null ? newPos : newPos.previous);
+		
 		Vector3f dist = newPos.sub(newPos.previous, new Vector3f());
+		float distLen = dist.length();
 
 		float stepSize;
 		if(dist.x == 0 && dist.z == 0) {
@@ -97,7 +104,40 @@ public class EntityPlayer extends Entity {
 			v2.set(x + 0.5F, h3, z + 0.5F);
 			v3.set(x + 0.5F, h4, z);
 			
-			v0.lerp(v3, MathUtils.fract(current.x * 2F));
+			Plane plane = new Plane(v0, v1, v2, new Vector3f());
+			Vector3f result1 = Intersection.linePlane(line, plane);
+			
+			plane = new Plane(v0, v2, v3, new Vector3f());
+			Vector3f result2 = Intersection.linePlane(line, plane);
+			
+			if(result1 == null && result2 == null) {
+				continue;
+			}
+			
+			float r1Dist = result1 == null ? distLen : result1.sub(newPos, new Vector3f()).length();
+			float r2Dist = result2 == null ? distLen : result2.sub(newPos, new Vector3f()).length();
+			
+			float min = Math.min(r1Dist, r2Dist);
+			min = Math.min(distLen, min);
+			Vector3f result = newPos.sub(newPos.previous, new Vector3f());
+			result.mul(min / distLen);
+			
+			newPos.set(newPos.add(result, new Vector3f()));
+			V.set(0);
+			
+			/*if(result1 != null && result1.sub(newPos, new Vector3f()).length() <= distLen) {
+				newPos.set(result1.add(new Vector3f(0, 0.1F, 0)));
+				V.set(0);
+				return;
+			}
+			
+			if(result2 != null && result2.sub(newPos, new Vector3f()).length() <= distLen) {
+				newPos.set(result2.add(new Vector3f(0, 0.1F, 0)));
+				V.set(0);
+				return;
+			}*/
+			
+			/*v0.lerp(v3, MathUtils.fract(current.x * 2F));
 			v0.lerp(v1, MathUtils.fract(current.z * 2F));
 			if(current.y - 1F <= v0.y) {
 				newPos.set(newPos.x, v0.y + 1F, newPos.z);
@@ -114,7 +154,7 @@ public class EntityPlayer extends Entity {
 				return;
 			}
 			
-			current.add(step);
+			current.add(step);*/
 		}
 	}
 

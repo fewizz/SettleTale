@@ -13,13 +13,13 @@ public class Texture1D extends Texture<Texture1D> {
 	}
 	
 	@Override
-	public void loadData(ByteBuffer buffer) {
+	public void data(ByteBuffer buffer) {
 		bind();
 		GL11.glTexImage1D(type, 0, internalFormat, width, 0, bufferDataFormat, bufferDataType, buffer);
 	}
 
 	@Override
-	public void loadSubData(ByteBuffer buffer) {
+	public void subData(ByteBuffer buffer) {
 		bind();
 		GL11.glTexSubImage1D(type, 0, 0, width, bufferDataFormat, bufferDataType, buffer);
 	}

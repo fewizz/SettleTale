@@ -2,7 +2,7 @@ package ru.settletale.client.gl;
 
 import org.lwjgl.opengl.GL11;
 
-public abstract class Texture<T> extends NameableDataContainerAbstract<T> {
+public abstract class Texture<T> extends GLObject<T> implements IData, ISubData {
 	public final int type;
 	public int internalFormat;
 	public int bufferDataFormat;

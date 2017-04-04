@@ -43,7 +43,7 @@ public class RenderLayerIndexed extends RenderLayer {
 			indexBuffer.loadDataOrSubData(buffer);
 		}
 		else {
-			indexBuffer.loadData(buffer);
+			indexBuffer.data(buffer);
 		}
 	}
 

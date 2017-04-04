@@ -59,7 +59,7 @@ public class RenderLayer {
 			if (allowSubData)
 				vbo.loadDataOrSubData(buffer);
 			else
-				vbo.loadData(buffer);
+				vbo.data(buffer);
 
 			GL.debug("RenderLayer loadData");
 

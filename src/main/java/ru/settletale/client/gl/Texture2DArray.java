@@ -24,13 +24,13 @@ public class Texture2DArray extends Texture<Texture2DArray> {
 	}
 
 	@Override
-	public void loadData(ByteBuffer buffer) {
+	public void data(ByteBuffer buffer) {
 		bind();
 		GL12.glTexImage3D(type, 0, internalFormat, width, height, depth, 0, bufferDataFormat, bufferDataType, buffer);
 	}
 
 	@Override
-	public void loadSubData(ByteBuffer buffer) {
+	public void subData(ByteBuffer buffer) {
 		bind();
 		GL12.glTexSubImage3D(type, 0, 0, 0, zOffset, width, height, depth, bufferDataFormat, bufferDataType, buffer);
 	}

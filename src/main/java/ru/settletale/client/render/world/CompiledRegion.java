@@ -70,7 +70,7 @@ public class CompiledRegion {
 				buff.put(b.getBiomeID() * 3 + 2, (byte) c.getBlue());
 			}
 
-			TEXTURE_BIOMES.loadData(buff);
+			TEXTURE_BIOMES.data(buff);
 		}
 
 		GL.debug("CR compile start");
@@ -93,7 +93,7 @@ public class CompiledRegion {
 		}
 
 		GL.debug("CR compile texture");
-		textureIDs.loadData(TEMP_BUFFER);
+		textureIDs.data(TEMP_BUFFER);
 
 		GL.debug("CR compile end");
 	}
@@ -101,9 +101,9 @@ public class CompiledRegion {
 	public void render() {
 		GL.debug("CR rend shader start");
 
-		GL.setActiveTexture(0, textureIDs);
-		GL.setActiveTexture(1, TEXTURE_BIOMES);
-		GL.setActiveTexture(2, textureGrass);
+		GL.bindTextureUnit(0, textureIDs);
+		GL.bindTextureUnit(1, TEXTURE_BIOMES);
+		GL.bindTextureUnit(2, textureGrass);
 
 		GL.debug("CR bind texture units end");
 

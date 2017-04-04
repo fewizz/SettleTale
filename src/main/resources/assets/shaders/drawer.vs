@@ -8,12 +8,11 @@ layout (location = 1) in vec4 color;
 
 out vec4 color_vs;
 
-layout (binding = 0, std140) uniform Transform {
-	mat4 projMat;
-	mat4 viewMat;
+layout (binding = 2, std140) uniform Transform {
+	mat4 combinedMat;
 };
 
 void main(void) {
 	color_vs = color;
-	gl_Position = projMat * viewMat * vec4(pos, 1);
+	gl_Position = combinedMat * vec4(pos, 1);
 }

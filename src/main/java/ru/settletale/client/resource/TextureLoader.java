@@ -52,7 +52,7 @@ public class TextureLoader extends ResourceLoaderAbstract {
 		Texture2D tex = new Texture2D(width, height);
 
 		GLThread.addTask(() -> {
-			tex.gen().setDefaultParams().bufferDataFormat(GL11.GL_RGBA).bufferDataType(GL11.GL_UNSIGNED_BYTE).loadData(buffer);
+			tex.gen().setDefaultParams().bufferDataFormat(GL11.GL_RGBA).bufferDataType(GL11.GL_UNSIGNED_BYTE).data(buffer);
 			GL.debug("Load texture: " + resourceFile.key);
 			MemoryUtil.memFree(buffer);
 		});

@@ -32,11 +32,11 @@ public class MathUtils {
 
 	public static float smoothstep(float edge0, float edge1, float x) {
 		float t;
-		t = clamp((x - edge0) / (edge1 - edge0), 0, 1);
+		t = clamp(1, 0, (x - edge0) / (edge1 - edge0));
 		return t * t * (3 - 2 * t);
 	}
 
-	public static float clamp(float x, float min, float max) {
+	public static float clamp(float max, float min, float x) {
 		return Math.max(min, Math.min(x, max));
 	}
 	

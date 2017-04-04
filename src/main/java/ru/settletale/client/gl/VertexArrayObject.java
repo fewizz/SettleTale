@@ -8,7 +8,7 @@ import org.lwjgl.system.MemoryUtil;
 
 import ru.settletale.client.vertex.VertexAttribType;
 
-public class VertexArrayObject extends NameableAbstract<VertexArrayObject> {
+public class VertexArrayObject extends GLObject<VertexArrayObject> {
 	
 	@Override
 	public int genInternal() {

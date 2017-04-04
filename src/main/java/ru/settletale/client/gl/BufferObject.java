@@ -3,13 +3,15 @@ package ru.settletale.client.gl;
 import java.nio.ByteBuffer;
 
 import org.lwjgl.opengl.GL15;
+import org.lwjgl.opengl.GL44;
 import org.lwjgl.opengl.GL45;
 
-public class BufferObject<T> extends NameableDataContainerAbstract<T> {
-	protected int type;
-	private int loadedSize;
+public class BufferObject<T> extends GLObject<T> implements IData, ISubData {
+	protected final int type;
+	private int loadedSize = 0;
 	private Usage usage;
-	private int offset;
+	private int offset = 0;
+	private int storageFlags = GL44.GL_DYNAMIC_STORAGE_BIT;
 	
 	public BufferObject(int type) {
 		this.type = type;
@@ -46,36 +48,54 @@ public class BufferObject<T> extends NameableDataContainerAbstract<T> {
 		GL15.glBindBuffer(type, 0);
 	}
 	
+	public void storageFlags(int flags) {
+		this.storageFlags = flags;
+	}
+	
+	public void storage(ByteBuffer buffer) {
+		loadedSize = buffer.remaining();
+		
+		if(GL.version >= 45) {
+			GL45.glNamedBufferStorage(id, buffer, storageFlags);
+		}
+		else {
+			bind();
+			GL44.glBufferStorage(type, buffer, storageFlags);
+		}
+	}
+	
 	@Override
-	public void loadData(ByteBuffer buffer) {
+	public void data(ByteBuffer buffer) {
 		loadedSize = buffer.remaining();
 		
 		if(GL.version >= 45) {
 			GL45.glNamedBufferData(id, buffer, usage.glCode);
 		}
-
-		bind();
-		GL15.glBufferData(type, buffer, usage.glCode);
+		else {
+			bind();
+			GL15.glBufferData(type, buffer, usage.glCode);
+		}
 	}
 
 	@Override
-	public void loadSubData(ByteBuffer buffer) {
+	public void subData(ByteBuffer buffer) {
 		if(GL.version >= 45) {
 			GL45.glNamedBufferSubData(id, offset, buffer);
 		}
-
-		bind();
-		GL15.glBufferSubData(type, offset, buffer);
+		else {
+			bind();
+			GL15.glBufferSubData(type, offset, buffer);
+		}
 	}
 	
 	public T loadDataOrSubData(ByteBuffer buffer) {
 		int size = buffer.remaining();
 		
 		if(size <= loadedSize) {
-			loadSubData(buffer);
+			subData(buffer);
 		}
 		else {
-			loadData(buffer);
+			data(buffer);
 		}
 		
 		return getThis();

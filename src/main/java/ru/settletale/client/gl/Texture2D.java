@@ -15,13 +15,13 @@ public class Texture2D extends Texture<Texture2D> {
 	}
 
 	@Override
-	public void loadData(ByteBuffer buffer) {
+	public void data(ByteBuffer buffer) {
 		bind();
 		GL11.glTexImage2D(type, 0, internalFormat, width, height, 0, bufferDataFormat, bufferDataType, buffer);
 	}
 
 	@Override
-	public void loadSubData(ByteBuffer buffer) {
+	public void subData(ByteBuffer buffer) {
 		bind();
 		GL11.glTexSubImage2D(type, 0, 0, 0, width, height, bufferDataFormat, bufferDataType, buffer);
 	}

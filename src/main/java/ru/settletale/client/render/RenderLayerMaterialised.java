@@ -9,7 +9,7 @@ import org.lwjgl.system.MemoryUtil;
 
 import ru.settletale.client.vertex.VertexAttribType;
 
-public class RenderLayerMaterialised extends RenderLayerTextured {
+public class RenderLayerMaterialised extends RenderLayer {
 	List<Material> materials;
 	IntBuffer diffuseTextures;
 	FloatBuffer diffuseColors;

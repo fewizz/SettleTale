@@ -91,7 +91,7 @@ public class ObjModel {
 	public void render() {
 		GL.debug("ModelObj render start");
 		for(int i = 0; i < materialNames.size(); i++) {
-			GL.setActiveTexture(i, mtl.getMaterial(materialNames.get(i)).textureDiffuse);
+			GL.bindTextureUnit(i, mtl.getMaterial(materialNames.get(i)).textureDiffuse);
 		}
 		
 		PROGRAM.bind();
@@ -100,7 +100,7 @@ public class ObjModel {
 		GL.debug("ModelObj vao bind");
 		
 		GL20.glUniform1iv(0, textureIDs);
-		GL.bindBufferBase(ubo, GlobalUniforms.MATERIAL);
+		GL.bindBufferBase(ubo, GlobalUniforms.MATERIALS);
 		
 		GL11.glDrawArrays(GL11.GL_TRIANGLES, 0, vertexCount);
 		GL.debug("ModelObj render end");

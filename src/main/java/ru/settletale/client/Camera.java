@@ -26,11 +26,6 @@ public class Camera {
 		rotationX += -Cursor.position.y / 3F;
 		rotationY += Cursor.position.x / 3F;
 		
-		if(rotationX > 90) {
-			rotationX = 90;
-		}
-		if(rotationX < -90) {
-			rotationX = -90;
-		}
+		rotationX = MathUtils.clamp(90, -90, rotationX);
 	}
 }
