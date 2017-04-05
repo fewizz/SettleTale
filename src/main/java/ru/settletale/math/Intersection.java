@@ -1,38 +1,55 @@
 package ru.settletale.math;
 
-import org.joml.Vector3f;
-
 public class Intersection {
-
-	public static Vector3f linePlane(Line line, Plane plane) {
-		return linePlane(line, plane, new Vector3f());
-	}
 	
-	public static Vector3f linePlane(Line line, Plane plane, Vector3f result) {
-		Vector3f temp1 = new Vector3f();
-
-		plane.origin.sub(line.origin, temp1);
-
-		float numerator = temp1.dot(plane.normal);
-		float denominator = line.dir.dot(plane.normal);
-		
+	// From wiki
+	public static void linePlane(Line line, Plane plane, IntersectionResult result) {
+		result.succes = false;
+		double denominator = line.dir.dot(plane.normal);
 		if(denominator == 0) { // parallel
-			return null;
+			return;
 		}
+		
+		plane.origin.sub(line.origin, result);
+		double numerator = result.dot(plane.normal);
 
-		float d = numerator / denominator;
+		double d = numerator / denominator;
 		
 		result.set(line.dir);
 		result.mul(d);
 		result.add(line.origin);
-		return result;
+		result.succes = true;
+		return;
 	}
 	
-	public static void main(String[] args) {
+	public static void segmentPlane(Segment segment, Plane plane, IntersectionResult result) {
+		result.succes = false;
+		segment.p2.sub(segment.p1, result); // dir
+		double denominator = result.dot(plane.normal);
+		if(denominator == 0) { // parallel
+			return;
+		}
+		
+		plane.origin.sub(segment.p1, result);
+		double numerator = result.dot(plane.normal);
+
+		double d = numerator / denominator;
+		if(d < 0 || d > 1) { // cos segment
+			return;
+		}
+		
+		segment.p2.sub(segment.p1, result); // dir
+		result.mul(d);
+		result.add(segment.p1);
+		result.succes = true;
+	}
+	
+	/*public static void main(String[] args) {
 		Line l = new Line(new Vector3f(0, 5, 0), new Vector3f(1, -1, 0));
 		Plane p = new Plane(new Vector3f(0), new Vector3f(0, 1, 0));
 		
-		Vector3f in = linePlane(l, p);
-		System.out.println(in);
-	}
+		IntersectionResult res = new IntersectionResult();
+		linePlane(l, p, res);
+		System.out.println(res);
+	}*/
 }

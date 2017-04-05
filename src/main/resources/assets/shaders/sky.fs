@@ -2,9 +2,7 @@
 #extension GL_ARB_shading_language_420pack : enable
 
 float iqnoise(vec3 pos);
-float noise(vec3 pos);
 float rand(vec3 p);
-layout(binding = 0) uniform sampler2D noiseTex;
 
 out vec4 color;
 
@@ -42,20 +40,6 @@ void main(void) {
 	float val2 = iqnoise(posForCloud * 5.F) / 2F;
 	float cloud = ((val1 * 1.6) / (ay / 500.)) - 0.3 + (val2 * val1);
 	color = skyColor + vec4(cloud);
-}
-
-float noise(vec3 x )
-{
-    //vec3 p = floor(x);
-    //vec3 f = fract(x);
-	//f = f*f*(3.0-2.0*f);
-
-	//vec2 uv = (p.xy+vec2(37.0,17.0)*p.z) + f.xy;
-    //vec2 rg = textureLod( noiseTex, (uv+ 0.5)/256.0, 0. ).yx; 
-    //vec2 uv = 
-    vec3 rg = texture(noiseTex, x.xy).xyz;
-    
-	return -1.0+2.0*mix( rg.x, rg.y, rg.z );
 }
 
 float iqnoise(vec3 pos) {

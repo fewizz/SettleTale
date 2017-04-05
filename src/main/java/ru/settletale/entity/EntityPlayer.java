@@ -2,23 +2,27 @@ package ru.settletale.entity;
 
 import static org.lwjgl.glfw.GLFW.*;
 
+import org.joml.Vector2f;
+import org.joml.Vector3d;
 import org.joml.Vector3f;
 
 import ru.settletale.Game;
 import ru.settletale.client.Camera;
 import ru.settletale.client.KeyListener;
+import ru.settletale.math.Distance;
 import ru.settletale.math.Intersection;
-import ru.settletale.math.Line;
+import ru.settletale.math.IntersectionResult;
 import ru.settletale.math.Plane;
+import ru.settletale.math.Segment;
 import ru.settletale.util.MathUtils;
-import ru.settletale.util.Vector3fp;
+import ru.settletale.util.Vector3dp;
 import ru.settletale.world.region.Region;
 
 public class EntityPlayer extends Entity {
 
 	Vector3f a = new Vector3f(0, -9.8F, 0);
 	Vector3f V = new Vector3f();
-	
+
 	@Override
 	public void update() {
 		Vector3f keyborardSpeed = new Vector3f(0);
@@ -46,116 +50,117 @@ public class EntityPlayer extends Entity {
 		}
 
 		V.add(a.div(20F, new Vector3f()));
-		
-		Vector3fp newPos = new Vector3fp(position);
-		
+
+		Vector3dp newPos = new Vector3dp(position);
 		keyborardSpeed.mul(1);
 		newPos.add(V).add(keyborardSpeed);
 		newPos.previous.set(position);
-		checkCollision(newPos);
 		
+		while(checkCollision(newPos)) {
+			position.set(newPos);
+		};
 		position.set(newPos);
 	}
 
-	public void checkCollision(Vector3fp newPos) {
-		Line line = new Line();
-		line.initBy2Ponits(newPos, newPos.previous == null ? newPos : newPos.previous);
-		
-		Vector3f dist = newPos.sub(newPos.previous, new Vector3f());
-		float distLen = dist.length();
+	public boolean checkCollision(Vector3dp newPos) {
+		Vector3d dist = new Vector3d(newPos.sub(newPos.previous, new Vector3d()));
 
-		float stepSize;
-		if(dist.x == 0 && dist.z == 0) {
-			stepSize = Math.abs(dist.y);
+		int stepCount;
+		if (dist.x == 0 && dist.z == 0) {
+			stepCount = 1;
+		} else {
+			stepCount = (int) (MathUtils.floor(Math.abs(dist.x) * 2F) + MathUtils.floor(Math.abs(dist.z) * 2F)) - 1;
 		}
-		else {
-			stepSize = (dist.length() / Math.max(Math.abs(dist.x), Math.abs(dist.z))) / 2F;
-		}
-		
-		int stepCount = (int) Math.ceil(dist.length() / stepSize);
-		stepSize = dist.length() / (float) stepCount;
 
-		Vector3f step = dist.div(stepCount, new Vector3f());
-		Vector3f current = new Vector3f(newPos.previous).add(step);
+		Vector2f offset = new Vector2f(MathUtils.floor(newPos.previous.x * 2F) / 2F, MathUtils.floor(newPos.previous.z * 2F) / 2F);
+		offset.add(0.25F, 0.25F);
+		Vector3d temp = dist.normalize(new Vector3d());
+		Vector2f cellStep = new Vector2f(MathUtils.ceil(temp.x), MathUtils.ceil(temp.z));
+		cellStep.x /= 2F;
+		cellStep.y /= 2F;
 
-		Vector3f v0 = new Vector3f();
-		Vector3f v1 = new Vector3f();
-		Vector3f v2 = new Vector3f();
-		Vector3f v3 = new Vector3f();
+		Vector3d v0 = new Vector3d();
+		Vector3d v1 = new Vector3d();
+		Vector3d v2 = new Vector3d();
+		Vector3d v3 = new Vector3d();
+		Segment segment = new Segment(new Vector3d(), dist);
 
-		for (int i = 0; i < stepCount; i++) {
-			Region r = Game.getWorld().getRegion(MathUtils.floor(current.x / Region.WIDTH_F), MathUtils.floor(current.z / Region.WIDTH_F));
-			if(r == null) {
-				continue;
+		for (int step = 0; step < stepCount + 10; step++) {
+			if(step != 0) {
+				double lenX = Distance.segmentPoint(segment, offset.x + cellStep.x, 0, 0);
+				double lenY = Distance.segmentPoint(segment, 0, 0, offset.y + cellStep.y);
+				
+				if(lenX < lenY) {
+					offset.add(cellStep.x, 0);
+				}
+				else {
+					offset.add(0, cellStep.y);
+				}
 			}
 			
-			float x = MathUtils.floor(current.x * 2F) / 2F;
-			float z = MathUtils.floor(current.z * 2F) / 2F;
-			int xi = MathUtils.floor(MathUtils.fract((current.x) / Region.WIDTH_F) * (Region.WIDTH_F * 2F));
-			int zi = MathUtils.floor(MathUtils.fract((current.z) / Region.WIDTH_F) * (Region.WIDTH_F * 2F));
+			float offX = offset.x;
+			float offZ = offset.y;
 			
-			float h1 = r.getHeight(xi, zi);
-			float h2 = r.getHeight(xi, zi + 1);
-			float h3 = r.getHeight(xi + 1, zi + 1);
-			float h4 = r.getHeight(xi + 1, zi);
-			
-			v0.set(x, h1, z);
-			v1.set(x, h2, z + 0.5F);
-			v2.set(x + 0.5F, h3, z + 0.5F);
-			v3.set(x + 0.5F, h4, z);
-			
-			Plane plane = new Plane(v0, v1, v2, new Vector3f());
-			Vector3f result1 = Intersection.linePlane(line, plane);
-			
-			plane = new Plane(v0, v2, v3, new Vector3f());
-			Vector3f result2 = Intersection.linePlane(line, plane);
-			
-			if(result1 == null && result2 == null) {
+			Region r = Game.getWorld().getRegion(MathUtils.floor(offX / Region.WIDTH_F), MathUtils.floor(offZ / Region.WIDTH_F));
+			if (r == null) {
 				continue;
 			}
-			
-			float r1Dist = result1 == null ? distLen : result1.sub(newPos, new Vector3f()).length();
-			float r2Dist = result2 == null ? distLen : result2.sub(newPos, new Vector3f()).length();
-			
-			float min = Math.min(r1Dist, r2Dist);
-			min = Math.min(distLen, min);
-			Vector3f result = newPos.sub(newPos.previous, new Vector3f());
-			result.mul(min / distLen);
-			
-			newPos.set(newPos.add(result, new Vector3f()));
+
+			double x = MathUtils.floor(offX * 2F) / 2F;
+			double z = MathUtils.floor(offZ * 2F) / 2F;
+			int xi = MathUtils.floor(MathUtils.fract(offX / Region.WIDTH_F) * (Region.WIDTH_F * 2F));
+			int zi = MathUtils.floor(MathUtils.fract(offZ / Region.WIDTH_F) * (Region.WIDTH_F * 2F));
+
+			double h1 = r.getHeight(xi, zi);
+			double h2 = r.getHeight(xi, zi + 1);
+			double h3 = r.getHeight(xi + 1, zi + 1);
+			double h4 = r.getHeight(xi + 1, zi);
+
+			v0.set(x, h1, z).sub(newPos.previous);
+			v1.set(x, h2, z + 0.5D).sub(newPos.previous);
+			v2.set(x + 0.5D, h3, z + 0.5D).sub(newPos.previous);
+			v3.set(x + 0.5D, h4, z).sub(newPos.previous);
+
+			IntersectionResult ir1 = new IntersectionResult();
+			Plane plane = new Plane(v0, v1, v2);
+			Intersection.segmentPlane(segment, plane, ir1);
+			Vector3d normal1 = plane.normal;
+
+			IntersectionResult ir2 = new IntersectionResult();
+			plane = new Plane(v0, v2, v3);
+			Intersection.segmentPlane(segment, plane, ir2);
+			Vector3d normal2 = plane.normal;
+
+			if (!ir1.succes && !ir2.succes) {
+				continue;
+			}
+
+ 			double len1 = 0;
+			Vector3d result = null;
+			Vector3d normal = null;
+
+			if (ir1.succes) {
+				len1 = ir1.length();
+				result = ir1;
+				normal = normal1;
+			}
+			if (ir2.succes) {
+				double len2 = ir2.length();
+				if (len2 > len1) {
+					result = ir2;
+					normal = normal2;
+				}
+			}
+			if(result == null || normal == null) {
+				continue;
+			}
+
+			newPos.set(result).add(newPos.previous).add(normal.mul(0.01F));
 			V.set(0);
-			
-			/*if(result1 != null && result1.sub(newPos, new Vector3f()).length() <= distLen) {
-				newPos.set(result1.add(new Vector3f(0, 0.1F, 0)));
-				V.set(0);
-				return;
-			}
-			
-			if(result2 != null && result2.sub(newPos, new Vector3f()).length() <= distLen) {
-				newPos.set(result2.add(new Vector3f(0, 0.1F, 0)));
-				V.set(0);
-				return;
-			}*/
-			
-			/*v0.lerp(v3, MathUtils.fract(current.x * 2F));
-			v0.lerp(v1, MathUtils.fract(current.z * 2F));
-			if(current.y - 1F <= v0.y) {
-				newPos.set(newPos.x, v0.y + 1F, newPos.z);
-				V.set(0);
-				return;
-			}
-			
-			v1.lerp(v2, MathUtils.fract(current.x * 2F));
-			v3.set(v1);
-			v3.lerp(v2, MathUtils.fract(current.z * 2F));
-			if(current.y - 1F <= v3.y) {
-				newPos.set(newPos.x, v3.y + 1F, newPos.z);
-				V.set(0);
-				return;
-			}
-			
-			current.add(step);*/
+			return true;
 		}
+		
+		return false;
 	}
 
 }
