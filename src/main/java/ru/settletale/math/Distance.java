@@ -38,29 +38,39 @@ public class Distance {
 	}
 
 	public static double segmentPoint(Segment segment, double pointx, double pointy, double pointz) {
-		double px = pointx - segment.p1.x; // a
-		double py = pointy - segment.p1.y;
-		double pz = pointz - segment.p1.z;
+		double ax = pointx - segment.p1.x; // a
+		double ay = pointy - segment.p1.y;
+		double az = pointz - segment.p1.z;
 
-		double p2x = segment.p2.x - segment.p1.x; // b
-		double p2y = segment.p2.y - segment.p1.y;
-		double p2z = segment.p2.z - segment.p1.z;
+		double bx = segment.p2.x - segment.p1.x; // b
+		double by = segment.p2.y - segment.p1.y;
+		double bz = segment.p2.z - segment.p1.z;
 
-		double lenp = point(px, py, pz);
-		double lenp2 = point(p2x, p2y, p2z);
+		double alen = point(ax, ay, az);
+		double blen = point(bx, by, bz);
 
-		double cosLenp2 = MathUtils.dot(px, py, pz, p2x, p2y, p2z) / lenp;
+		double cosalen = MathUtils.dot(ax, ay, az, bx, by, bz) / blen;
 		
-		if(cosLenp2 <= 0) {
-			return lenp;
+		if(cosalen == 0) {
+			return 0;
 		}
-		if(cosLenp2 >= lenp2) {
-			return pointPoint(px, py, pz, p2x, p2y, p2z);
+		if(cosalen < 0) {
+			return alen;
+		}
+		if(cosalen >= blen) {
+			return pointPoint(ax, ay, az, bx, by, bz);
 		}
 		
-		double cos = cosLenp2 / lenp2;
+		double cos = cosalen / alen;
 		double sin = Math.sqrt(1D - (cos * cos));
 
-		return (lenp * sin);
+		return alen * sin;
+	}
+	
+	public static void main(String[] args) {
+		Segment s = new Segment(new Vector3d(), new Vector3d(10, 0, 0));
+		
+		double d = segmentPoint(s, 5, -10, 0);
+		System.out.println(d);
 	}
 }

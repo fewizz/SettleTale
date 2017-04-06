@@ -15,7 +15,7 @@ public class Plane {
 	public Plane(Vector3d p1, Vector3d p2, Vector3d p3) {
 		p1.sub(p2, normal);
 		p1.sub(p3, origin);
-		normal.cross(origin, normal);
+		normal.cross(origin);
 		normal.normalize();
 		this.origin.set(p1);
 	}

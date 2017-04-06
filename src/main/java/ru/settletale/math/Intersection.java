@@ -34,7 +34,7 @@ public class Intersection {
 		double numerator = result.dot(plane.normal);
 
 		double d = numerator / denominator;
-		if(d < 0 || d > 1) { // cos segment
+		if(d < 0 || d > 1) { // bcos segment
 			return;
 		}
 		
@@ -43,13 +43,4 @@ public class Intersection {
 		result.add(segment.p1);
 		result.succes = true;
 	}
-	
-	/*public static void main(String[] args) {
-		Line l = new Line(new Vector3f(0, 5, 0), new Vector3f(1, -1, 0));
-		Plane p = new Plane(new Vector3f(0), new Vector3f(0, 1, 0));
-		
-		IntersectionResult res = new IntersectionResult();
-		linePlane(l, p, res);
-		System.out.println(res);
-	}*/
 }

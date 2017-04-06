@@ -2,10 +2,13 @@ package ru.settletale.client.render.world;
 
 import static org.lwjgl.opengl.GL11.*;
 
+import org.joml.Vector3d;
+
 import com.koloboke.collect.map.hash.HashLongObjMap;
 import com.koloboke.collect.map.hash.HashLongObjMaps;
 
 import ru.settletale.client.Camera;
+import ru.settletale.client.PlatformClient;
 import ru.settletale.client.Window;
 import ru.settletale.client.gl.GL;
 import ru.settletale.client.gl.ShaderProgram;
@@ -48,7 +51,7 @@ public class WorldRenderer implements IRegionManagerListener {
 		GL.PROJ_MATRIX.perspectiveDeg(95F, (float) Window.width / (float) Window.height, 0.1F, 1000F);
 		GL.VIEW_MATRIX.rotateDeg(Camera.rotationX, 1, 0, 0);
 		GL.VIEW_MATRIX.rotateDeg(Camera.rotationY, 0, 1, 0);
-		GL.VIEW_MATRIX.translate((float)-Camera.position.x, (float)-Camera.position.y, (float)-Camera.position.z);
+		GL.VIEW_MATRIX.translate((float) -Camera.position.x, (float) -Camera.position.y, (float) -Camera.position.z);
 		GL.debug("First translates");
 
 		GL.updateMatrixCombinedUniformBlock();
@@ -69,7 +72,7 @@ public class WorldRenderer implements IRegionManagerListener {
 			}
 			cr.render();
 		});
-		
+
 		glDisable(GL_CULL_FACE);
 
 		GL.updateMatricesInversedUniformBlock();
@@ -77,6 +80,21 @@ public class WorldRenderer implements IRegionManagerListener {
 		PROGRAM_SKY.bind();
 		glDrawArrays(GL_QUADS, 0, 4);
 		GL.debug("Render sky end");
+
+		/*if (PlatformClient.player.camInter != null) {
+			glPointSize(15);
+			Drawer.begin(GL_POINTS);
+			Drawer.color(Color.WHITE);
+			Drawer.vertex((float) PlatformClient.player.camInter.x, (float) PlatformClient.player.camInter.y, (float) PlatformClient.player.camInter.z);
+			Drawer.draw();
+			
+			Drawer.begin(GL_POINTS);
+			Drawer.color(Color.RED);
+			Vector3d v = new Vector3d(PlatformClient.player.camInter);
+			v.add(PlatformClient.player.camInter.normal);
+			Drawer.vertex((float) v.x, (float)v.y, (float) v.z);
+			Drawer.draw();
+		}*/
 
 		glLineWidth(10);
 		Drawer.begin(GL_LINES);
@@ -107,12 +125,12 @@ public class WorldRenderer implements IRegionManagerListener {
 		Drawer.uv(1, 0);
 		Drawer.vertex(150, 50, 0);
 		Drawer.draw();
-		
+
 		Drawer.begin(GL_LINES);
 		Drawer.vertex(-50, 50, 50);
 		Drawer.vertex(-50, 50, 0);
 		Drawer.draw();
-		
+
 		Drawer.color(Color.RED);
 		Drawer.begin(GL_TRIANGLES);
 		Drawer.vertex(-20, 25, 20);

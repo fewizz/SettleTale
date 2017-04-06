@@ -2,9 +2,11 @@ package ru.settletale.entity;
 
 import static org.lwjgl.glfw.GLFW.*;
 
-import org.joml.Vector2f;
+import org.joml.Matrix4d;
+import org.joml.Vector2i;
 import org.joml.Vector3d;
 import org.joml.Vector3f;
+import org.joml.Vector4d;
 
 import ru.settletale.Game;
 import ru.settletale.client.Camera;
@@ -22,6 +24,8 @@ public class EntityPlayer extends Entity {
 
 	Vector3f a = new Vector3f(0, -9.8F, 0);
 	Vector3f V = new Vector3f();
+	public Vector3d lastInter = new Vector3d();
+	public IntersectionResult camInter = new IntersectionResult();
 
 	@Override
 	public void update() {
@@ -45,81 +49,113 @@ public class EntityPlayer extends Entity {
 			keyborardSpeed.z += (float) -Math.sin(Math.toRadians(rotationY));
 			keyborardSpeed.x += (float) -Math.cos(Math.toRadians(rotationY));
 		}
-		if (KeyListener.isKeyPressedFirst(GLFW_KEY_SPACE)) {
-			V.y += 4;
+		if (KeyListener.isKeyPressed(GLFW_KEY_SPACE)) {
+			//V.y += 4;
+			keyborardSpeed.y += 1;
+			V.set(0);
+		}
+		if (KeyListener.isKeyPressed(GLFW_KEY_LEFT_SHIFT)) {
+			keyborardSpeed.y -= 1;
+			V.set(0);
 		}
 
 		V.add(a.div(20F, new Vector3f()));
 
 		Vector3dp newPos = new Vector3dp(position);
-		keyborardSpeed.mul(1);
+		keyborardSpeed.mul(2);
 		newPos.add(V).add(keyborardSpeed);
 		newPos.previous.set(position);
-		
-		while(checkCollision(newPos)) {
-			position.set(newPos);
-		};
+
+		IntersectionResult coll = checkCollision(newPos);
+		if(coll != null) {
+			newPos.set(coll);
+			newPos.add(coll.normal.mul(0.1F));
+			V.set(0);
+		}
+		else {
+			System.out.println("NULL");
+		}
+		//position.updatePrevious();
 		position.set(newPos);
+		/*position.updatePrevious();
+		position.add(keyborardSpeed);
+
+		Vector4d camVec = new Vector4d(0, 0, -300, 1);
+
+		Matrix4d mat = new Matrix4d();
+		mat.translate((float) position.x, (float) position.y, (float) position.z);
+		mat.rotate(Math.toRadians(-rotationY), 0, 1, 0);
+		mat.rotate(Math.toRadians(-rotationX), 1, 0, 0);
+
+		camVec.mul(mat);
+		Vector3dp camVec2 = new Vector3dp();
+		camVec2.set(camVec.x, camVec.y, camVec.z);
+		camVec2.previous.set(position);
+
+		camInter = checkCollision(camVec2);
+		if (camInter == null) {
+			System.out.println("null");
+		}*/
 	}
 
-	public boolean checkCollision(Vector3dp newPos) {
-		Vector3d dist = new Vector3d(newPos.sub(newPos.previous, new Vector3d()));
+	public IntersectionResult checkCollision(Vector3dp pos) {
+		Vector3d dir = pos.sub(pos.previous, new Vector3d());
 
-		int stepCount;
-		if (dist.x == 0 && dist.z == 0) {
-			stepCount = 1;
-		} else {
-			stepCount = (int) (MathUtils.floor(Math.abs(dist.x) * 2F) + MathUtils.floor(Math.abs(dist.z) * 2F)) - 1;
-		}
+		int stepCount = MathUtils.ceil(Math.abs(dir.x) * 2F) + MathUtils.ceil(Math.abs(dir.z) * 2F);
 
-		Vector2f offset = new Vector2f(MathUtils.floor(newPos.previous.x * 2F) / 2F, MathUtils.floor(newPos.previous.z * 2F) / 2F);
-		offset.add(0.25F, 0.25F);
-		Vector3d temp = dist.normalize(new Vector3d());
-		Vector2f cellStep = new Vector2f(MathUtils.ceil(temp.x), MathUtils.ceil(temp.z));
-		cellStep.x /= 2F;
-		cellStep.y /= 2F;
+		stepCount = Math.max(stepCount, 1);
+
+		Vector2i pixelOffset = new Vector2i(MathUtils.floor(pos.previous.x * 2F), MathUtils.floor(pos.previous.z * 2F));
+		Vector3d dirNormal = dir.normalize(new Vector3d());
+		Vector2i cellStep = new Vector2i();
+		cellStep.x = dirNormal.x == 0 ? 0 : dirNormal.x > 0 ? 1 : -1;
+		cellStep.y = dirNormal.z == 0 ? 0 : dirNormal.z > 0 ? 1 : -1;
 
 		Vector3d v0 = new Vector3d();
 		Vector3d v1 = new Vector3d();
 		Vector3d v2 = new Vector3d();
 		Vector3d v3 = new Vector3d();
-		Segment segment = new Segment(new Vector3d(), dist);
+		Segment segment = new Segment(new Vector3d(), dir);
+		segment.p1.sub(dirNormal.mul(0.05F), new Vector3d());
+		segment.p2.add(dirNormal.mul(0.05F), new Vector3d());
+		
+		Segment segmentForPixelCheck = new Segment(pos.previous, pos);
+		segmentForPixelCheck.p1.y = 0;
+		segmentForPixelCheck.p2.y = 0;
 
-		for (int step = 0; step < stepCount + 10; step++) {
-			if(step != 0) {
-				double lenX = Distance.segmentPoint(segment, offset.x + cellStep.x, 0, 0);
-				double lenY = Distance.segmentPoint(segment, 0, 0, offset.y + cellStep.y);
-				
-				if(lenX < lenY) {
-					offset.add(cellStep.x, 0);
+		for (int step = 0; step < stepCount; step++) {
+			if (step != 0) {
+				double lenX = Distance.segmentPoint(segmentForPixelCheck, (double)(pixelOffset.x + cellStep.x) / 2D + 0.25D, 0, (double)pixelOffset.y / 2D + 0.25D);
+				double lenZ = Distance.segmentPoint(segmentForPixelCheck, (double)pixelOffset.x / 2D + 0.25D, 0, (double)(pixelOffset.y + cellStep.y) / 2D + 0.25D);
+
+				if (lenX < lenZ) {
+					pixelOffset.add(cellStep.x, 0);
 				}
 				else {
-					offset.add(0, cellStep.y);
+					pixelOffset.add(0, cellStep.y);
 				}
 			}
-			
-			float offX = offset.x;
-			float offZ = offset.y;
-			
+
+			double offX = (float) pixelOffset.x / 2F;
+			double offZ = (float) pixelOffset.y / 2F;
+
 			Region r = Game.getWorld().getRegion(MathUtils.floor(offX / Region.WIDTH_F), MathUtils.floor(offZ / Region.WIDTH_F));
 			if (r == null) {
 				continue;
 			}
 
-			double x = MathUtils.floor(offX * 2F) / 2F;
-			double z = MathUtils.floor(offZ * 2F) / 2F;
-			int xi = MathUtils.floor(MathUtils.fract(offX / Region.WIDTH_F) * (Region.WIDTH_F * 2F));
-			int zi = MathUtils.floor(MathUtils.fract(offZ / Region.WIDTH_F) * (Region.WIDTH_F * 2F));
+			int xi = MathUtils.floor(MathUtils.fract(offX / Region.WIDTH_F) * Region.WIDTH_F * 2D);
+			int zi = MathUtils.floor(MathUtils.fract(offZ / Region.WIDTH_F) * Region.WIDTH_F * 2D);
 
 			double h1 = r.getHeight(xi, zi);
 			double h2 = r.getHeight(xi, zi + 1);
 			double h3 = r.getHeight(xi + 1, zi + 1);
 			double h4 = r.getHeight(xi + 1, zi);
 
-			v0.set(x, h1, z).sub(newPos.previous);
-			v1.set(x, h2, z + 0.5D).sub(newPos.previous);
-			v2.set(x + 0.5D, h3, z + 0.5D).sub(newPos.previous);
-			v3.set(x + 0.5D, h4, z).sub(newPos.previous);
+			v0.set(offX, h1, offZ).sub(pos.previous);
+			v1.set(offX, h2, offZ + 0.5D).sub(pos.previous);
+			v2.set(offX + 0.5D, h3, offZ + 0.5D).sub(pos.previous);
+			v3.set(offX + 0.5D, h4, offZ).sub(pos.previous);
 
 			IntersectionResult ir1 = new IntersectionResult();
 			Plane plane = new Plane(v0, v1, v2);
@@ -135,32 +171,30 @@ public class EntityPlayer extends Entity {
 				continue;
 			}
 
- 			double len1 = 0;
-			Vector3d result = null;
-			Vector3d normal = null;
+			double len1 = Double.MAX_VALUE;
+			IntersectionResult result = null;
 
-			if (ir1.succes) {
+			if (ir1.succes && ir1.x >= v0.x && ir1.x <= v2.x && ir1.z >= v0.z && ir1.z <= v2.z) {
 				len1 = ir1.length();
 				result = ir1;
-				normal = normal1;
+				result.normal = normal1;
 			}
-			if (ir2.succes) {
+			if (ir2.succes && ir2.x >= v0.x && ir2.x <= v2.x && ir2.z >= v0.z && ir2.z <= v2.z) {
 				double len2 = ir2.length();
-				if (len2 > len1) {
+				if (len2 < len1) {
 					result = ir2;
-					normal = normal2;
+					result.normal = normal2;
 				}
 			}
-			if(result == null || normal == null) {
+			if (result == null) {
 				continue;
 			}
 
-			newPos.set(result).add(newPos.previous).add(normal.mul(0.01F));
-			V.set(0);
-			return true;
+			result.add(pos.previous);
+			return result;
 		}
-		
-		return false;
+
+		return null;
 	}
 
 }

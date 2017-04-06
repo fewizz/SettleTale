@@ -7,6 +7,10 @@ import org.joml.Vector3dc;
 public class Vector3dp extends Vector3d {
 	public Vector3d previous = new Vector3d();
 	
+	public Vector3dp() {
+		super();
+	}
+	
 	public Vector3dp(Vector3dc v) {
 		super(v);
 	}

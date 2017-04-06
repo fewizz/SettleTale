@@ -3,8 +3,8 @@ package ru.settletale.math;
 import org.joml.Vector3d;
 
 public class Segment {
-	final Vector3d p1 = new Vector3d();
-	final Vector3d p2 = new Vector3d();
+	public final Vector3d p1 = new Vector3d();
+	public final Vector3d p2 = new Vector3d();
 
 	public Segment(Vector3d p1, Vector3d p2) {
 		set(p1, p2);
