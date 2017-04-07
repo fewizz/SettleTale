@@ -1,19 +1,22 @@
 package ru.settletale.client.gl;
 
 import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
 
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL44;
 import org.lwjgl.opengl.GL45;
 
-public class BufferObject<T> extends GLObject<T> implements IData, ISubData {
+import ru.settletale.util.DirectBufferUtils;
+
+public class GLBuffer<T> extends GLObject<T> {
 	protected final int type;
 	private int loadedSize = 0;
 	private Usage usage;
 	private int offset = 0;
 	private int storageFlags = GL44.GL_DYNAMIC_STORAGE_BIT;
 	
-	public BufferObject(int type) {
+	public GLBuffer(int type) {
 		this.type = type;
 		usage = Usage.STATIC_DRAW;
 	}
@@ -64,7 +67,6 @@ public class BufferObject<T> extends GLObject<T> implements IData, ISubData {
 		}
 	}
 	
-	@Override
 	public void data(ByteBuffer buffer) {
 		loadedSize = buffer.remaining();
 		
@@ -76,8 +78,11 @@ public class BufferObject<T> extends GLObject<T> implements IData, ISubData {
 			GL15.glBufferData(type, buffer, usage.glCode);
 		}
 	}
+	
+	public void data(FloatBuffer buffer) {
+		this.data(DirectBufferUtils.fromFloatToByteBufferView(buffer));
+	}
 
-	@Override
 	public void subData(ByteBuffer buffer) {
 		if(GL.version >= 45) {
 			GL45.glNamedBufferSubData(id, offset, buffer);
@@ -86,6 +91,10 @@ public class BufferObject<T> extends GLObject<T> implements IData, ISubData {
 			bind();
 			GL15.glBufferSubData(type, offset, buffer);
 		}
+	}
+	
+	public void subData(FloatBuffer buffer) {
+		this.subData(DirectBufferUtils.fromFloatToByteBufferView(buffer));
 	}
 	
 	public T loadDataOrSubData(ByteBuffer buffer) {

@@ -40,7 +40,7 @@ public class CompiledRegion {
 
 	public void compile() {
 		compileVertexAttributeArrays();
-		
+
 		if (!PROGRAM.isGenerated()) {
 			GL.debug("CR shader start");
 			PROGRAM.gen();
@@ -110,54 +110,33 @@ public class CompiledRegion {
 		this.layer.render(GL_QUADS);
 		GL.debug("CR rend end");
 	}
-	
+
 	static final Vector3f NORMAL_TEMP = new Vector3f();
 	static final Vector3f TEMP = new Vector3f();
 	static final Vector3f V1_TEMP = new Vector3f();
 	static final Vector3f V2_TEMP = new Vector3f();
 	static final Vector3f V3_TEMP = new Vector3f();
-	
+
 	private void compileVertexAttributeArrays() {
 		GL.debug("Fill buffers0");
-		int rendWidth = ((Region.WIDTH * 2) + 1);
+		int rendWidth = Region.WIDTH + 1;
 
 		for (int x = 0; x < Region.WIDTH; x++) {
-			int nx = x * 2;
-
 			for (int z = 0; z < Region.WIDTH; z++) {
-				int nz = z * 2;
 
-				int i1 = nx * rendWidth + nz;
+				int i1 = x * rendWidth + z;
 				int i2 = i1 + 1;
 				int i3 = i2 + rendWidth;
 				int i4 = i1 + rendWidth;
-
-				for (int x2 = 0; x2 < 2; x2++) {
-
-					for (int z2 = 0; z2 < 2; z2++) {
-						SHARED_VERTEX_ARRAY.index(i1++);
-						SHARED_VERTEX_ARRAY.index(i2++);
-						SHARED_VERTEX_ARRAY.index(i3++);
-						SHARED_VERTEX_ARRAY.index(i4++);
-					}
-
-					i1 -= 2;
-					i2 -= 2;
-					i3 -= 2;
-					i4 -= 2;
-
-					i1 += rendWidth;
-					i2 += rendWidth;
-					i3 += rendWidth;
-					i4 += rendWidth;
-				}
+				SHARED_VERTEX_ARRAY.index(i1++);
+				SHARED_VERTEX_ARRAY.index(i2++);
+				SHARED_VERTEX_ARRAY.index(i3++);
+				SHARED_VERTEX_ARRAY.index(i4++);
 			}
 		}
-		
+
 		for (int x = 0; x < rendWidth; x++) {
-			int nx = x;
-			float px = (nx / 2F);
-			float pxf = region.x * Region.WIDTH + px;
+			float pxf = region.x * Region.WIDTH + x;
 			float pzf = region.z * Region.WIDTH;
 
 			for (int z = 0; z < rendWidth; z++) {
@@ -166,29 +145,29 @@ public class CompiledRegion {
 
 				V1_TEMP.set(x, region.getHeight(x, z), z);
 
-				V2_TEMP.set(x, region.getHeight(x, z + 1), z + 0.5F);
-				V3_TEMP.set(x + 0.5F, region.getHeight(x + 1, z), z);
+				V2_TEMP.set(x, region.getHeight(x, z + 1), z + 1F);
+				V3_TEMP.set(x + 1F, region.getHeight(x + 1, z), z);
 				V2_TEMP.sub(V2_TEMP, V2_TEMP);
 				V1_TEMP.sub(V3_TEMP, V3_TEMP);
 				V2_TEMP.cross(V3_TEMP, TEMP);
 				NORMAL_TEMP.add(TEMP);
 
-				V2_TEMP.set(x + 0.5F, region.getHeight(x + 1, z), z);
-				V3_TEMP.set(x, region.getHeight(x, z - 1), z - 0.5F);
+				V2_TEMP.set(x + 1F, region.getHeight(x + 1, z), z);
+				V3_TEMP.set(x, region.getHeight(x, z - 1), z - 1F);
 				V1_TEMP.sub(V2_TEMP, V2_TEMP);
 				V1_TEMP.sub(V3_TEMP, V3_TEMP);
 				V2_TEMP.cross(V3_TEMP, TEMP);
 				NORMAL_TEMP.add(TEMP);
 
-				V2_TEMP.set(x, region.getHeight(x, z - 1), z - 0.5F);
-				V3_TEMP.set(x - 0.5F, region.getHeight(x - 1, z), z);
+				V2_TEMP.set(x, region.getHeight(x, z - 1), z - 1F);
+				V3_TEMP.set(x - 1F, region.getHeight(x - 1, z), z);
 				V1_TEMP.sub(V2_TEMP, V2_TEMP);
 				V1_TEMP.sub(V3_TEMP, V3_TEMP);
 				V2_TEMP.cross(V3_TEMP, TEMP);
 				NORMAL_TEMP.add(TEMP);
 
-				V2_TEMP.set(x - 0.5F, region.getHeight(x - 1, z), z);
-				V3_TEMP.set(x, region.getHeight(x, z + 1), z + 0.5F);
+				V2_TEMP.set(x - 1F, region.getHeight(x - 1, z), z);
+				V3_TEMP.set(x, region.getHeight(x, z + 1), z + 1F);
 				V1_TEMP.sub(V2_TEMP, V2_TEMP);
 				V1_TEMP.sub(V3_TEMP, V3_TEMP);
 				V2_TEMP.cross(V3_TEMP, TEMP);
@@ -201,7 +180,7 @@ public class CompiledRegion {
 
 				SHARED_VERTEX_ARRAY.endVertex();
 
-				pzf += 0.5F;
+				pzf += 1F;
 			}
 		}
 	}

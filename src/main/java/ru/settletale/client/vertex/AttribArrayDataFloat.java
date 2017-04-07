@@ -1,6 +1,6 @@
 package ru.settletale.client.vertex;
 
-import ru.settletale.util.DirectByteBufferUtils;
+import ru.settletale.util.DirectBufferUtils;
 
 public class AttribArrayDataFloat extends AttribArrayData {
 	float f1;
@@ -27,7 +27,7 @@ public class AttribArrayDataFloat extends AttribArrayData {
 		int limit = id + growBytes;
 		
 		if(limit > buff.capacity())
-			buff = DirectByteBufferUtils.growBuffer(buff, 1.5F);
+			buff = DirectBufferUtils.growBuffer(buff, 1.5F);
 		
 		buff.limit(limit);
 		

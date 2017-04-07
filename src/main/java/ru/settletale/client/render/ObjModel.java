@@ -10,9 +10,9 @@ import org.lwjgl.system.MemoryUtil;
 
 import ru.settletale.client.gl.GL;
 import ru.settletale.client.gl.ShaderProgram;
-import ru.settletale.client.gl.UniformBufferObject;
-import ru.settletale.client.gl.VertexArrayObject;
-import ru.settletale.client.gl.VertexBufferObject;
+import ru.settletale.client.gl.UniformBuffer;
+import ru.settletale.client.gl.VertexArray;
+import ru.settletale.client.gl.VertexBuffer;
 import ru.settletale.client.resource.MtlLibLoader;
 import ru.settletale.client.resource.ShaderLoader;
 
@@ -21,12 +21,12 @@ public class ObjModel {
 	private MTLLib mtl;
 	private List<String> materialNames;
 	private int vertexCount;
-	private VertexArrayObject vao;
-	private VertexBufferObject positionVBO;
-	private VertexBufferObject normalVBO;
-	private VertexBufferObject uvVBO;
-	private VertexBufferObject flagsVBO;
-	private UniformBufferObject ubo;
+	private VertexArray vao;
+	private VertexBuffer positionVBO;
+	private VertexBuffer normalVBO;
+	private VertexBuffer uvVBO;
+	private VertexBuffer flagsVBO;
+	private UniformBuffer ubo;
 	private IntBuffer textureIDs;
 	
 	static final ShaderProgram PROGRAM = new ShaderProgram();
@@ -47,7 +47,7 @@ public class ObjModel {
 		//uvVBO.gen().loadData();
 		//ubo = new UniformBufferObject().gen();
 		
-		vao = new VertexArrayObject().gen();
+		vao = new VertexArray().gen();
 		vao.vertexAttribPointer(positionVBO, 0, 4, GL11.GL_FLOAT, false, 0);
 		vao.enableVertexAttribArray(0);
 		
@@ -107,10 +107,10 @@ public class ObjModel {
 	}
 	
 	public void setVertexInfo(int vertexCount, ByteBuffer positions, ByteBuffer normals, ByteBuffer uvs, ByteBuffer flags) {
-		positionVBO = new VertexBufferObject();
-		normalVBO = new VertexBufferObject();
-		uvVBO = new VertexBufferObject();
-		flagsVBO = new VertexBufferObject();
+		positionVBO = new VertexBuffer();
+		normalVBO = new VertexBuffer();
+		uvVBO = new VertexBuffer();
+		flagsVBO = new VertexBuffer();
 		
 		//positionVBO.buffer(positions);
 		//normalVBO.buffer(normals);

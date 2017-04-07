@@ -18,10 +18,10 @@ import ru.settletale.util.PrimitiveType;
 public class GL {
 	public static final boolean DEBUG = true;
 	private static final boolean DEBUG_ONLY_ERRORS = true;
-	private static final UniformBufferObject UBO_MATRICES = new UniformBufferObject();
-	private static final UniformBufferObject UBO_MATRICES_INVERSED = new UniformBufferObject();
-	private static final UniformBufferObject UBO_MATRIX_COMBINED = new UniformBufferObject();
-	private static final UniformBufferObject UBO_DISPLAY_SIZE = new UniformBufferObject();
+	private static final UniformBuffer UBO_MATRICES = new UniformBuffer();
+	private static final UniformBuffer UBO_MATRICES_INVERSED = new UniformBuffer();
+	private static final UniformBuffer UBO_MATRIX_COMBINED = new UniformBuffer();
+	private static final UniformBuffer UBO_DISPLAY_SIZE = new UniformBuffer();
 	private static String previousMessage = "";
 	private static Texture<?>[] activeTextures;
 	private static int activeTextureIndex = 0;
@@ -36,7 +36,7 @@ public class GL {
 	public static final Matrix4fv VIEW_MATRIX = new Matrix4fv();
 	private static final Matrix4fv VIEW_MATRIX_INVERSED = new Matrix4fv();
 	private static final Matrix4fv MATRIX_COMBINED = new Matrix4fv();
-	private static final VertexArrayObject defaultVao = new VertexArrayObject();
+	private static final VertexArray defaultVao = new VertexArray();
 
 	public static void init() {
 		debug("GL init start");
@@ -103,7 +103,7 @@ public class GL {
 		debug("UpdateDisplaySizeUniformBlock end");
 	}
 
-	public static void bindBufferBase(BufferObject<?> buffer, int index) {
+	public static void bindBufferBase(GLBuffer<?> buffer, int index) {
 		GL30.glBindBufferBase(buffer.type, index, buffer.id);
 	}
 

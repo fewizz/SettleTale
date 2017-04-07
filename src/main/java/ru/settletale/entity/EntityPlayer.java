@@ -2,11 +2,9 @@ package ru.settletale.entity;
 
 import static org.lwjgl.glfw.GLFW.*;
 
-import org.joml.Matrix4d;
 import org.joml.Vector2i;
 import org.joml.Vector3d;
 import org.joml.Vector3f;
-import org.joml.Vector4d;
 
 import ru.settletale.Game;
 import ru.settletale.client.Camera;
@@ -59,23 +57,30 @@ public class EntityPlayer extends Entity {
 			V.set(0);
 		}
 
-		V.add(a.div(20F, new Vector3f()));
+		//V.add(a.div(20F, new Vector3f()));
 
 		Vector3dp newPos = new Vector3dp(position);
 		keyborardSpeed.mul(2);
 		newPos.add(V).add(keyborardSpeed);
 		newPos.previous.set(position);
 
-		IntersectionResult coll = checkCollision(newPos);
-		if(coll != null) {
+		//IntersectionResult coll = checkCollision(newPos);
+		/*while(coll != null) {
+			newPos.previous.set(newPos);
+			newPos.set(coll);
+			newPos.add(coll.normal.mul(0.1F));
+			coll = checkCollision(newPos);
+			V.set(0);
+		}*/
+		/*if(coll != null) {
 			newPos.set(coll);
 			newPos.add(coll.normal.mul(0.1F));
 			V.set(0);
-		}
-		else {
-			System.out.println("NULL");
-		}
-		//position.updatePrevious();
+		}*/
+		//else {
+		//	System.out.println("NULL");
+		//}
+		position.updatePrevious();
 		position.set(newPos);
 		/*position.updatePrevious();
 		position.add(keyborardSpeed);
@@ -101,11 +106,11 @@ public class EntityPlayer extends Entity {
 	public IntersectionResult checkCollision(Vector3dp pos) {
 		Vector3d dir = pos.sub(pos.previous, new Vector3d());
 
-		int stepCount = MathUtils.ceil(Math.abs(dir.x) * 2F) + MathUtils.ceil(Math.abs(dir.z) * 2F);
+		int stepCount = MathUtils.ceil(Math.abs(dir.x)) * 2 + MathUtils.ceil(Math.abs(dir.z)) * 2;
 
 		stepCount = Math.max(stepCount, 1);
 
-		Vector2i pixelOffset = new Vector2i(MathUtils.floor(pos.previous.x * 2F), MathUtils.floor(pos.previous.z * 2F));
+		Vector2i pixelOffset = new Vector2i(MathUtils.floor(pos.previous.x), MathUtils.floor(pos.previous.z));
 		Vector3d dirNormal = dir.normalize(new Vector3d());
 		Vector2i cellStep = new Vector2i();
 		cellStep.x = dirNormal.x == 0 ? 0 : dirNormal.x > 0 ? 1 : -1;
@@ -125,8 +130,8 @@ public class EntityPlayer extends Entity {
 
 		for (int step = 0; step < stepCount; step++) {
 			if (step != 0) {
-				double lenX = Distance.segmentPoint(segmentForPixelCheck, (double)(pixelOffset.x + cellStep.x) / 2D + 0.25D, 0, (double)pixelOffset.y / 2D + 0.25D);
-				double lenZ = Distance.segmentPoint(segmentForPixelCheck, (double)pixelOffset.x / 2D + 0.25D, 0, (double)(pixelOffset.y + cellStep.y) / 2D + 0.25D);
+				double lenX = Distance.segmentPoint(segmentForPixelCheck, (double)(pixelOffset.x + cellStep.x) + 0.5D, 0, (double)pixelOffset.y + 0.5D);
+				double lenZ = Distance.segmentPoint(segmentForPixelCheck, (double)pixelOffset.x + 0.5D, 0, (double)(pixelOffset.y + cellStep.y) + 0.5D);
 
 				if (lenX < lenZ) {
 					pixelOffset.add(cellStep.x, 0);
@@ -136,16 +141,16 @@ public class EntityPlayer extends Entity {
 				}
 			}
 
-			double offX = (float) pixelOffset.x / 2F;
-			double offZ = (float) pixelOffset.y / 2F;
+			double offX = (float) pixelOffset.x;
+			double offZ = (float) pixelOffset.y;
 
 			Region r = Game.getWorld().getRegion(MathUtils.floor(offX / Region.WIDTH_F), MathUtils.floor(offZ / Region.WIDTH_F));
 			if (r == null) {
 				continue;
 			}
 
-			int xi = MathUtils.floor(MathUtils.fract(offX / Region.WIDTH_F) * Region.WIDTH_F * 2D);
-			int zi = MathUtils.floor(MathUtils.fract(offZ / Region.WIDTH_F) * Region.WIDTH_F * 2D);
+			int xi = MathUtils.floor(MathUtils.fract(offX / Region.WIDTH_F) * Region.WIDTH_F);
+			int zi = MathUtils.floor(MathUtils.fract(offZ / Region.WIDTH_F) * Region.WIDTH_F);
 
 			double h1 = r.getHeight(xi, zi);
 			double h2 = r.getHeight(xi, zi + 1);
@@ -153,9 +158,9 @@ public class EntityPlayer extends Entity {
 			double h4 = r.getHeight(xi + 1, zi);
 
 			v0.set(offX, h1, offZ).sub(pos.previous);
-			v1.set(offX, h2, offZ + 0.5D).sub(pos.previous);
-			v2.set(offX + 0.5D, h3, offZ + 0.5D).sub(pos.previous);
-			v3.set(offX + 0.5D, h4, offZ).sub(pos.previous);
+			v1.set(offX, h2, offZ + 1D).sub(pos.previous);
+			v2.set(offX + 1D, h3, offZ + 1D).sub(pos.previous);
+			v3.set(offX + 1D, h4, offZ).sub(pos.previous);
 
 			IntersectionResult ir1 = new IntersectionResult();
 			Plane plane = new Plane(v0, v1, v2);

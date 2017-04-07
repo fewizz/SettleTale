@@ -1,8 +1,10 @@
 package ru.settletale.client.gl;
 
+import java.nio.ByteBuffer;
+
 import org.lwjgl.opengl.GL11;
 
-public abstract class Texture<T> extends GLObject<T> implements IData, ISubData {
+public abstract class Texture<T> extends GLObject<T> {
 	public final int type;
 	public int internalFormat;
 	public int bufferDataFormat;
@@ -26,6 +28,9 @@ public abstract class Texture<T> extends GLObject<T> implements IData, ISubData 
 	public boolean isBase() {
 		return true;
 	}
+	
+	abstract void data(ByteBuffer buffer);
+	abstract void subData(ByteBuffer buffer);
 	
 	@Override
 	public int genInternal() {

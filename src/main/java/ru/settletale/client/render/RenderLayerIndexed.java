@@ -5,13 +5,13 @@ import java.nio.ByteBuffer;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.system.MemoryUtil;
 
-import ru.settletale.client.gl.ElementArrayBufferObject;
+import ru.settletale.client.gl.ElementArrayBuffer;
 import ru.settletale.client.vertex.VertexAttribType;
 import ru.settletale.client.vertex.VertexArrayDataBakerIndexed;
 
 public class RenderLayerIndexed extends RenderLayer {
 	int indexCount;
-	ElementArrayBufferObject indexBuffer;
+	ElementArrayBuffer indexBuffer;
 
 	public RenderLayerIndexed() {
 		super();
@@ -24,7 +24,7 @@ public class RenderLayerIndexed extends RenderLayer {
 	}
 
 	private void initIndexBuffer() {
-		indexBuffer = new ElementArrayBufferObject();
+		indexBuffer = new ElementArrayBuffer();
 	}
 
 	@Override

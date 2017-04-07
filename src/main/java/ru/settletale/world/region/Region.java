@@ -67,7 +67,7 @@ public class Region {
 	}
 
 	public float getHeight(int x, int z) {
-		return heights[(z + 2) * ((WIDTH_EXTENDED * 2) + 1) + (x + 2)];
+		return heights[(z + EXTENSION) * (WIDTH_EXTENDED + 1) + (x + EXTENSION)];
 	}
 
 	public void setBiomes(byte[] ids) {
@@ -78,7 +78,7 @@ public class Region {
 	}
 
 	public void setHeights(float[] array) {
-		if (array.length != ((WIDTH_EXTENDED * 2) + 1) * ((WIDTH_EXTENDED * 2) + 1)) {
+		if (array.length != (WIDTH_EXTENDED + 1) * (WIDTH_EXTENDED + 1)) {
 			throw new Error("Array for heights has invalid len!");
 		}
 		this.heights = array;

@@ -6,9 +6,9 @@ import org.lwjgl.opengl.GL42;
 import org.lwjgl.opengl.GL43;
 import org.lwjgl.system.MemoryUtil;
 
-public class AtomicCounterBufferObject extends BufferObject<AtomicCounterBufferObject>{
+public class AtomicCounterBuffer extends GLBuffer<AtomicCounterBuffer>{
 
-	public AtomicCounterBufferObject() {
+	public AtomicCounterBuffer() {
 		super(GL42.GL_ATOMIC_COUNTER_BUFFER);
 	}
 

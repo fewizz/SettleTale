@@ -8,16 +8,16 @@ import org.lwjgl.opengl.GL11;
 
 import ru.settletale.client.gl.GL;
 import ru.settletale.client.gl.ShaderProgram;
-import ru.settletale.client.gl.VertexArrayObject;
-import ru.settletale.client.gl.VertexBufferObject;
+import ru.settletale.client.gl.VertexArray;
+import ru.settletale.client.gl.VertexBuffer;
 import ru.settletale.client.vertex.VertexAttribType;
 import ru.settletale.client.vertex.VertexArrayDataBaker;
 
 public class RenderLayer {
 	protected VertexArrayDataBaker attribs;
-	protected VertexArrayObject vao;
+	protected VertexArray vao;
 	protected ShaderProgram program;
-	protected List<VertexBufferObject> vboList;
+	protected List<VertexBuffer> vboList;
 	protected boolean allowSubData = false;
 	protected int vertexCount;
 
@@ -33,7 +33,7 @@ public class RenderLayer {
 
 	public RenderLayer() {
 		vboList = new ArrayList<>();
-		vao = new VertexArrayObject();
+		vao = new VertexArray();
 	}
 
 	public void compile() {
@@ -48,12 +48,12 @@ public class RenderLayer {
 		
 		for(int index = 0; index < attribs.getCount(); index++) {
 			if(vboList.size() <= index || vboList.get(index) == null) {
-				vboList.add(new VertexBufferObject().gen());
+				vboList.add(new VertexBuffer().gen());
 			}
 		}
 
 		for (int attribIndex = 0; attribIndex < attribs.getCount(); attribIndex++) {
-			VertexBufferObject vbo = vboList.get(attribIndex);
+			VertexBuffer vbo = vboList.get(attribIndex);
 			ByteBuffer buffer = attribs.getBuffer(attribIndex);
 
 			if (allowSubData)
@@ -78,7 +78,7 @@ public class RenderLayer {
 		this.attribs = va;
 	}
 	
-	public void setAllowSubData(boolean allowSubData) {
+	public void setAllowSubDataWhenPossible(boolean allowSubData) {
 		this.allowSubData = allowSubData;
 	}
 
@@ -94,7 +94,7 @@ public class RenderLayer {
 		this.program = program;
 	}
 
-	public void clearVertexAttribArrayIfExists() {
+	public void clearVertexArrayDataBakerIfExists() {
 		if (getVertexArrayDataBaker() != null)
 			getVertexArrayDataBaker().clearData();
 	}

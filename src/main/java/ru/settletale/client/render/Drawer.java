@@ -1,10 +1,7 @@
 package ru.settletale.client.render;
 
-import java.nio.IntBuffer;
-
 import org.joml.Vector2f;
 import org.joml.Vector3f;
-import org.lwjgl.system.MemoryStack;
 
 import ru.settletale.client.gl.GL;
 import ru.settletale.client.gl.ShaderProgram;
@@ -14,7 +11,7 @@ import ru.settletale.client.vertex.VertexAttribType;
 
 public class Drawer {
 	public static final RenderLayer LAYER = new RenderLayer(VertexAttribType.FLOAT_3, VertexAttribType.UBYTE_4_FLOAT_4_NORMALISED, VertexAttribType.FLOAT_2, VertexAttribType.UBYTE_1_INT_1);
-	static final TextureUnitContainer TEXTURE_UNIT_CONTAINER = new TextureUnitContainer();
+	static final TextureUnitBinder TEXTURE_UNIT_CONTAINER = new TextureUnitBinder();
 	static final ShaderProgram PROGRAM = new ShaderProgram();
 	static final ShaderProgram PROGRAM_TEX = new ShaderProgram();
 	static final ShaderProgram PROGRAM_MULTITEX = new ShaderProgram();
@@ -45,20 +42,20 @@ public class Drawer {
 		PROGRAM_MULTITEX.attachShader(ShaderLoader.SHADERS.get("shaders/drawer_multitex.fs"));
 		PROGRAM_MULTITEX.link();
 		
-		LAYER.setAllowSubData(true);
+		LAYER.setAllowSubDataWhenPossible(true);
 	}
 
 	public static void begin(int mode) {
 		drawingMode = mode;
 		vertexCount = 0;
 
-		LAYER.clearVertexAttribArrayIfExists();
+		LAYER.clearVertexArrayDataBakerIfExists();
 		TEXTURE_UNIT_CONTAINER.clear();
 	}
 
 	public static void draw() {
 		ShaderProgram program;
-		int textureCount = TEXTURE_UNIT_CONTAINER.getAmount();
+		int textureCount = TEXTURE_UNIT_CONTAINER.getCount();
 		
 		if(textureCount == 0) {
 			program = PROGRAM;
@@ -68,16 +65,7 @@ public class Drawer {
 		}
 		else {
 			program = PROGRAM_MULTITEX;
-			
-			try (MemoryStack ms = MemoryStack.stackPush()) {
-				IntBuffer buff = ms.mallocInt(textureCount);
-				
-				for(int index = 0; index < textureCount; index++) {
-					buff.put(index, index);
-				}
-				
-				program.setUniformIntArray(0, buff);
-			}
+			TEXTURE_UNIT_CONTAINER.setForIntArrayUniform(program, 0);
 		}
 		
 		draw(program);
@@ -97,12 +85,12 @@ public class Drawer {
 	
 	public static void texture(Texture2D tex) {
 		byte index;
-		if(!TEXTURE_UNIT_CONTAINER.isContains(tex)) {
-			index = (byte) TEXTURE_UNIT_CONTAINER.add(tex);
-		}
-		else {
-			index = (byte) TEXTURE_UNIT_CONTAINER.getIndex(tex);
-		}
+		//if(!TEXTURE_UNIT_CONTAINER.isContains(tex)) {
+		index = (byte) TEXTURE_UNIT_CONTAINER.use(tex);
+		//}
+		//else {
+		//	index = (byte) TEXTURE_UNIT_CONTAINER.getIndex(tex);
+		//}
 		LAYER.getVertexArrayDataBaker().putByte(TEX_ID, index);
 	}
 

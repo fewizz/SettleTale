@@ -4,7 +4,7 @@ import java.nio.ByteBuffer;
 
 import org.lwjgl.system.MemoryUtil;
 
-import ru.settletale.util.DirectByteBufferUtils;
+import ru.settletale.util.DirectBufferUtils;
 
 public class VertexArrayDataBakerIndexed extends VertexArrayDataBaker {
 	private ByteBuffer indexBuffer;
@@ -40,7 +40,7 @@ public class VertexArrayDataBakerIndexed extends VertexArrayDataBaker {
 		}
 		
 		if (limit > indexBuffer.capacity())
-			indexBuffer = DirectByteBufferUtils.growBuffer(indexBuffer, 1.5F);
+			indexBuffer = DirectBufferUtils.growBuffer(indexBuffer, 1.5F);
 
 		indexBuffer.limit(limit);
 
