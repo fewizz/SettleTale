@@ -19,19 +19,17 @@ public class MtlLibLoader extends ResourceLoaderAbstract {
 	public void loadResource(ResourceFile resourceFile) {
 		System.out.println("Loading objMaterial: " + resourceFile.key);
 
-		String[] strings = FileUtils.readLines(resourceFile.fullPath);
+		String[] strings = FileUtils.readLines(resourceFile.path.toFile());
 
-		MTLLib matFile = new MTLLib();
+		MTLLib matLib = new MTLLib();
 
 		Material mat = null;
 
 		for (String str : strings) {
 			if (str.startsWith("newmtl")) {			
 				mat = new Material();
-				mat.name = str.split(" ")[1];
-				
-				
-				matFile.addMaterial(mat);
+				String name = str.split(" ")[1];
+				matLib.addMaterial(mat, name);
 			}
 
 			if (str.startsWith("Kd")) {
@@ -45,18 +43,14 @@ public class MtlLibLoader extends ResourceLoaderAbstract {
 			if (str.startsWith("map_Kd")) {
 				String[] values = str.split(" ");
 
-				mat.texturePathDiffuse = (FileUtils.getDirectoryPath(resourceFile.subPath) + values[values.length - 1].replace('\\', '/')).replace("//", "/"); // In spec was wrote, that texturename is last (надеюсь правду говороят =P )
+				String textureDiffuse = values[values.length - 1];
+				ResourceFile res = resourceFile.dir.getResourceFile(textureDiffuse);
+				ResourceManager.loadResource(res);
+				
+				matLib.addTextureToMaterial(mat, TextureLoader.TEXTURES.get(res.key));
 			}
 		}
 		
-		MTLS.put(resourceFile.key, matFile);
+		MTLS.put(resourceFile.key, matLib);
 	}
-
-	@Override
-	public void onResourcesLoadEnd() {
-		MTLS.forEach((key, mtl) -> {
-			mtl.compile();	
-		});
-	}
-
 }

@@ -24,7 +24,7 @@ public class FontLoader extends ResourceLoaderAbstract {
 		
 		Font font = new Font();
 
-		try (FileReader fr = new FileReader(resourceFile.fullPath); BufferedReader reader = new BufferedReader(fr)) {
+		try (FileReader fr = new FileReader(resourceFile.path.toFile()); BufferedReader reader = new BufferedReader(fr)) {
 
 			for (;;) {
 				String line = reader.readLine();
@@ -59,21 +59,13 @@ public class FontLoader extends ResourceLoaderAbstract {
 			e.printStackTrace();
 		}
 		
+		for(FontPage page : font.pages) {
+			ResourceFile res = resourceFile.dir.getResourceFile(page.textureName);
+			ResourceManager.loadResource(res);
+			page.texture = TextureLoader.TEXTURES.get(res.key);
+		}
+		
 		FONTS.put(resourceFile.key, font);
-
-	}
-	
-	@Override
-	public void onResourcesLoadEnd() {
-		FONTS.forEach((key, f) -> {
-			for(FontPage page : f.pages) {
-				page.texture = TextureLoader.TEXTURES.get(page.textureName);
-				
-				if(page.texture == null) {
-					throw new Error("Texture for font " + f.name + " not found!");
-				}
-			}
-		});
 	}
 	
 	static String getValue(String str) {

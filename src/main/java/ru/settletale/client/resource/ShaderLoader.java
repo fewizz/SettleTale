@@ -19,7 +19,7 @@ public class ShaderLoader extends ResourceLoaderAbstract {
 	public void loadResource(ResourceFile resourceFile) {
 		System.out.println("Loading shader: " + resourceFile.key);
 		
-		String source = FileUtils.readWholeLines(resourceFile.fullPath);
+		String source = FileUtils.readWholeLines(resourceFile.path.toFile());
 		
 		Shader.Type type = Shader.Type.getByExtension(resourceFile.getExtension());
 		Shader shader = new Shader(type, source);

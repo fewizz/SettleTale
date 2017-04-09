@@ -1,10 +1,7 @@
 package ru.settletale.client.render;
 
-import java.nio.IntBuffer;
-
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.system.MemoryStack;
 
 import ru.settletale.client.gl.GL;
 import ru.settletale.client.gl.ShaderProgram;
@@ -114,16 +111,6 @@ public class FontRenderer {
 
 		GL.debug("Font predraw");
 		
-		try(MemoryStack stack = MemoryStack.stackPush()) {
-			int usedTextureCount = Drawer.TEXTURE_UNIT_CONTAINER.getCount();
-			IntBuffer buff = stack.mallocInt(usedTextureCount);
-			
-			for(int i = 0; i < usedTextureCount; i++) {
-				buff.put(i, i);
-			}
-			
-			DEFAULT_PROGRAM.setUniformIntArray(0, buff);
-		}
 		Drawer.draw(program);
 
 		GL.debug("Font end");

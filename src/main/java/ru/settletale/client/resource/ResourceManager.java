@@ -1,80 +1,62 @@
 package ru.settletale.client.resource;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
-import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
-
-import ru.settletale.event.Event;
-import ru.settletale.event.EventManager;
 
 public class ResourceManager {
-	static final Map<String, ResourceFile> resourceFiles = new HashMap<>();
-	static final List<ResourceLoaderAbstract> resourceLoaders = new ArrayList<>();
+	static final List<ResourceLoaderAbstract> RESOURCE_LOADERS = new ArrayList<>();
+	static final Map<String, ResourceFile> KEY_RES_MAP = new HashMap<>();
+	static final List<ResourceDirectory> ROOTS = new ArrayList<>();
 
 	public static void loadResources() {
-		resourceLoaders.add(new TextureLoader());
-		resourceLoaders.add(new ShaderLoader());
-		resourceLoaders.add(new FontLoader());
-		resourceLoaders.add(new ObjModelLoader());
-		resourceLoaders.add(new MtlLibLoader());
+		RESOURCE_LOADERS.add(new TextureLoader());
+		RESOURCE_LOADERS.add(new ShaderLoader());
+		RESOURCE_LOADERS.add(new FontLoader());
+		RESOURCE_LOADERS.add(new ObjModelLoader());
+		RESOURCE_LOADERS.add(new MtlLibLoader());
 
-		resourceLoaders.forEach(rla -> rla.onResourcesLoadStart());
 		startResourceScanning();
-		resourceFiles.forEach((key, resourceFile) -> resourceLoaders.forEach(rla -> {
-			for(String ext : rla.getRequiredExtensions()) {
-				if (resourceFile.isEqualExtension(ext)) {
-					rla.loadResource(resourceFile);
-				}
-			}
-		}));
-		resourceLoaders.forEach(rla -> rla.onResourcesLoadEnd());
 		
-		EventManager.fireEvent(Event.RESOURCE_MANAGER_LOADED);
+		ROOTS.forEach(root -> {
+			root.loadResources();
+		});
 	}
-
+	
 	private static void startResourceScanning() {
-		scanFolder(new File("assets/"));
-		scanFolder(new File("src/main/resources/assets/"));
+		scanFolder(new File("assets/").toPath());
+		scanFolder(new File("src/main/resources/assets/").toPath());
 	}
 
-	private static void scanFolder(File file) {
-		if (!file.exists() || !file.isDirectory()) {
+	public static void loadResource(ResourceFile res) {
+		if (res.isLoaded()) {
 			return;
 		}
 
-		Path assetsPath = file.toPath().toAbsolutePath();
-		int assetsIndex = assetsPath.getNameCount();
-
-		try (Stream<Path> paths = Files.walk(assetsPath, FileVisitOption.FOLLOW_LINKS);) {
-
-			for (Iterator<Path> it = paths.iterator(); it.hasNext();) {
-				Path path = it.next();
-
-				if (Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS)) {
+		ResourceManager.RESOURCE_LOADERS.forEach(loader -> {
+			for (String ext : loader.getRequiredExtensions()) {
+				if (!res.isExtensionEqual(ext))
 					continue;
-				}
-
-				Path sub = path.subpath(assetsIndex, path.getNameCount());
-				String key = sub.toString().replace("\\", "/");
-
-				resourceFiles.put(key, new ResourceFile(key, path, sub));
+				
+				loader.loadResource(res);
 			}
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		});
+		
+		res.setLoaded(true);
+		KEY_RES_MAP.put(res.key, res);
 	}
-	
-	public static ResourceFile getResourceFile(String key) {
-		return resourceFiles.get(key);
+
+	private static void scanFolder(Path path) {
+		if(!Files.exists(path) || !Files.isDirectory(path)) {
+			return;
+		}
+		
+		ResourceDirectory root = new ResourceDirectory(null, path);
+		ROOTS.add(root);
+		root.scan();
 	}
 }

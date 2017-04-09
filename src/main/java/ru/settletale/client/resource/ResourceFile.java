@@ -1,24 +1,36 @@
 package ru.settletale.client.resource;
 
-import java.io.File;
 import java.nio.file.Path;
 
+import org.apache.commons.io.FilenameUtils;
+
 public class ResourceFile {
-	public final String key;
-	public final File fullPath;
-	public final File subPath;
-	
-	public ResourceFile(String key, Path fullPath, Path subPath) {
-		this.key = key;
-		this.fullPath = fullPath.toFile();
-		this.subPath = subPath.toFile();
+	boolean loaded = false;
+	final String key;
+	final String name;
+	final public Path path;
+	final public ResourceDirectory dir;
+
+	public ResourceFile(ResourceDirectory dir, Path path) {
+		this.path = path;
+		this.dir = dir;
+		name = path.getFileName().toString();
+		key = dir.key + name;
 	}
 	
-	public boolean isEqualExtension(String extension) {
-		return key.endsWith("." + extension);
+	public boolean isLoaded() {
+		return loaded;
 	}
 	
+	public void setLoaded(boolean b) {
+		this.loaded = b;
+	}
+
+	public boolean isExtensionEqual(String extension) {
+		return getExtension().equals(extension);
+	}
+
 	public String getExtension() {
-		return key.substring(key.lastIndexOf(".") + 1);
+		return FilenameUtils.getExtension(path.toString());
 	}
 }

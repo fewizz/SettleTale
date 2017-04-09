@@ -27,14 +27,13 @@ dependencies {
 	shadow 'io.netty:netty-microbench:4.1.4.Final'
 	shadow 'com.koloboke:koloboke-api-jdk8:1.0.0'
 	shadow 'com.koloboke:koloboke-impl-jdk8:1.0.0'
-	//shadow files(file('libs/').listFiles())
+	shadow 'com.carrotsearch:hppc:0.7.2'
+	shadow 'commons-io:commons-io:2.5'
+
 }
 
 jar {
 	def str = ''
-	//configurations.shadow.each { dep ->
-	//	str += 'libs/' + dep.getName() + ' ';
-	//}
 	
 	manifest {
 		attributes(

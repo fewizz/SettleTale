@@ -8,7 +8,7 @@ import java.util.Map;
 
 import org.lwjgl.system.MemoryUtil;
 
-import ru.settletale.client.render.GLThread;
+import ru.settletale.client.render.MTLLib;
 import ru.settletale.client.render.ObjModel;
 import ru.settletale.client.vertex.VertexAttribType;
 import ru.settletale.client.vertex.VertexArrayDataBaker;
@@ -31,7 +31,7 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 	@Override
 	public void loadResource(ResourceFile resourceFile) {
 		System.out.println("Loading objModel: " + resourceFile.key);
-		String[] strings = FileUtils.readLines(resourceFile.fullPath);
+		String[] strings = FileUtils.readLines(resourceFile.path.toFile());
 		float[] back = new float[9];
 		int[][] backIndex = new int[6][4];
 		float[][] backPos = new float[4][4];
@@ -45,9 +45,11 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 		FloatBuffer normals = MemoryUtil.memAllocFloat(counts[2] * 3);
 		
 		VertexArrayDataBaker pa = new VertexArrayDataBaker(VertexAttribType.FLOAT_4, VertexAttribType.FLOAT_3, VertexAttribType.FLOAT_2, VertexAttribType.INT_1);
+		
+		//List<MTLLib> mtlLibs = new ArrayList<>();
 
-		String mtlLibPath = "";
-		List<String> materials = new ArrayList<String>();
+		//String mtlLibPath = "";
+		//List<String> materialsNames = new ArrayList<String>();
 		int currentMatID = 0;
 
 		for (int i = 0; i < strings.length; i++) {
@@ -69,7 +71,7 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 				mtlLibPath = readNameOfMTLLib(str);
 			}
 			else if (str.startsWith("usemtl ")) {
-				currentMatID = getIDOfMaterial(str, materials);
+				currentMatID = getIDOfMaterial(str, materialsNames);
 			}
 		}
 
@@ -78,21 +80,20 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 		uvs.rewind();
 
 		ObjModel model = new ObjModel();
-		model.setVertexInfo(pa.getVertexCount(), pa.getBuffer(POS), pa.getBuffer(NORM), pa.getBuffer(UV), pa.getBuffer(FLAGS));
-		model.setMtlLibPath(FileUtils.getDirectoryPath(resourceFile.subPath) + mtlLibPath);
-		model.setMaterials(materials);
+		//model.setMtlLibPath(FileUtils.getDirectoryPath(resourceFile.subPath) + mtlLibPath);
+		model.setMaterialNames(materialsNames);
 
 		MODELS.put(resourceFile.key, model);
 	}
 
-	@Override
+	/*@Override
 	public void onResourcesLoadEnd() {
 		MODELS.forEach((key, model) -> {
 			GLThread.addTask(() -> {
 				model.compile();
 			});
 		});
-	}
+	}*/
 
 	public static void readPosition(String str, FloatBuffer fb, float[] back) {
 		int i = StringUtils.readFloats(str, back);

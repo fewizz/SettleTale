@@ -11,7 +11,7 @@ import ru.settletale.client.vertex.VertexAttribType;
 
 public class Drawer {
 	public static final RenderLayer LAYER = new RenderLayer(VertexAttribType.FLOAT_3, VertexAttribType.UBYTE_4_FLOAT_4_NORMALISED, VertexAttribType.FLOAT_2, VertexAttribType.UBYTE_1_INT_1);
-	static final TextureUnitBinder TEXTURE_UNIT_CONTAINER = new TextureUnitBinder();
+	static final TextureUnitBinder TEXTURE_UNIT_BINDER = new TextureUnitBinder();
 	static final ShaderProgram PROGRAM = new ShaderProgram();
 	static final ShaderProgram PROGRAM_TEX = new ShaderProgram();
 	static final ShaderProgram PROGRAM_MULTITEX = new ShaderProgram();
@@ -19,7 +19,6 @@ public class Drawer {
 	static final Color COLOR = new Color(1F, 1F, 1F, 1F);
 	static final Vector3f SCALE = new Vector3f(1F);
 	static int drawingMode;
-	static int vertexCount;
 	
 	static final int POSITION_ID = 0;
 	static final int COLOR_ID = 1;
@@ -47,15 +46,15 @@ public class Drawer {
 
 	public static void begin(int mode) {
 		drawingMode = mode;
-		vertexCount = 0;
 
 		LAYER.clearVertexArrayDataBakerIfExists();
-		TEXTURE_UNIT_CONTAINER.clear();
+		TEXTURE_UNIT_BINDER.clear();
+		TEXTURE_UNIT_BINDER.setCurrentUniformLocation(0);
 	}
 
 	public static void draw() {
 		ShaderProgram program;
-		int textureCount = TEXTURE_UNIT_CONTAINER.getCount();
+		int textureCount = TEXTURE_UNIT_BINDER.getUsedTextureUnitCount();
 		
 		if(textureCount == 0) {
 			program = PROGRAM;
@@ -65,7 +64,6 @@ public class Drawer {
 		}
 		else {
 			program = PROGRAM_MULTITEX;
-			TEXTURE_UNIT_CONTAINER.setForIntArrayUniform(program, 0);
 		}
 		
 		draw(program);
@@ -75,23 +73,18 @@ public class Drawer {
 		GL.debug("Drawer start", true);
 		
 		LAYER.compile();
+		TEXTURE_UNIT_BINDER.updateUniforms(program);
 
 		GL.debug("Drawer pre vao bind");
-		TEXTURE_UNIT_CONTAINER.bind();
+		TEXTURE_UNIT_BINDER.bind();
 		LAYER.setShaderProgram(program);
 		LAYER.render(drawingMode);
 		GL.debug("Draw drawArrays");
 	}
 	
 	public static void texture(Texture2D tex) {
-		byte index;
-		//if(!TEXTURE_UNIT_CONTAINER.isContains(tex)) {
-		index = (byte) TEXTURE_UNIT_CONTAINER.use(tex);
-		//}
-		//else {
-		//	index = (byte) TEXTURE_UNIT_CONTAINER.getIndex(tex);
-		//}
-		LAYER.getVertexArrayDataBaker().putByte(TEX_ID, index);
+		byte arrayIndex = (byte) TEXTURE_UNIT_BINDER.use(tex);
+		LAYER.getVertexArrayDataBaker().putByte(TEX_ID, arrayIndex);
 	}
 
 	public static void color(float r, float g, float b, float a) {

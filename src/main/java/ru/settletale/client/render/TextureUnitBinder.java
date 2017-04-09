@@ -6,12 +6,31 @@ import java.util.List;
 
 import org.lwjgl.system.MemoryStack;
 
+import com.carrotsearch.hppc.IntArrayList;
+import com.koloboke.collect.map.hash.HashIntObjMap;
+import com.koloboke.collect.map.hash.HashIntObjMaps;
+
 import ru.settletale.client.gl.GL;
 import ru.settletale.client.gl.ShaderProgram;
 import ru.settletale.client.gl.Texture;
 
+/** Group = uniform**/
 public class TextureUnitBinder {
+	int currentUniformLocation = -1;
+	IntArrayList currentGroup;
+	/** All used texture units **/
 	final List<Texture<?>> textures = new ArrayList<>();
+	/** Array of texture unit indexes **/
+	final HashIntObjMap<IntArrayList> groups = HashIntObjMaps.newMutableMap();
+
+	public void setCurrentUniformLocation(int location) {
+		currentUniformLocation = location;
+		currentGroup = groups.get(location);
+		if(currentGroup == null) {
+			currentGroup = new IntArrayList();
+			groups.put(location, currentGroup);
+		}
+	}
 
 	public void bind() {
 		for (int index = 0; index < textures.size(); index++) {
@@ -20,35 +39,52 @@ public class TextureUnitBinder {
 	}
 
 	public int use(Texture<?> texture) {
-		int index = textures.indexOf(texture);
-		if(index == -1) {
+		if(currentUniformLocation == -1) {
+			throw new Error("Uniform location not set");
+		}
+		int unitIndex = textures.indexOf(texture);
+		if (unitIndex == -1) {
 			textures.add(texture);
-			index = textures.indexOf(texture);
+			unitIndex = textures.indexOf(texture);
 		}
-		return index;
+
+		if (!currentGroup.contains(unitIndex)) {
+			currentGroup.add(unitIndex);
+		}
+		return currentGroup.indexOf(unitIndex);
 	}
 
-	public boolean isContains(Texture<?> texture) {
-		return textures.contains(texture);
-	}
-
-	public int getCount() {
-		return textures.size();
-	}
-
-	public void setForIntArrayUniform(ShaderProgram program, int location) {
-		try (MemoryStack ms = MemoryStack.stackPush()) {
-			IntBuffer buff = ms.mallocInt(textures.size());
-
-			for (int i = 0; i < textures.size(); i++) {
-				buff.put(i, i);
+	public void updateUniforms(ShaderProgram program) {
+		program.bind();
+		
+		groups.forEach((int location, IntArrayList group) -> {
+			if(group.size() <= 1) {
+				return;
 			}
+			
+			try (MemoryStack ms = MemoryStack.stackPush()) {
+				IntBuffer buff = ms.mallocInt(group.size());
 
-			program.setUniformIntArray(location, buff);
-		}
+				for (int i = 0; i < group.size(); i++) {
+					buff.put(i, group.get(i));
+				}
+
+				program.setUniformIntArray(location, buff);
+			}
+		});
+		
+		GL.debug("Texture Unit Binder updateUniforms end");
+	}
+	
+	public int getUsedTextureUnitCount() {
+		return textures.size();
 	}
 
 	public void clear() {
 		textures.clear();
+		groups.forEach((int location, IntArrayList group) -> {
+			group.clear();
+		});
+		groups.clear();
 	}
 }

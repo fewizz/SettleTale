@@ -30,7 +30,7 @@ public class TextureLoader extends ResourceLoaderAbstract {
 		BufferedImage image = null;
 
 		try {
-			image = ImageIO.read(resourceFile.fullPath);
+			image = ImageIO.read(resourceFile.path.toFile());
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.exit(1);

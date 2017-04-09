@@ -1,10 +1,10 @@
 info face="Arial" size=64 bold=0 italic=0 charset="" unicode=1 stretchH=100 smooth=1 aa=1 padding=0,0,0,0 spacing=1,1 outline=0
 common lineHeight=63 base=51 scaleW=512 scaleH=512 pages=5 packed=0 alphaChnl=0 redChnl=4 greenChnl=4 blueChnl=4
-page id=0 file="textures/font_0.png"
-page id=1 file="textures/font_1.png"
-page id=2 file="textures/font_2.png"
-page id=3 file="textures/font_3.png"
-page id=4 file="textures/font_4.png"
+page id=0 file="font_0.png"
+page id=1 file="font_1.png"
+page id=2 file="font_2.png"
+page id=3 file="font_3.png"
+page id=4 file="font_4.png"
 chars count=911
 char id=32   x=102   y=60    width=3     height=1     xoffset=-1    yoffset=62    xadvance=15    page=0  chnl=15
 char id=33   x=504   y=381   width=7     height=40    xoffset=5     yoffset=11    xadvance=17    page=2  chnl=15
