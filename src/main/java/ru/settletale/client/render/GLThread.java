@@ -47,8 +47,8 @@ public class GLThread extends ThreadWithTasks {
 		glfwWindowHint(GLFW_VISIBLE, GLFW_TRUE);
 		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
-		Window.id = glfwCreateWindow(800, 500, "Settle Tale", MemoryUtil.NULL, MemoryUtil.NULL);
-		Window.onWindowResize(800, 500);
+		Window.id = glfwCreateWindow(1200, 800, "Settle Tale", MemoryUtil.NULL, MemoryUtil.NULL);
+		Window.onWindowResize(1200, 800);
 		
 		if (Window.id == MemoryUtil.NULL)
 			throw new RuntimeException("Failed to create the GLFW window");

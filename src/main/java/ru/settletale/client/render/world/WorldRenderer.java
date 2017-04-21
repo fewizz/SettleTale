@@ -21,7 +21,6 @@ import ru.settletale.world.region.Region;
 
 public class WorldRenderer implements IRegionManagerListener {
 	public static final WorldRenderer INSTANCE = new WorldRenderer();
-	public static final HashLongObjMap<Region> REGIONS = HashLongObjMaps.newMutableMap();
 	public static final HashLongObjMap<CompiledRegion> REGIONS_TO_RENDER = HashLongObjMaps.newMutableMap();
 	static final ShaderProgram PROGRAM_SKY = new ShaderProgram();
 
@@ -56,18 +55,15 @@ public class WorldRenderer implements IRegionManagerListener {
 		GL.debug("World rend after transforms");
 
 		glEnable(GL_CULL_FACE);
-		REGIONS.forEach((long l, Region r) -> {
-			CompiledRegion cr = REGIONS_TO_RENDER.get(r.coord);
 
-			if (cr == null) {
+		REGIONS_TO_RENDER.forEach((long l, CompiledRegion r) -> {
+			if (!r.compiled) {
 				GL.debug("Fill buffers");
 				GL.debug("Fill VBOs");
-				cr = new CompiledRegion(r);
-				cr.compile();
+				r.compile();
 				GL.debug("Array clear");
-				REGIONS_TO_RENDER.put(r.coord, cr);
 			}
-			cr.render();
+			r.render();
 		});
 
 		glDisable(GL_CULL_FACE);
@@ -95,31 +91,31 @@ public class WorldRenderer implements IRegionManagerListener {
 
 		glLineWidth(10);
 		Drawer.begin(GL_LINES);
-		Drawer.color(Color.RED);
+		Drawer.COLOR.set(Color.RED);
 		Drawer.vertex(0, 50, 0);
 		Drawer.vertex(100, 50, 0);
 		Drawer.draw();
 
 		Drawer.begin(GL_QUADS);
-		Drawer.color(Color.WHITE);
+		Drawer.COLOR.set(Color.WHITE);
 		Drawer.texture(TextureLoader.TEXTURES.get("textures/grass.png"));
-		Drawer.uv(0, 0);
+		Drawer.UV.set(0, 0);
 		Drawer.vertex(0, 50, 0);
-		Drawer.uv(0, 1);
+		Drawer.UV.set(0, 1);
 		Drawer.vertex(0, 100, 0);
-		Drawer.uv(1, 1);
+		Drawer.UV.set(1, 1);
 		Drawer.vertex(50, 100, 0);
-		Drawer.uv(1, 0);
+		Drawer.UV.set(1, 0);
 		Drawer.vertex(50, 50, 0);
 
 		Drawer.texture(TextureLoader.TEXTURES.get("textures/tom.png"));
-		Drawer.uv(0, 0);
+		Drawer.UV.set(0, 0);
 		Drawer.vertex(50, 50, 0);
-		Drawer.uv(0, 1);
+		Drawer.UV.set(0, 1);
 		Drawer.vertex(50, 100, 0);
-		Drawer.uv(1, 1);
+		Drawer.UV.set(1, 1);
 		Drawer.vertex(150, 100, 0);
-		Drawer.uv(1, 0);
+		Drawer.UV.set(1, 0);
 		Drawer.vertex(150, 50, 0);
 		Drawer.draw();
 
@@ -128,7 +124,7 @@ public class WorldRenderer implements IRegionManagerListener {
 		Drawer.vertex(-50, 50, 0);
 		Drawer.draw();
 
-		Drawer.color(Color.RED);
+		Drawer.COLOR.set(Color.RED);
 		Drawer.begin(GL_TRIANGLES);
 		Drawer.vertex(-20, 25, 20);
 		Drawer.vertex(-50, 75, 20);
@@ -153,15 +149,13 @@ public class WorldRenderer implements IRegionManagerListener {
 	public void onRegionAdded(Region r) {
 		r.increaseThreadUsage();
 		GLThread.addTask(() -> {
-			REGIONS.put(r.coord, r);
+			REGIONS_TO_RENDER.put(r.coord, new CompiledRegion(r));
 		});
-
 	}
 
 	@Override
 	public void onRegionRemoved(Region r) {
 		GLThread.addTask(() -> {
-			REGIONS.remove(r.coord);
 			if (REGIONS_TO_RENDER.containsKey(r.coord)) {
 				REGIONS_TO_RENDER.get(r.coord).clear();
 				REGIONS_TO_RENDER.remove(r.coord);

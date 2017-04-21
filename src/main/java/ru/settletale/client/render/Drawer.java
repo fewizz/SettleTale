@@ -11,14 +11,16 @@ import ru.settletale.client.vertex.VertexAttribType;
 
 public class Drawer {
 	public static final RenderLayer LAYER = new RenderLayer(VertexAttribType.FLOAT_3, VertexAttribType.UBYTE_4_FLOAT_4_NORMALISED, VertexAttribType.FLOAT_2, VertexAttribType.UBYTE_1_INT_1);
-	static final TextureUnitBinder TEXTURE_UNIT_BINDER = new TextureUnitBinder();
+	public static final TextureUnitBinder TEXTURE_UNIT_BINDER = new TextureUnitBinder();
+	public static final Vector2f UV = new Vector2f();
+	public static final Color COLOR = new Color(Color.WHITE);
+	public static final Vector3f SCALE = new Vector3f(1F);
+	
 	static final ShaderProgram PROGRAM = new ShaderProgram();
 	static final ShaderProgram PROGRAM_TEX = new ShaderProgram();
 	static final ShaderProgram PROGRAM_MULTITEX = new ShaderProgram();
-	static final Vector2f UV = new Vector2f();
-	static final Color COLOR = new Color(1F, 1F, 1F, 1F);
-	static final Vector3f SCALE = new Vector3f(1F);
-	static int drawingMode;
+	
+	private static int drawingMode;
 	
 	static final int POSITION_ID = 0;
 	static final int COLOR_ID = 1;
@@ -49,7 +51,6 @@ public class Drawer {
 
 		LAYER.clearVertexArrayDataBakerIfExists();
 		TEXTURE_UNIT_BINDER.clear();
-		TEXTURE_UNIT_BINDER.setCurrentUniformLocation(0);
 	}
 
 	public static void draw() {
@@ -73,34 +74,19 @@ public class Drawer {
 		GL.debug("Drawer start", true);
 		
 		LAYER.compile();
-		TEXTURE_UNIT_BINDER.updateUniforms(program);
 
 		GL.debug("Drawer pre vao bind");
-		TEXTURE_UNIT_BINDER.bind();
+		TEXTURE_UNIT_BINDER.updateUniforms(program);
+		TEXTURE_UNIT_BINDER.bindTextures();
 		LAYER.setShaderProgram(program);
 		LAYER.render(drawingMode);
 		GL.debug("Draw drawArrays");
 	}
 	
 	public static void texture(Texture2D tex) {
+		TEXTURE_UNIT_BINDER.setCurrentUniformLocation(0);
 		byte arrayIndex = (byte) TEXTURE_UNIT_BINDER.use(tex);
 		LAYER.getVertexArrayDataBaker().putByte(TEX_ID, arrayIndex);
-	}
-
-	public static void color(float r, float g, float b, float a) {
-		COLOR.set(r, g, b, a);
-	}
-	
-	public static void color(Color c) {
-		COLOR.set(c);
-	}
-	
-	public static void scale(float scale) {
-		SCALE.set(scale);
-	}
-
-	public static void uv(float u, float v) {
-		UV.set(u, v);
 	}
 
 	public static void vertex(float x, float y) {

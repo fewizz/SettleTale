@@ -4,13 +4,11 @@ public class StringUtils {
 	public static final byte RIGHT = 0;
 	public static final byte LEFT = 1;
 	public static final byte E = 2;
-	
-	public static final float f = 0.546F;
 
 	public static void main(String[] args) {
 		String str = "0.456 5.456 8646.87987 654.56465 6546.4444";//"1/2 3/4 5/3";
 
-		System.out.println(Float.toHexString(f));
+		//System.out.println(Float.toHexString(f));
 		/*int[][] arr = new int[3][6];
 
 		readInts(str, arr, ' ', '/', -1);
@@ -47,6 +45,7 @@ public class StringUtils {
 		return false;
 	}
 
+	/** Splitter is ' ' **/
 	public static int readFloats(String str, float[] arr) {
 		byte part = LEFT;
 
@@ -133,12 +132,12 @@ public class StringUtils {
 	}
 
 	/** Example: 1/2*3/4*5/3. Here, s1 - '*', s2 - '/'. Def uses if number between splits is undefinded. **/
-	public static int readInts(String str, int[][] arr, char split1, char split2, int def) {
+	public static int readInts(String str, int[][] arr, int[] lengthsOfInteriors, char externalSplitter, char interiorSplitter, int def) {
 		boolean sign = false;
 		int num = 0;
 		int count = 0;
-		int index = 0;
-		int mainIndex = 0;
+		int interiorsCount = 0;
+		int externalsCount = 0;
 		boolean prevWasNum = false;
 
 		int len = str.length();
@@ -154,20 +153,20 @@ public class StringUtils {
 			else if (ch == '-' && !prevWasNum) {
 				sign = true;
 			}
-			else if (ch == split1 || ch == split2) {
+			else if (ch == externalSplitter || ch == interiorSplitter) {
 				if (prevWasNum) {
-					arr[mainIndex][index++] = num * (sign ? -1 : 1);
+					arr[externalsCount][interiorsCount++] = num * (sign ? -1 : 1);
 					count++;
 					sign = false;
 					num = 0;
 				}
 				else {
-					arr[mainIndex][index++] = def;
+					arr[externalsCount][interiorsCount++] = def;
 				}
 
-				if (ch == split1) {
-					mainIndex++;
-					index = 0;
+				if (ch == externalSplitter) {
+					externalsCount++;
+					interiorsCount = 0;
 				}
 
 				prevWasNum = false;
@@ -175,11 +174,11 @@ public class StringUtils {
 		}
 		
 		if (prevWasNum) {
-			arr[mainIndex][index++] = num * (sign ? -1 : 1);
+			arr[externalsCount][interiorsCount++] = num * (sign ? -1 : 1);
 			count++;
 		}
 		else {
-			arr[mainIndex][index++] = def;
+			arr[externalsCount][interiorsCount++] = def;
 		}
 
 		return count;

@@ -1,90 +1,89 @@
 package ru.settletale.client.render;
 
 import java.nio.IntBuffer;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.lwjgl.system.MemoryStack;
 
-import com.carrotsearch.hppc.IntArrayList;
 import com.koloboke.collect.map.hash.HashIntObjMap;
 import com.koloboke.collect.map.hash.HashIntObjMaps;
 
 import ru.settletale.client.gl.GL;
 import ru.settletale.client.gl.ShaderProgram;
 import ru.settletale.client.gl.Texture;
+import ru.settletale.util.AdvancedArrayList;
+import ru.settletale.util.AdvancedList;
+import ru.settletale.util.IndexArray;
 
 /** Group = uniform**/
 public class TextureUnitBinder {
 	int currentUniformLocation = -1;
-	IntArrayList currentGroup;
+	IndexArray currentIndexArray;
 	/** All used texture units **/
-	final List<Texture<?>> textures = new ArrayList<>();
+	final AdvancedList<Texture<?>> textureUnits = new AdvancedArrayList<>();
 	/** Array of texture unit indexes **/
-	final HashIntObjMap<IntArrayList> groups = HashIntObjMaps.newMutableMap();
+	final HashIntObjMap<IndexArray> arrays = HashIntObjMaps.newMutableMap();
 
 	public void setCurrentUniformLocation(int location) {
+		if (currentUniformLocation == location) {
+			return;
+		}
+
 		currentUniformLocation = location;
-		currentGroup = groups.get(location);
-		if(currentGroup == null) {
-			currentGroup = new IntArrayList();
-			groups.put(location, currentGroup);
-		}
+
+		arrays.computeIfAbsent(location, key -> new IndexArray());
+		currentIndexArray = arrays.get(location);
+
 	}
 
-	public void bind() {
-		for (int index = 0; index < textures.size(); index++) {
-			GL.bindTextureUnit(index, textures.get(index));
-		}
+	public void bindTextures() {
+		textureUnits.forEachIndexed((index, tex) -> GL.bindTextureUnit(index, tex));
 	}
 
+	/** Returns position in int array uniform **/
 	public int use(Texture<?> texture) {
-		if(currentUniformLocation == -1) {
+		textureUnits.addIfAbsent(texture);
+		int unitIndex = textureUnits.indexOf(texture);
+		int position = currentIndexArray.setNextFreePositionIfAbsent(unitIndex);
+		currentIndexArray.set(position, unitIndex);
+		return position;
+	}
+
+	public void use(Texture<?> texture, int position) {
+		if (currentUniformLocation == -1) {
 			throw new Error("Uniform location not set");
 		}
-		int unitIndex = textures.indexOf(texture);
-		if (unitIndex == -1) {
-			textures.add(texture);
-			unitIndex = textures.indexOf(texture);
-		}
 
-		if (!currentGroup.contains(unitIndex)) {
-			currentGroup.add(unitIndex);
-		}
-		return currentGroup.indexOf(unitIndex);
+		textureUnits.addIfAbsent(texture);
+		currentIndexArray.set(position, textureUnits.indexOf(texture));
 	}
 
 	public void updateUniforms(ShaderProgram program) {
-		program.bind();
-		
-		groups.forEach((int location, IntArrayList group) -> {
-			if(group.size() <= 1) {
+		arrays.forEach((int location, IndexArray array) -> {
+			if (array.getSize() == 0) {
 				return;
 			}
-			
-			try (MemoryStack ms = MemoryStack.stackPush()) {
-				IntBuffer buff = ms.mallocInt(group.size());
 
-				for (int i = 0; i < group.size(); i++) {
-					buff.put(i, group.get(i));
-				}
+			try (MemoryStack ms = MemoryStack.stackPush()) {
+				IntBuffer buff = ms.mallocInt(array.getSize());
+
+				array.forEach((position, index) -> buff.put(position, index));
 
 				program.setUniformIntArray(location, buff);
 			}
 		});
-		
+
 		GL.debug("Texture Unit Binder updateUniforms end");
 	}
-	
+
 	public int getUsedTextureUnitCount() {
-		return textures.size();
+		return textureUnits.size();
 	}
 
 	public void clear() {
-		textures.clear();
-		groups.forEach((int location, IntArrayList group) -> {
-			group.clear();
+		textureUnits.clear();
+
+		arrays.forEach((int location, IndexArray array) -> {
+			array.clear();
 		});
-		groups.clear();
 	}
 }

@@ -17,7 +17,7 @@ import ru.settletale.util.PrimitiveType;
 
 public class GL {
 	public static final boolean DEBUG = true;
-	private static final boolean DEBUG_ONLY_ERRORS = true;
+	public static final boolean DEBUG_ONLY_ERRORS = true;
 	private static final UniformBuffer UBO_MATRICES = new UniformBuffer();
 	private static final UniformBuffer UBO_MATRICES_INVERSED = new UniformBuffer();
 	private static final UniformBuffer UBO_MATRIX_COMBINED = new UniformBuffer();
@@ -36,7 +36,7 @@ public class GL {
 	public static final Matrix4fv VIEW_MATRIX = new Matrix4fv();
 	private static final Matrix4fv VIEW_MATRIX_INVERSED = new Matrix4fv();
 	private static final Matrix4fv MATRIX_COMBINED = new Matrix4fv();
-	private static final VertexArray defaultVao = new VertexArray();
+	private static final VertexArray DEFAULT_VAO = new VertexArray();
 
 	public static void init() {
 		debug("GL init start");
@@ -53,7 +53,7 @@ public class GL {
 		bindBufferBase(UBO_MATRIX_COMBINED, GlobalUniforms.MATRIX_COMBINED);
 		bindBufferBase(UBO_DISPLAY_SIZE, GlobalUniforms.DISPLAY);
 
-		defaultVao.id = 0;
+		DEFAULT_VAO.id = 0;
 		vendor = GL11.glGetString(GL11.GL_VENDOR);
 		versionMajor = GL11.glGetInteger(GL30.GL_MAJOR_VERSION);
 		versionMinor = GL11.glGetInteger(GL30.GL_MINOR_VERSION);
@@ -108,7 +108,7 @@ public class GL {
 	}
 
 	public static void bindDefaultVAO() {
-		defaultVao.bind();
+		DEFAULT_VAO.bind();
 	}
 
 	public static void bindTextureUnit(int index, Texture<?> texture) {
@@ -147,31 +147,38 @@ public class GL {
 
 	public static void debug(String s, boolean printParent) {
 		if (DEBUG) {
-			int error = GL11.glGetError();
+			int errorHex = GL11.glGetError();
+			String errorName = null;
 
-			if (DEBUG_ONLY_ERRORS && error != 0) {
-				String errorName = FROM_CODE_TO_ERROR_NAME_MAP.get(error);
+			if (DEBUG_ONLY_ERRORS && errorHex != 0) {
+				errorName = getErrorNameFromHex(errorHex);
 
-				if (errorName == null) {
-					try {
-						for (Field f : GL11.class.getDeclaredFields()) {
-							if (error != f.getInt(null)) {
-								continue;
-							}
-
-							errorName = f.getName();
-							FROM_CODE_TO_ERROR_NAME_MAP.put(error, errorName);
-						}
-					} catch (IllegalArgumentException | IllegalAccessException e) {
-						e.printStackTrace();
-					}
-				}
-
-				throw new Error("OpenGL Error 0x" + Integer.toHexString(error) + " \"" + errorName + "\"" + ": " + s + (printParent ? " | Previous: " + previousMessage : ""));
+				throw new Error("OpenGL Error 0x" + Integer.toHexString(errorHex) + " \"" + errorName + "\"" + ": " + s + (printParent ? " | Previous: " + previousMessage : ""));
 			}
 
 			previousMessage = s;
 		}
+	}
+	
+	public static String getErrorNameFromHex(int hex) {
+		String errorName = FROM_CODE_TO_ERROR_NAME_MAP.get(hex);
+		
+		if (errorName == null) {
+			try {
+				for (Field f : GL11.class.getDeclaredFields()) {
+					if (hex != f.getInt(null)) {
+						continue;
+					}
+
+					errorName = f.getName();
+					FROM_CODE_TO_ERROR_NAME_MAP.put(hex, errorName);
+				}
+			} catch (IllegalArgumentException | IllegalAccessException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return errorName;
 	}
 
 	public static int getGLPrimitiveType(PrimitiveType p) {

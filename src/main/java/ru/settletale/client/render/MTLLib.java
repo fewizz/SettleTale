@@ -6,8 +6,8 @@ import java.util.Map;
 import ru.settletale.client.gl.Texture;
 
 public class MTLLib {
-	public final Map<String, Material> materials = new HashMap<>();
-	public final Map<Material, Texture<?>> textures = new HashMap<>();
+	private final Map<String, Material> materials = new HashMap<>();
+	private final Map<Material, Texture<?>> textures = new HashMap<>();
 	
 	public void compile() {
 		
@@ -31,5 +31,9 @@ public class MTLLib {
 	
 	public void addTextureToMaterial(Material m, Texture<?> tex) { 
 		textures.put(m, tex);
+	}
+	
+	public Texture<?> getMaterialTexture(Material m) {
+		return textures.get(m);
 	}
 }

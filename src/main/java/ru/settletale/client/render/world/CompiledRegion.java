@@ -30,6 +30,8 @@ public class CompiledRegion {
 	static Texture2D textureGrass;
 	static final ByteBuffer TEMP_BUFFER = MemoryUtil.memAlloc(Region.WIDTH_EXTENDED * Region.WIDTH_EXTENDED * 2);
 	static final ShaderProgram PROGRAM = new ShaderProgram();
+	
+	public boolean compiled = false;
 	final Region region;
 	RenderLayer layer;
 	Texture2D textureIDs;
@@ -94,7 +96,8 @@ public class CompiledRegion {
 
 		GL.debug("CR compile texture");
 		textureIDs.data(TEMP_BUFFER);
-
+		compiled = true;
+		
 		GL.debug("CR compile end");
 	}
 

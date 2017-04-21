@@ -95,7 +95,7 @@ public class RenderLayer {
 	}
 
 	public void clearVertexArrayDataBakerIfExists() {
-		if (getVertexArrayDataBaker() != null)
+		if (hasVertexAttribArray())
 			getVertexArrayDataBaker().clearData();
 	}
 

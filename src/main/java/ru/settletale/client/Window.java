@@ -22,6 +22,5 @@ public class Window {
 			glViewport(0, 0, width, height);
 			GL.updateDisplaySizeUniformBlock();
 		});
-
 	}
 }

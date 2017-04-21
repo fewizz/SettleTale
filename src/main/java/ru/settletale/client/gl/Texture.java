@@ -53,9 +53,9 @@ public abstract class Texture<T> extends GLObject<T> {
 	}
 	
 	@Override
-	public boolean bind() {
+	public void bind() {
 		GL.setActiveTextureUnitTexture(this);
-		return super.bind();
+		super.bind();
 	}
 	
 	public T setDefaultParams() {

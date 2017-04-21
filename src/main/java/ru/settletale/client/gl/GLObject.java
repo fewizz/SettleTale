@@ -6,8 +6,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public abstract class GLObject<T> {
-	protected int id = -1;
-	protected GlobalID idGlobal;
+	public static final int ID_NOT_GENERATED = -1;
+	protected int id = ID_NOT_GENERATED;
+	protected final GlobalID globalID;
 	private static final Map<Class<?>, Class<?>> CLASS_TO_CLASS = new HashMap<>();
 	private static final Map<Class<?>, GlobalID> CLASS_TO_GLOBAL_ID = new HashMap<>();
 
@@ -15,41 +16,44 @@ public abstract class GLObject<T> {
 		Class<?> clazz = CLASS_TO_CLASS.get(getClass());
 
 		if (clazz == null) {
-			clazz = getNameableBaseClass();
+			clazz = getBaseClass();
 			CLASS_TO_CLASS.put(getClass(), clazz);
 		}
 
-		idGlobal = CLASS_TO_GLOBAL_ID.get(clazz);
-
-		if (idGlobal == null) {
-			idGlobal = new GlobalID();
-
-			CLASS_TO_GLOBAL_ID.put(clazz, idGlobal);
+		GlobalID globalID = CLASS_TO_GLOBAL_ID.get(clazz);
+		if (globalID == null) {
+			globalID = new GlobalID();
+			CLASS_TO_GLOBAL_ID.put(clazz, globalID);
 		}
+		
+		this.globalID = globalID;
 	}
 
 	public T gen() {
 		id = genInternal();
 		return getThis();
 	}
-	
+
 	public void delete() {
 		bind();
 		deleteInternal();
-		setLastGlobalID(-1);
-		id = -1;
+		
+		if(getLastGlobalID() == id) {
+			setLastGlobalID(ID_NOT_GENERATED);
+		}
+		id = ID_NOT_GENERATED;
 	}
 
 	public int getID() {
 		return id;
 	}
-	
+
 	private void setLastGlobalID(int id) {
-		idGlobal.set(id);
+		globalID.set(id);
 	}
 
 	private int getLastGlobalID() {
-		return idGlobal.get();
+		return globalID.get();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -57,16 +61,15 @@ public abstract class GLObject<T> {
 		return (T) this;
 	}
 
-	public boolean bind() {
+	public void bind() {
 		if (!isGenerated()) {
 			throw new Error("Object is not generated!");
 		}
 		if (getLastGlobalID() == id) {
-			return false;
+			return;
 		}
 		bindInternal();
 		setLastGlobalID(id);
-		return true;
 	}
 
 	public boolean isBound() {
@@ -74,58 +77,61 @@ public abstract class GLObject<T> {
 	}
 
 	public boolean isGenerated() {
-		return id != -1;
+		return id != ID_NOT_GENERATED;
 	}
 
 	public boolean unbind() {
-		if (getLastGlobalID() == 0) {
+		if (getLastGlobalID() == ID_NOT_GENERATED) {
 			return false;
 		}
 		unbindInternal();
-		setLastGlobalID(0);
+		setLastGlobalID(-1);
 		return true;
 	}
 
-	private Class<?> getNameableBaseClass() {
-		Class<?> result = getClass();
+	private Class<?> getBaseClass() {
+		Class<?> baseClass = getClass();
 
 		if (GL.DEBUG)
-			System.out.println(result.getName());
+			System.out.println(baseClass.getName());
 
 		for (;;) {
-			Method method = null;
+			Method isBaseMethod = null;
 
 			try {
-				method = result.getDeclaredMethod("isBase");
-			} catch (NoSuchMethodException e) {} catch (SecurityException e) {}
-
-			try {
-				if (method != null && (boolean) method.invoke(this)) {
+				for(Method m : baseClass.getDeclaredMethods()) {
+					if(m.getName().equals("isBase")) {
+						isBaseMethod = m;
+					}
+				}
+				
+				if (isBaseMethod != null && (boolean) isBaseMethod.invoke(this)) {
 					break;
 				}
-				else {
-					result = result.getSuperclass();
+				
+				baseClass = baseClass.getSuperclass();
 
-					if (result == Object.class) {
-						throw new Error("Base class for " + getClass().getName() + " is not found!");
-					}
-
-					continue;
+				if (baseClass == Object.class) {
+					throw new Error("Base class for " + getClass().getName() + " is not found!");
 				}
-			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+
+				continue;
+
+			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | SecurityException e) {
 				e.printStackTrace();
 			}
 
 		}
 
-		if (!GLObject.class.isAssignableFrom(result)) {
-			throw new Error("Class + " + result.getName() + " is not base!");
+		if (!GLObject.class.isAssignableFrom(baseClass)) {
+			throw new Error("Class + " + baseClass.getName() + " is not base!");
 		}
 
-		if (GL.DEBUG)
-			System.out.println(": " + result.getName());
+		if (GL.DEBUG) {
+			System.out.println(": " + baseClass.getName());
+		}
 
-		return result;
+		return baseClass;
 	}
 
 	public abstract boolean isBase();
@@ -135,6 +141,6 @@ public abstract class GLObject<T> {
 	public abstract void bindInternal();
 
 	public abstract void unbindInternal();
-	
+
 	public abstract void deleteInternal();
 }

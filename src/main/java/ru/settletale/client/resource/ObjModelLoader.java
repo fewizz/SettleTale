@@ -9,7 +9,9 @@ import java.util.Map;
 import org.lwjgl.system.MemoryUtil;
 
 import ru.settletale.client.render.MTLLib;
+import ru.settletale.client.render.Material;
 import ru.settletale.client.render.ObjModel;
+import ru.settletale.client.render.TextureUnitBinder;
 import ru.settletale.client.vertex.VertexAttribType;
 import ru.settletale.client.vertex.VertexArrayDataBaker;
 import ru.settletale.util.FileUtils;
@@ -34,44 +36,61 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 		String[] strings = FileUtils.readLines(resourceFile.path.toFile());
 		float[] back = new float[9];
 		int[][] backIndex = new int[6][4];
+		int[] backIndexReturn = new int[5];
 		float[][] backPos = new float[4][4];
 		float[][] backNorm = new float[4][3];
 		float[][] backUV = new float[4][2];
+		int[] counts = getCountOfElements(strings, new String[] { "v", "vt", "vn" });
 
-		int[] counts = getCountOfElements(strings, new String[] {"v", "vt", "vn"});
-		
 		FloatBuffer positions = MemoryUtil.memAllocFloat(counts[0] * 4);
 		FloatBuffer uvs = MemoryUtil.memAllocFloat(counts[1] * 2);
 		FloatBuffer normals = MemoryUtil.memAllocFloat(counts[2] * 3);
-		
-		VertexArrayDataBaker pa = new VertexArrayDataBaker(VertexAttribType.FLOAT_4, VertexAttribType.FLOAT_3, VertexAttribType.FLOAT_2, VertexAttribType.INT_1);
-		
-		//List<MTLLib> mtlLibs = new ArrayList<>();
 
-		//String mtlLibPath = "";
-		//List<String> materialsNames = new ArrayList<String>();
+		VertexArrayDataBaker pa = new VertexArrayDataBaker(VertexAttribType.FLOAT_4, VertexAttribType.FLOAT_3, VertexAttribType.FLOAT_2, VertexAttribType.INT_1);
+
+		List<Material> materials = new ArrayList<>();
+		TextureUnitBinder tub = new TextureUnitBinder();
+
 		int currentMatID = 0;
+		MTLLib currentMTLLib = null;
+		Material currentMaterial = null;
 
 		for (int i = 0; i < strings.length; i++) {
 			String str = strings[i];
 
-			if (str.startsWith("v ")) {
-				readPosition(str, positions, back);
+			char firstChar = str.charAt(0);
+
+			if (firstChar == 'v') {
+				if (str.startsWith("v ")) {
+					readPosition(str, positions, back);
+				}
+				else if (str.startsWith("vn")) {
+					readNormal(str, normals, back);
+				}
+				else if (str.startsWith("vt")) {
+					readUV(str, uvs, back);
+				}
 			}
-			else if (str.startsWith("vn ")) {
-				readNormal(str, normals, back);
+			else if (firstChar == 'f') {
+				readFace(str, pa, positions, normals, uvs, currentMatID, backIndex, backIndexReturn, backPos, backNorm, backUV);
 			}
-			else if (str.startsWith("vt ")) {
-				readUV(str, uvs, back);
-			}
-			else if (str.startsWith("f ")) {
-				readFace(str, pa, positions, normals, uvs, currentMatID, backIndex, backPos, backNorm, backUV);
-			}
-			else if (str.startsWith("mtllib ")) {
-				mtlLibPath = readNameOfMTLLib(str);
-			}
-			else if (str.startsWith("usemtl ")) {
-				currentMatID = getIDOfMaterial(str, materialsNames);
+			else {
+				if (str.startsWith("mtllib")) {
+					ResourceFile res = resourceFile.dir.getResourceFile(readNameOfMTLLib(str));
+					ResourceManager.loadResource(res);
+					currentMTLLib = MtlLibLoader.MTLS.get(res.key);
+				}
+				else if (str.startsWith("usemtl")) {
+					String materialName = str.split(" ")[1];
+					currentMaterial = currentMTLLib.getMaterial(materialName);
+					
+					if(!materials.contains(currentMaterial)) {
+						materials.add(currentMaterial);
+					}
+					
+					currentMatID = materials.indexOf(currentMaterial);
+					tub.use(currentMTLLib.getMaterialTexture(currentMaterial), currentMatID);
+				}
 			}
 		}
 
@@ -80,20 +99,9 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 		uvs.rewind();
 
 		ObjModel model = new ObjModel();
-		//model.setMtlLibPath(FileUtils.getDirectoryPath(resourceFile.subPath) + mtlLibPath);
-		model.setMaterialNames(materialsNames);
 
 		MODELS.put(resourceFile.key, model);
 	}
-
-	/*@Override
-	public void onResourcesLoadEnd() {
-		MODELS.forEach((key, model) -> {
-			GLThread.addTask(() -> {
-				model.compile();
-			});
-		});
-	}*/
 
 	public static void readPosition(String str, FloatBuffer fb, float[] back) {
 		int i = StringUtils.readFloats(str, back);
@@ -131,16 +139,16 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 		fb.put(v);
 	}
 
-	public static void readFace(String str, VertexArrayDataBaker pa, FloatBuffer positions, FloatBuffer normals, FloatBuffer uvs, int matID, int[][] back, float[][] backPos, float[][] backNorm, float[][] backUV) {
+	public static void readFace(String str, VertexArrayDataBaker pa, FloatBuffer positions, FloatBuffer normals, FloatBuffer uvs, int matID, int[][] back, int[] backReturn, float[][] backPos, float[][] backNorm, float[][] backUV) {
 		//Needs to know, if they uses
 		back[0][1] = -1; //For UV
 		back[0][2] = -1; //For Normal
-		
-		int count = StringUtils.readInts(str, back, ' ', '/', -1);
+
+		int count = StringUtils.readInts(str, back, backReturn, ' ', '/', -1);
 
 		boolean hasUV = back[0][1] != -1;
 		boolean hasNormal = back[0][2] != -1;
-		
+
 		boolean isQuad = count == 8 || count == 12;
 
 		if (!hasUV) {
@@ -156,7 +164,7 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 		flags |= (hasUV ? 1 : 0) << 8;
 		flags |= (hasNormal ? 1 : 0) << 9;
 		pa.putInt(FLAGS, flags);
-		
+
 		for (int k = 0; k < vertCount; k++) {
 			int v = back[k + 1][0];
 			int vt = back[k + 1][1];
@@ -236,16 +244,6 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 		return str.split(" ")[1];
 	}
 
-	public static int getIDOfMaterial(String str, List<String> materials) {
-		String m1 = str.split(" ")[1];
-
-		if (!materials.contains(m1)) {
-			materials.add(m1);
-		}
-
-		return materials.indexOf(m1);
-	}
-
 	public static int[] getCountOfElements(String[] strings, String[] elementNames) {
 		int counts[] = new int[elementNames.length];
 
@@ -253,9 +251,9 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 			if (str == null) {
 				continue;
 			}
-			
-			for(int i = 0; i < elementNames.length; i++) {
-				if(str.startsWith(elementNames[i])) {
+
+			for (int i = 0; i < elementNames.length; i++) {
+				if (str.startsWith(elementNames[i])) {
 					counts[i]++;
 				}
 			}

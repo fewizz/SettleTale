@@ -20,6 +20,10 @@ public class Color {
 		set((byte)r, (byte)g, (byte)b, (byte)a);
 	}
 	
+	public Color(Color c) {
+		set(c);
+	}
+	
 	public Color(float r, float g, float b, float a) {
 		this.set(r, g, b, a);
 	}

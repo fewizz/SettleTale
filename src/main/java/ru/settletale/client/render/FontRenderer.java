@@ -92,18 +92,18 @@ public class FontRenderer {
 
 			Texture2D tex = fch.page.texture;
 			Drawer.texture(tex);
-			Drawer.color(COLOR);
+			Drawer.COLOR.set(COLOR);
 
-			Drawer.uv(tu, tv - th);
+			Drawer.UV.set(tu, tv - th);
 			Drawer.vertex(wTotal + xOffset, (y + base - yOffset) - height, 0);
 
-			Drawer.uv(tu, tv);
+			Drawer.UV.set(tu, tv);
 			Drawer.vertex(wTotal + xOffset, y + base - yOffset, 0);
 
-			Drawer.uv(tu + tw, tv);
+			Drawer.UV.set(tu + tw, tv);
 			Drawer.vertex(wTotal + xOffset + width, y + base - yOffset, 0);
 
-			Drawer.uv(tu + tw, tv - th);
+			Drawer.UV.set(tu + tw, tv - th);
 			Drawer.vertex(wTotal + xOffset + width, (y + base - yOffset) - height, 0);
 
 			wTotal += fch.xAdvance * scale;

@@ -80,7 +80,7 @@ public class GLBuffer<T> extends GLObject<T> {
 	}
 	
 	public void data(FloatBuffer buffer) {
-		this.data(DirectBufferUtils.fromFloatToByteBufferView(buffer));
+		this.data(DirectBufferUtils.getByteBufferView(buffer));
 	}
 
 	public void subData(ByteBuffer buffer) {
@@ -94,7 +94,7 @@ public class GLBuffer<T> extends GLObject<T> {
 	}
 	
 	public void subData(FloatBuffer buffer) {
-		this.subData(DirectBufferUtils.fromFloatToByteBufferView(buffer));
+		this.subData(DirectBufferUtils.getByteBufferView(buffer));
 	}
 	
 	public T loadDataOrSubData(ByteBuffer buffer) {
