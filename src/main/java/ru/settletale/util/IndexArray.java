@@ -118,6 +118,10 @@ public class IndexArray {
 	public int getSize() {
 		return size;
 	}
+	
+	public boolean isEmpty() {
+		return size == 0;
+	}
 
 	private void checkCapacity(int howManySizeShouldBe) {
 		if (buffer.capacity() < howManySizeShouldBe) {

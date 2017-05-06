@@ -59,7 +59,7 @@ public class TextureUnitBinder {
 
 	public void updateUniforms(ShaderProgram program) {
 		arrays.forEach((int location, IndexArray array) -> {
-			if (array.getSize() == 0) {
+			if (array.isEmpty()) {
 				return;
 			}
 
