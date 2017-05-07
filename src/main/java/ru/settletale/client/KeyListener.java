@@ -2,8 +2,8 @@ package ru.settletale.client;
 
 import static org.lwjgl.glfw.GLFW.*;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.lwjgl.glfw.GLFWKeyCallback;
 
@@ -13,7 +13,7 @@ import com.koloboke.collect.map.hash.HashIntObjMaps;
 public class KeyListener extends GLFWKeyCallback {
 	public static final KeyListener INSTANCE = new KeyListener();
 	
-	private static final Map<Thread, HashIntObjMap<KeyState>> KEY_UPDATES = new HashMap<>();
+	private static final Map<Thread, HashIntObjMap<KeyState>> KEY_UPDATES = new ConcurrentHashMap<>();
 	private static final ThreadLocal<HashIntObjMap<KeyState>> KEY_STATES = new ThreadLocal<HashIntObjMap<KeyState>>() {
 		@Override
 		protected HashIntObjMap<KeyState> initialValue() {
@@ -23,15 +23,6 @@ public class KeyListener extends GLFWKeyCallback {
 
 	@Override
 	public void invoke(long window, int key, int scancode, int action, int mods) {
-		Thread t = Thread.currentThread();
-		
-		HashIntObjMap<KeyState> updates = KEY_UPDATES.get(t);
-		
-		if(updates == null) {
-			updates = HashIntObjMaps.newMutableMap();
-			KEY_UPDATES.put(t, updates);
-		}
-		
 		KeyState state = KeyState.getStateFromAction(action);
 		
 		KEY_UPDATES.forEach((thread, updateMap) -> {
@@ -49,7 +40,7 @@ public class KeyListener extends GLFWKeyCallback {
 		return false;
 	}
 	
-	public static boolean isKeyPressedFirst(int key) {
+	public static boolean isKeyPressedFirstly(int key) {
 		KeyState state = KEY_STATES.get().get(key);
 
 		if (state == KeyState.PRESSED_FIRST) {
@@ -59,7 +50,7 @@ public class KeyListener extends GLFWKeyCallback {
 		return false;
 	}
 	
-	public static boolean isKeyPressedLast(int key) {
+	public static boolean isKeyPressedLastly(int key) {
 		KeyState state = KEY_STATES.get().get(key);
 
 		if (state == KeyState.PRESSED_LAST) {
@@ -72,13 +63,8 @@ public class KeyListener extends GLFWKeyCallback {
 	public static void updateForCurrentThread() {
 		Thread t = Thread.currentThread();
 		final HashIntObjMap<KeyState> states = KEY_STATES.get();
+		KEY_UPDATES.computeIfAbsent(t, (key) -> HashIntObjMaps.newMutableMap());
 		HashIntObjMap<KeyState> updates = KEY_UPDATES.get(t);
-		
-		if(updates == null) {
-			updates = HashIntObjMaps.newMutableMap();
-			KEY_UPDATES.put(t, updates);
-			return; //Bcs map is empty
-		}
 		
 		states.forEach((int key, KeyState state) -> {
 			if(state == KeyState.PRESSED_FIRST) {
@@ -93,16 +79,16 @@ public class KeyListener extends GLFWKeyCallback {
 			return;
 		}
 		
-		updates.forEach((int key, KeyState state) -> {
+		updates.forEach((int key, KeyState updatedState) -> {
 			KeyState currentState = states.get(key);
 			if(currentState == null) {
 				currentState = KeyState.UNPRESSED;
 			}
 			
-			if (currentState == KeyState.UNPRESSED && state == KeyState.PRESSED) {
+			if (currentState == KeyState.UNPRESSED && updatedState == KeyState.PRESSED) {
 				states.put(key, KeyState.PRESSED_FIRST);
 			}
-			if ((currentState == KeyState.PRESSED || currentState == KeyState.PRESSED_FIRST) && state == KeyState.UNPRESSED) {
+			if ((currentState == KeyState.PRESSED || currentState == KeyState.PRESSED_FIRST) && updatedState == KeyState.UNPRESSED) {
 				states.put(key, KeyState.PRESSED_LAST);
 			}
 		});

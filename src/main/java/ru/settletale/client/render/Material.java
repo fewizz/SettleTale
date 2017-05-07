@@ -15,5 +15,4 @@ public class Material {
 		colorSpecular = new Vector3f(WHITE);
 	}
 	
-	
 }

@@ -1,9 +1,7 @@
 package ru.settletale.client.resource;
 
 import java.nio.FloatBuffer;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.lwjgl.system.MemoryUtil;
@@ -11,7 +9,7 @@ import org.lwjgl.system.MemoryUtil;
 import ru.settletale.client.render.MTLLib;
 import ru.settletale.client.render.Material;
 import ru.settletale.client.render.ObjModel;
-import ru.settletale.client.render.TextureUnitBinder;
+import ru.settletale.client.render.TextureAndMaterialBinder;
 import ru.settletale.client.vertex.VertexAttribType;
 import ru.settletale.client.vertex.VertexArrayDataBaker;
 import ru.settletale.util.FileUtils;
@@ -47,11 +45,9 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 		FloatBuffer normals = MemoryUtil.memAllocFloat(counts[2] * 3);
 
 		VertexArrayDataBaker pa = new VertexArrayDataBaker(VertexAttribType.FLOAT_4, VertexAttribType.FLOAT_3, VertexAttribType.FLOAT_2, VertexAttribType.INT_1);
+		TextureAndMaterialBinder tb = new TextureAndMaterialBinder();
 
-		List<Material> materials = new ArrayList<>();
-		TextureUnitBinder tub = new TextureUnitBinder();
-
-		int currentMatID = 0;
+		int currentMatID = -1;
 		MTLLib currentMTLLib = null;
 		Material currentMaterial = null;
 
@@ -59,15 +55,16 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 			String str = strings[i];
 
 			char firstChar = str.charAt(0);
+			char secondChar = str.charAt(1);
 
 			if (firstChar == 'v') {
-				if (str.startsWith("v ")) {
+				if (secondChar == ' ') {
 					readPosition(str, positions, back);
 				}
-				else if (str.startsWith("vn")) {
+				else if (secondChar == 'n') {
 					readNormal(str, normals, back);
 				}
-				else if (str.startsWith("vt")) {
+				else if (secondChar == 't') {
 					readUV(str, uvs, back);
 				}
 			}
@@ -76,20 +73,15 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 			}
 			else {
 				if (str.startsWith("mtllib")) {
-					ResourceFile res = resourceFile.dir.getResourceFile(readNameOfMTLLib(str));
+					ResourceFile res = resourceFile.dir.getResourceFile(readMTLLibName(str));
 					ResourceManager.loadResource(res);
 					currentMTLLib = MtlLibLoader.MTLS.get(res.key);
 				}
 				else if (str.startsWith("usemtl")) {
-					String materialName = str.split(" ")[1];
+					String materialName = readMaterialName(str);
 					currentMaterial = currentMTLLib.getMaterial(materialName);
-					
-					if(!materials.contains(currentMaterial)) {
-						materials.add(currentMaterial);
-					}
-					
-					currentMatID = materials.indexOf(currentMaterial);
-					tub.use(currentMTLLib.getMaterialTexture(currentMaterial), currentMatID);
+					currentMatID = tb.register(currentMaterial, currentMTLLib.getMaterialTexture(currentMaterial));
+					pa.putInt(FLAGS, currentMatID);
 				}
 			}
 		}
@@ -240,7 +232,11 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 		pa.endVertex();
 	}
 
-	public static String readNameOfMTLLib(String str) {
+	public static String readMTLLibName(String str) {
+		return str.split(" ")[1];
+	}
+	
+	public static String readMaterialName(String str) {
 		return str.split(" ")[1];
 	}
 

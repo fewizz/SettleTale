@@ -15,7 +15,7 @@ import ru.settletale.util.AdvancedList;
 import ru.settletale.util.IndexArray;
 
 /** Group = uniform**/
-public class TextureUnitBinder {
+public class TextureBinder {
 	int currentUniformLocation = -1;
 	IndexArray currentIndexArray;
 	/** All used texture units **/
@@ -24,9 +24,8 @@ public class TextureUnitBinder {
 	final HashIntObjMap<IndexArray> arrays = HashIntObjMaps.newMutableMap();
 
 	public void setCurrentUniformLocation(int location) {
-		if (currentUniformLocation == location) {
+		if (currentUniformLocation == location)
 			return;
-		}
 
 		currentUniformLocation = location;
 
@@ -40,7 +39,7 @@ public class TextureUnitBinder {
 	}
 
 	/** Returns position in int array uniform **/
-	public int use(Texture<?> texture) {
+	public int register(Texture<?> texture) {
 		textureUnits.addIfAbsent(texture);
 		int unitIndex = textureUnits.indexOf(texture);
 		int position = currentIndexArray.setNextFreePositionIfAbsent(unitIndex);
@@ -48,10 +47,9 @@ public class TextureUnitBinder {
 		return position;
 	}
 
-	public void use(Texture<?> texture, int position) {
-		if (currentUniformLocation == -1) {
+	public void register(Texture<?> texture, int position) {
+		if (currentUniformLocation == -1)
 			throw new Error("Uniform location not set");
-		}
 
 		textureUnits.addIfAbsent(texture);
 		currentIndexArray.set(position, textureUnits.indexOf(texture));
@@ -59,9 +57,8 @@ public class TextureUnitBinder {
 
 	public void updateUniforms(ShaderProgram program) {
 		arrays.forEach((int location, IndexArray array) -> {
-			if (array.isEmpty()) {
+			if (array.isEmpty())
 				return;
-			}
 
 			try (MemoryStack ms = MemoryStack.stackPush()) {
 				IntBuffer buff = ms.mallocInt(array.getSize());
@@ -81,9 +78,6 @@ public class TextureUnitBinder {
 
 	public void clear() {
 		textureUnits.clear();
-
-		arrays.forEach((int location, IndexArray array) -> {
-			array.clear();
-		});
+		arrays.forEach((int location, IndexArray array) -> array.clear());
 	}
 }

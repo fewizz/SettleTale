@@ -50,7 +50,7 @@ public class RegionManagerOnePlayer extends RegionManagerAbstract {
 					}
 					region = readOrGenerateRegion(x, z);
 
-					this.regions.put(region.coord, region);
+					this.regions.put(region.coordClamped, region);
 
 					for (IRegionManagerListener listener : listeners) {
 						listener.onRegionAdded(region);

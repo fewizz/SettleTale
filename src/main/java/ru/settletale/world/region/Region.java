@@ -1,7 +1,7 @@
 package ru.settletale.world.region;
 
-import java.util.ArrayDeque;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import ru.settletale.registry.Biomes;
@@ -9,7 +9,7 @@ import ru.settletale.util.MathUtils;
 import ru.settletale.world.biome.BiomeAbstract;
 
 public class Region {
-	static final Queue<Region> FREE_REGION_CACHE = new ArrayDeque<>();
+	static final Queue<Region> FREE_REGION_CACHE = new ConcurrentLinkedQueue<Region>();
 	public static final int WIDTH = 32;
 	public static final int EXTENSION = 1;
 	public static final int WIDTH_F = WIDTH;
@@ -19,33 +19,35 @@ public class Region {
 	public int x;
 	public int z;
 	public boolean active;
-	public long coord;
-	private AtomicInteger threadsUses = new AtomicInteger(0);
+	public long coordClamped;
+	private AtomicInteger threadUsages = new AtomicInteger(0);
 
 	private Region() {
 	}
 
 	public static Region getFreeRegion(int x, int z) {
-		Region r = FREE_REGION_CACHE.poll();
+		Region r = FREE_REGION_CACHE.peek();
 		if (r == null) {
 			r = new Region();
 		}
-		if (r.threadsUses.get() != 0) {
+		if (r.threadUsages.get() != 0) {
 			throw new Error("Is already uses");
 		}
 
-		r.initInfo(x, z);
 		r.increaseThreadUsage();
+		r.initInfo(x, z);
 		return r;
 	}
 
 	public void increaseThreadUsage() {
-		FREE_REGION_CACHE.poll();
-		threadsUses.incrementAndGet();
+		if(threadUsages.get() == 0 && FREE_REGION_CACHE.contains(this)) {
+			FREE_REGION_CACHE.remove(this);
+		}
+		threadUsages.incrementAndGet();
 	}
 
 	public void decreaseThreadUsage() {
-		int val = threadsUses.decrementAndGet();
+		int val = threadUsages.decrementAndGet();
 
 		if (val < 0) {
 			throw new Error("Too many region thread usage decreases");
@@ -59,7 +61,7 @@ public class Region {
 		this.x = x;
 		this.z = z;
 		active = false;
-		this.coord = MathUtils.clamp(x, z);
+		this.coordClamped = MathUtils.clamp(x, z);
 	}
 
 	public BiomeAbstract getBiome(int x, int z) {

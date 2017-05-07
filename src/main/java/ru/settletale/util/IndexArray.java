@@ -2,7 +2,7 @@ package ru.settletale.util;
 
 import java.nio.IntBuffer;
 
-import org.lwjgl.system.MemoryUtil;
+import static org.lwjgl.system.MemoryUtil.*;
 
 public class IndexArray {
 	private static final int NOT_SET = -1;
@@ -17,8 +17,8 @@ public class IndexArray {
 		arr.set(0, 10);
 		arr.set(2, 56);
 		arr.set(1, 12);
-		arr.set(150, 7);
-		arr.set(1200, 5);
+		arr.set(3, 7);
+		arr.set(4, 5);
 
 		arr.remove(0);
 
@@ -27,46 +27,43 @@ public class IndexArray {
 		});
 
 		System.out.println(arr.getNextFreePosition());
+		System.out.println(arr.getPositionOfIndex(5));
 	}
 
 	public IndexArray() {
-		buffer = MemoryUtil.memAllocInt(RESERVE);
-		MemoryUtil.memSet(MemoryUtil.memAddress(buffer), NOT_SET, buffer.capacity() * Integer.BYTES);
+		buffer = memAllocInt(RESERVE);
+		memSet(memAddress(buffer), NOT_SET, buffer.capacity() * Integer.BYTES);
 	}
 
 	public void set(int position, int index) {
 		checkCapacity(position + 1);
 
-		if (buffer.get(position) == NOT_SET) {
+		if (buffer.get(position) == NOT_SET)
 			size++;
-		}
 
-		if (position == minOccupied + 1) {
+		if (position - 1 == minOccupied)
 			minOccupied++;
-		}
 
 		buffer.put(position, index);
 	}
-	
+
 	public int setNextFreePositionIfAbsent(int index) {
-		int position = getPositionOf(index);
-		
-		if(position == -1) {
+		int position = getPositionOfIndex(index);
+
+		if (position == -1) {
 			position = getNextFreePosition();
 			set(position, index);
 		}
-		
+
 		return position;
 	}
 
 	public void remove(int position) {
-		if (buffer.get(position) != NOT_SET) {
+		if (buffer.get(position) != NOT_SET)
 			size--;
-		}
 
-		if (position <= minOccupied) {
+		if (position <= minOccupied)
 			minOccupied = position - 1;
-		}
 
 		buffer.put(position, NOT_SET);
 	}
@@ -75,50 +72,50 @@ public class IndexArray {
 		return buffer.get(position);
 	}
 
-	public int getPositionOf(int index) {
-		for (int position = 0; position < buffer.capacity(); position++) {
-			if (buffer.get(position) == index) {
+	public int getPositionOfIndex(int index) {
+		int element = 0;
+
+		for (int position = 0; element < size; position++) {
+			int ind = buffer.get(position);
+
+			if (ind == index)
 				return position;
-			}
+
+			if (ind != NOT_SET)
+				element++;
 		}
 
-		return NOT_SET;
+		return -1;
 	}
 
 	public int getNextFreePosition() {
 		for (int position = minOccupied + 1; position < buffer.capacity(); position++) {
-			if (buffer.get(position) == NOT_SET) {
+			if (buffer.get(position) == NOT_SET)
 				return position;
-			}
-			else {
+			else
 				minOccupied++;
-			}
 		}
 
 		return -1;
 	}
 
 	public void forEach(IntIntConsumer action) {
-		int count = 0;
+		int element = 0;
 
-		for (int position = 0; position < buffer.capacity(); position++) {
-			if (buffer.get(position) == NOT_SET) {
+		for (int position = 0; element < size; position++) {
+			int index = buffer.get(position);
+			if (index == NOT_SET)
 				continue;
-			}
 
-			action.accept(position, buffer.get(position));
-			count++;
-
-			if (count >= size) {
-				return;
-			}
+			action.accept(position, index);
+			element++;
 		}
 	}
 
 	public int getSize() {
 		return size;
 	}
-	
+
 	public boolean isEmpty() {
 		return size == 0;
 	}
@@ -130,14 +127,13 @@ public class IndexArray {
 	}
 
 	private void changeBufferSize(int newSize, boolean saveData) {
-		IntBuffer newBuffer = MemoryUtil.memAllocInt(newSize);
-		MemoryUtil.memSet(MemoryUtil.memAddress(newBuffer), NOT_SET, newBuffer.capacity() * Integer.BYTES);
-		
-		if (saveData) {
-			MemoryUtil.memCopy(MemoryUtil.memAddress(buffer), MemoryUtil.memAddress(newBuffer), buffer.capacity() * Integer.BYTES);
-		}
-		
-		MemoryUtil.memFree(buffer);
+		IntBuffer newBuffer = memAllocInt(newSize);
+		memSet(memAddress(newBuffer), NOT_SET, newBuffer.capacity() * Integer.BYTES);
+
+		if (saveData)
+			memCopy(memAddress(buffer), memAddress(newBuffer), buffer.capacity() * Integer.BYTES);
+
+		memFree(buffer);
 		DirectBufferUtils.copyInfo(newBuffer, buffer);
 	}
 
@@ -148,7 +144,7 @@ public class IndexArray {
 	}
 
 	public void delete() {
-		MemoryUtil.memFree(buffer);
+		memFree(buffer);
 	}
 
 	@FunctionalInterface

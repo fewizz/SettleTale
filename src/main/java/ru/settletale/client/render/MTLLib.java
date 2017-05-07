@@ -9,18 +9,6 @@ public class MTLLib {
 	private final Map<String, Material> materials = new HashMap<>();
 	private final Map<Material, Texture<?>> textures = new HashMap<>();
 	
-	public void compile() {
-		
-		/*for(Material m : materials.values()) {
-			m.textureDiffuse = TextureLoader.TEXTURES.get(m.texturePathDiffuse);
-			
-			if(m.textureDiffuse == null) {
-				System.out.println("Not found: " + m.texturePathDiffuse);
-				m.textureDiffuse = TextureLoader.TEXTURES.get("textures/white.png");
-			}
-		}*/
-	}
-	
 	public Material getMaterial(String name) {
 		return materials.get(name);
 	}

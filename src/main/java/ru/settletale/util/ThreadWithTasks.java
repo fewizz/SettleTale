@@ -1,11 +1,12 @@
 package ru.settletale.util;
 
-import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.Semaphore;
 
 public abstract class ThreadWithTasks extends Thread {
-	private final Deque<ThreadTask> taskQueue = new ArrayDeque<>();
+	private final Deque<ThreadTask> taskQueue = new ConcurrentLinkedDeque<ThreadTask>();
 	private final Semaphore semaphore = new Semaphore(0);
 	private volatile Stage stage = Stage.DO_STUFF;
 
@@ -46,14 +47,11 @@ public abstract class ThreadWithTasks extends Thread {
 		}
 	}
 
-	public synchronized ThreadTask addRunnableTask(Runnable runnable) {
-		if (runnable == null) {
-			throw new Error("Runnable is null");
-		}
+	public ThreadTask addRunnableTask(Runnable runnable) {
+		Objects.requireNonNull(runnable, "Runnable is null");
 		ThreadTask task = new ThreadTask(runnable);
-		taskQueue.add(new ThreadTask(runnable));
+		taskQueue.add(task);
 		semaphore.release();
-
 		return task;
 	}
 

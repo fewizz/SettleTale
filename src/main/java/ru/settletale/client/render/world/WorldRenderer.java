@@ -149,18 +149,18 @@ public class WorldRenderer implements IRegionManagerListener {
 	public void onRegionAdded(Region r) {
 		r.increaseThreadUsage();
 		GLThread.addTask(() -> {
-			REGIONS_TO_RENDER.put(r.coord, new CompiledRegion(r));
+			REGIONS_TO_RENDER.put(r.coordClamped, new CompiledRegion(r));
 		});
 	}
 
 	@Override
 	public void onRegionRemoved(Region r) {
 		GLThread.addTask(() -> {
-			if (REGIONS_TO_RENDER.containsKey(r.coord)) {
-				REGIONS_TO_RENDER.get(r.coord).clear();
-				REGIONS_TO_RENDER.remove(r.coord);
+			if (REGIONS_TO_RENDER.containsKey(r.coordClamped)) {
+				REGIONS_TO_RENDER.get(r.coordClamped).clear();
+				REGIONS_TO_RENDER.remove(r.coordClamped);
+				r.decreaseThreadUsage();
 			}
-			r.decreaseThreadUsage();
 		});
 
 	}
