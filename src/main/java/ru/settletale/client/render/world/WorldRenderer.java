@@ -14,6 +14,7 @@ import ru.settletale.client.render.Drawer;
 import ru.settletale.client.render.FontRenderer;
 import ru.settletale.client.render.GLThread;
 import ru.settletale.client.render.MainRenderer;
+import ru.settletale.client.resource.ObjModelLoader;
 import ru.settletale.client.resource.ShaderLoader;
 import ru.settletale.client.resource.TextureLoader;
 import ru.settletale.world.region.IRegionManagerListener;
@@ -50,7 +51,7 @@ public class WorldRenderer implements IRegionManagerListener {
 		GL.VIEW_MATRIX.translate((float) -Camera.position.x, (float) -Camera.position.y, (float) -Camera.position.z);
 		GL.debug("First translates");
 
-		GL.updateMatrixCombinedUniformBlock();
+		GL.updateCombinedMatrixUniformBlock();
 
 		GL.debug("World rend after transforms");
 
@@ -68,7 +69,7 @@ public class WorldRenderer implements IRegionManagerListener {
 
 		glDisable(GL_CULL_FACE);
 
-		GL.updateMatricesInversedUniformBlock();
+		GL.updateInversedMatricesUniformBlock();
 		GL.bindDefaultVAO();
 		PROGRAM_SKY.bind();
 		glDrawArrays(GL_QUADS, 0, 4);
@@ -89,6 +90,13 @@ public class WorldRenderer implements IRegionManagerListener {
 			Drawer.draw();
 		}*/
 
+		GL.VIEW_MATRIX.push();
+		GL.VIEW_MATRIX.translate(0, 50, 0);
+		GL.VIEW_MATRIX.scale(20F);
+		GL.updateMatriciesUniformBlock();
+		ObjModelLoader.MODELS.get("models/dragon.obj").render();
+		GL.VIEW_MATRIX.pop();
+		
 		glLineWidth(10);
 		Drawer.begin(GL_LINES);
 		Drawer.COLOR.set(Color.RED);
@@ -134,7 +142,7 @@ public class WorldRenderer implements IRegionManagerListener {
 		GL.PROJ_MATRIX.identity();
 		GL.PROJ_MATRIX.ortho2D(0, Window.width, 0, Window.height);
 		GL.VIEW_MATRIX.identity();
-		GL.updateMatrixCombinedUniformBlock();
+		GL.updateCombinedMatrixUniformBlock();
 
 		FontRenderer.setSize(25);
 		FontRenderer.setColor(Color.WHITE);

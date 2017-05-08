@@ -22,16 +22,15 @@ public class ResourceDirectory {
 
 	public void scan() {
 		System.out.println(path.toAbsolutePath());
-		
+
 		try {
 			Files.list(path).forEach(otherPath -> {
-				if (Files.isRegularFile(otherPath)) {
+				if (Files.isRegularFile(otherPath))
 					resources.add(new ResourceFile(this, otherPath));
-				}
 
-				if (Files.isDirectory(otherPath)) {
+				if (Files.isDirectory(otherPath))
 					directories.add(new ResourceDirectory(this, otherPath));
-				}
+
 			});
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -41,55 +40,46 @@ public class ResourceDirectory {
 	}
 
 	public void loadResources() {
-		resources.forEach(res -> {
-			ResourceManager.loadResource(res);
-		});
-
-		directories.forEach(dir -> {
-			dir.loadResources();
-		});
+		resources.forEach(res -> ResourceManager.loadResource(res));
+		directories.forEach(dir -> dir.loadResources());
 	}
-	
+
 	public ResourceFile getResourceFile(String path) {
 		path = path.replace('\\', '/');
-		
+
 		ResourceDirectory dir = null;
-		
-		if(path.contains("/")) {
+
+		if (path.contains("/"))
 			dir = getResourceDirectory(path);
-		}
-		else {
+		else
 			dir = this;
-		}
-		
-		for(ResourceFile res : dir.resources) {
-			if(res.name.equals(path)) {
+
+		for (ResourceFile res : dir.resources) {
+			if (res.name.equals(path))
 				return res;
-			}
 		}
-		
+
 		return null;
 	}
-	
+
 	public ResourceDirectory getResourceDirectory(String path) {
 		path = path.replace('\\', '/');
-		
-		for(ResourceDirectory dir : directories) {
-			if(path.startsWith(dir.name)) {
+
+		for (ResourceDirectory dir : directories) {
+			if (path.startsWith(dir.name)) {
 				path = path.substring(name.length());
-				
-				if(path.contains("/")) {
+
+				if (path.contains("/"))
 					return dir.getResourceDirectory(path);
-				}
-				else {
+				else
 					return dir;
-				}
+
 			}
 		}
-		
+
 		return null;
 	}
-	
+
 	public boolean isRoot() {
 		return prevDir == null;
 	}

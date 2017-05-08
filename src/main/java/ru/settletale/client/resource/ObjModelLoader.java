@@ -6,10 +6,12 @@ import java.util.Map;
 
 import org.lwjgl.system.MemoryUtil;
 
+import ru.settletale.client.gl.Texture;
+import ru.settletale.client.render.GLThread;
 import ru.settletale.client.render.MTLLib;
 import ru.settletale.client.render.Material;
 import ru.settletale.client.render.ObjModel;
-import ru.settletale.client.render.TextureAndMaterialBinder;
+import ru.settletale.client.render.TexturedMaterialBinder;
 import ru.settletale.client.vertex.VertexAttribType;
 import ru.settletale.client.vertex.VertexArrayDataBaker;
 import ru.settletale.util.FileUtils;
@@ -31,10 +33,10 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 	@Override
 	public void loadResource(ResourceFile resourceFile) {
 		System.out.println("Loading objModel: " + resourceFile.key);
+		
 		String[] strings = FileUtils.readLines(resourceFile.path.toFile());
 		float[] back = new float[9];
 		int[][] backIndex = new int[6][4];
-		int[] backIndexReturn = new int[5];
 		float[][] backPos = new float[4][4];
 		float[][] backNorm = new float[4][3];
 		float[][] backUV = new float[4][2];
@@ -44,8 +46,8 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 		FloatBuffer uvs = MemoryUtil.memAllocFloat(counts[1] * 2);
 		FloatBuffer normals = MemoryUtil.memAllocFloat(counts[2] * 3);
 
-		VertexArrayDataBaker pa = new VertexArrayDataBaker(VertexAttribType.FLOAT_4, VertexAttribType.FLOAT_3, VertexAttribType.FLOAT_2, VertexAttribType.INT_1);
-		TextureAndMaterialBinder tb = new TextureAndMaterialBinder();
+		VertexArrayDataBaker dataBaker = new VertexArrayDataBaker(VertexAttribType.FLOAT_4, VertexAttribType.FLOAT_3, VertexAttribType.FLOAT_2, VertexAttribType.INT_1);
+		TexturedMaterialBinder tmb = new TexturedMaterialBinder();
 
 		int currentMatID = -1;
 		MTLLib currentMTLLib = null;
@@ -54,6 +56,10 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 		for (int i = 0; i < strings.length; i++) {
 			String str = strings[i];
 
+			if(str.length() < 2) {
+				continue;
+			}
+			
 			char firstChar = str.charAt(0);
 			char secondChar = str.charAt(1);
 
@@ -69,7 +75,10 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 				}
 			}
 			else if (firstChar == 'f') {
-				readFace(str, pa, positions, normals, uvs, currentMatID, backIndex, backIndexReturn, backPos, backNorm, backUV);
+				//if(currentMaterial == null) {
+				//	currentMatID = tmb.register(new Material(), TextureLoader.TEXTURES.get("textures/white.png"));
+				//}
+				readFace(str, dataBaker, positions, normals, uvs, currentMatID, backIndex, backPos, backNorm, backUV);
 			}
 			else {
 				if (str.startsWith("mtllib")) {
@@ -80,8 +89,13 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 				else if (str.startsWith("usemtl")) {
 					String materialName = readMaterialName(str);
 					currentMaterial = currentMTLLib.getMaterial(materialName);
-					currentMatID = tb.register(currentMaterial, currentMTLLib.getMaterialTexture(currentMaterial));
-					pa.putInt(FLAGS, currentMatID);
+					
+					Texture<?> tex = currentMTLLib.getDiffuseTexture(currentMaterial);
+					if(tex == null) {
+						tex = TextureLoader.TEXTURES.get("textures/white.png");
+					}
+					
+					currentMatID = tmb.register(currentMaterial, currentMTLLib.getDiffuseTexture(currentMaterial));
 				}
 			}
 		}
@@ -91,6 +105,13 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 		uvs.rewind();
 
 		ObjModel model = new ObjModel();
+		model.setTextureAndMaterialBinder(tmb);
+		
+		ResourceManager.runAfterResourceLoaded(() -> {
+			GLThread.addTask(() -> {
+				model.compile(dataBaker);
+			});
+		});
 
 		MODELS.put(resourceFile.key, model);
 	}
@@ -131,12 +152,12 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 		fb.put(v);
 	}
 
-	public static void readFace(String str, VertexArrayDataBaker pa, FloatBuffer positions, FloatBuffer normals, FloatBuffer uvs, int matID, int[][] back, int[] backReturn, float[][] backPos, float[][] backNorm, float[][] backUV) {
+	public static void readFace(String str, VertexArrayDataBaker pa, FloatBuffer positions, FloatBuffer normals, FloatBuffer uvs, int matID, int[][] back, float[][] backPos, float[][] backNorm, float[][] backUV) {
 		//Needs to know, if they uses
 		back[0][1] = -1; //For UV
 		back[0][2] = -1; //For Normal
 
-		int count = StringUtils.readInts(str, back, backReturn, ' ', '/', -1);
+		int count = StringUtils.readInts(str, back, ' ', '/', -1);
 
 		boolean hasUV = back[0][1] != -1;
 		boolean hasNormal = back[0][2] != -1;

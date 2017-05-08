@@ -132,7 +132,7 @@ public class StringUtils {
 	}
 
 	/** Example: 1/2*3/4*5/3. Here, s1 - '*', s2 - '/'. Def uses if number between splits is undefinded. **/
-	public static int readInts(String str, int[][] arr, int[] lengthsOfInteriors, char externalSplitter, char interiorSplitter, int def) {
+	public static int readInts(String str, int[][] arr, char externalSplitter, char interiorSplitter, int def) {
 		boolean sign = false;
 		int num = 0;
 		int count = 0;

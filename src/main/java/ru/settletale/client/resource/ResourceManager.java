@@ -1,17 +1,20 @@
 package ru.settletale.client.resource;
 
-import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class ResourceManager {
 	static final List<ResourceLoaderAbstract> RESOURCE_LOADERS = new ArrayList<>();
 	static final Map<String, ResourceFile> KEY_RES_MAP = new HashMap<>();
 	static final List<ResourceDirectory> ROOTS = new ArrayList<>();
+	static final Queue<Runnable> TASKS = new ConcurrentLinkedQueue<>();
 
 	public static void loadResources() {
 		RESOURCE_LOADERS.add(new TextureLoader());
@@ -25,11 +28,13 @@ public class ResourceManager {
 		ROOTS.forEach(root -> {
 			root.loadResources();
 		});
+		
+		TASKS.forEach(run -> run.run());
 	}
 	
 	private static void startResourceScanning() {
-		scanFolder(new File("assets/").toPath());
-		scanFolder(new File("src/main/resources/assets/").toPath());
+		scanFolder(Paths.get("assets/"));
+		scanFolder(Paths.get("src/main/resources/assets/"));
 	}
 
 	public static void loadResource(ResourceFile res) {
@@ -58,5 +63,9 @@ public class ResourceManager {
 		ResourceDirectory root = new ResourceDirectory(null, path);
 		ROOTS.add(root);
 		root.scan();
+	}
+	
+	public static void runAfterResourceLoaded(Runnable run) {
+		TASKS.add(run);
 	}
 }

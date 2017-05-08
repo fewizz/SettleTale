@@ -76,7 +76,7 @@ public class GL {
 		debug("UpdateTransformUniformBlock end");
 	}
 	
-	public static void updateMatricesInversedUniformBlock() {
+	public static void updateInversedMatricesUniformBlock() {
 		PROJ_MATRIX.invert(PROJ_MATRIX_INVERSED);
 		VIEW_MATRIX.invert(VIEW_MATRIX_INVERSED);
 		
@@ -86,7 +86,7 @@ public class GL {
 		UBO_MATRICES_INVERSED.offset(16 * Float.BYTES).subData(VIEW_MATRIX_INVERSED.buffer);
 	}
 	
-	public static void updateMatrixCombinedUniformBlock() {
+	public static void updateCombinedMatrixUniformBlock() {
 		PROJ_MATRIX.mul(VIEW_MATRIX, MATRIX_COMBINED);
 		
 		MATRIX_COMBINED.updateBackedBuffer();

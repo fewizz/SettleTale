@@ -9,11 +9,10 @@ flat in int hasNormal;
 flat in int matID;
 out vec4 color_out;
 
-layout (location = 0) uniform sampler2D textures[16];
-layout (location = 1) uniform vec4 diffuseColors[];
+layout (location = 0) uniform sampler2D diffTextures[16];
 
 struct MaterialStruct {
-	vec3 diffuseColor;
+	vec4 diffuseColor;
 };
 
 layout (binding = 4, std140) uniform Material {
@@ -24,16 +23,16 @@ void main(void) {
 	
 	if(hasUV == 1) {
 		if(hasNormal == 1) {
-			vec4 tex = texture(textures[matID], uv_vs);
+			vec4 tex = texture(diffTextures[matID], uv_vs);
 			color_out = vec4(tex.xyz * normal_vs.y, tex.a) * materials[matID].diffuseColor;
 		}
 		else {
-			color_out = texture(textures[matID], uv_vs) * materials[matID].diffuseColor;
+			color_out = texture(diffTextures[matID], uv_vs) * materials[matID].diffuseColor;
 		}
 	}
 	else {
 		if(hasNormal == 1) {
-			color_out = vec4(materials[matID].diffuseColor.xyz * normal_vs.y, materials[matID].diffuseColor.a);
+			color_out = vec4(1);//materials[matID].diffuseColor.xyz * normal_vs.y, materials[matID].diffuseColor);
 		}
 		else {
 			color_out = materials[matID].diffuseColor;
@@ -41,4 +40,5 @@ void main(void) {
 	}
 	
 	if(color_out.a == 0) discard;
+	//color_out = vec4(1);
 }
