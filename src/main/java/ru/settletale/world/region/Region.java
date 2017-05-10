@@ -20,6 +20,7 @@ public class Region {
 	public int z;
 	public boolean active;
 	public long coordClamped;
+	public int hash;
 	private AtomicInteger threadUsages = new AtomicInteger(0);
 
 	private Region() {
@@ -61,7 +62,8 @@ public class Region {
 		this.x = x;
 		this.z = z;
 		active = false;
-		this.coordClamped = MathUtils.clamp(x, z);
+		this.coordClamped = MathUtils.clampLong(x, z);
+		this.hash = MathUtils.clampInt(x, z);
 	}
 
 	public BiomeAbstract getBiome(int x, int z) {
@@ -88,5 +90,21 @@ public class Region {
 
 	public void update() {
 
+	}
+	
+	@Override
+	public int hashCode() {
+		return hash;
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if(obj == this) {
+			return true;
+		}
+		
+		Region r = (Region) obj;
+		
+		return r.x == this.x && r.z == this.z;
 	}
 }

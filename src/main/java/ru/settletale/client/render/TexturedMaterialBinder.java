@@ -25,8 +25,8 @@ public class TexturedMaterialBinder {
 		this.diffuseTexturesUniformArraylocation = location;
 	}
 
-	public int register(Material material, Texture<?> texture) {
-		materials.add(material);
+	public int addIfAdsent(Material material, Texture<?> texture) {
+		materials.addIfAbsent(material);
 		diffuseTexturesMap.put(material, texture);
 		textureUnits.addIfAbsent(texture);
 		return materials.indexOf(material);
@@ -52,10 +52,8 @@ public class TexturedMaterialBinder {
 			program.setUniformIntArray(diffuseTexturesUniformArraylocation, buff);
 		}
 		
-		GL.bindBufferBase(ubo, GlobalUniforms.MATERIALS);
-		
 		try (MemoryStack ms = MemoryStack.stackPush()) {
-			FloatBuffer buff = ms.mallocFloat(materials.size());
+			FloatBuffer buff = ms.mallocFloat(materials.size() * 4);
 
 			materials.forEach(material -> {
 				buff.put(material.colorDiffuse.x);
@@ -67,5 +65,7 @@ public class TexturedMaterialBinder {
 			buff.flip();
 			ubo.data(buff);
 		}
+		
+		GL.bindBufferBase(ubo, GlobalUniforms.MATERIALS);
 	}
 }

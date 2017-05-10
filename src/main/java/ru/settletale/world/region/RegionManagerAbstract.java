@@ -23,11 +23,11 @@ public abstract class RegionManagerAbstract {
 	abstract public void update();
 
 	public boolean regionLoaded(int x, int z) {
-		return regions.containsKey(MathUtils.clamp(x, z));
+		return regions.containsKey(MathUtils.clampLong(x, z));
 	}
 
 	public Region getRegion(int x, int z) {
-		return regions.get(MathUtils.clamp(x, z));
+		return regions.get(MathUtils.clampLong(x, z));
 	}
 
 	public float getHeight(float x, float z) {

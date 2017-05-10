@@ -26,7 +26,26 @@ public class MtlLibLoader extends ResourceLoaderAbstract {
 		Material mat = null;
 
 		for (String str : strings) {
-			if (str.startsWith("newmtl")) {			
+			if(str.length() == 0) {
+				continue;
+			}
+			
+			for(;;) {
+				if(str.length() < 1) {
+					break;
+				}
+				
+				char firstChar = str.charAt(0);
+				
+				if(firstChar == '\t' || firstChar == ' ') {
+					str = str.substring(1);
+				}
+				else {
+					break;
+				}
+			}
+			
+			if (str.startsWith("newmtl")) {
 				mat = new Material();
 				String name = str.split(" ")[1];
 				matLib.addMaterial(mat, name);
@@ -44,13 +63,13 @@ public class MtlLibLoader extends ResourceLoaderAbstract {
 				String[] values = str.split(" ");
 
 				String textureDiffuse = values[values.length - 1];
-				ResourceFile res = resourceFile.dir.getResourceFile(textureDiffuse);
+				ResourceFile res = resourceFile.dir.getResourceFileIncludingSubdirectories(textureDiffuse);
 				ResourceManager.loadResource(res);
-				
+
 				matLib.addTextureToMaterial(mat, TextureLoader.TEXTURES.get(res.key));
 			}
 		}
-		
+
 		MTLS.put(resourceFile.key, matLib);
 	}
 }

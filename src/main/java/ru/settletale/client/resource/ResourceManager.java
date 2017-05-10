@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class ResourceManager {
 	static final List<ResourceLoaderAbstract> RESOURCE_LOADERS = new ArrayList<>();
-	static final Map<String, ResourceFile> KEY_RES_MAP = new HashMap<>();
+	static final Map<String, ResourceFile> KEY_LOADED_RES_MAP = new HashMap<>();
 	static final List<ResourceDirectory> ROOTS = new ArrayList<>();
 	static final Queue<Runnable> TASKS = new ConcurrentLinkedQueue<>();
 
@@ -37,6 +37,17 @@ public class ResourceManager {
 		scanFolder(Paths.get("src/main/resources/assets/"));
 	}
 
+	public static void loadResource(String resPath) {
+		for(ResourceDirectory dir : ROOTS) {
+			ResourceFile file = dir.getResourceFileIncludingSubdirectories(resPath);
+			
+			if(file != null) {
+				loadResource(file);
+				return;
+			}
+		}
+	}
+	
 	public static void loadResource(ResourceFile res) {
 		if (res.isLoaded()) {
 			return;
@@ -52,7 +63,7 @@ public class ResourceManager {
 		});
 		
 		res.setLoaded(true);
-		KEY_RES_MAP.put(res.key, res);
+		KEY_LOADED_RES_MAP.put(res.key, res);
 	}
 
 	private static void scanFolder(Path path) {
@@ -63,6 +74,14 @@ public class ResourceManager {
 		ResourceDirectory root = new ResourceDirectory(null, path);
 		ROOTS.add(root);
 		root.scan();
+	}
+	
+	public static boolean isResourceLoaded(String resPath) {
+		return KEY_LOADED_RES_MAP.containsKey(resPath);
+	}
+	
+	public static boolean isResourceLoaded(ResourceFile res) {
+		return KEY_LOADED_RES_MAP.containsValue(res);
 	}
 	
 	public static void runAfterResourceLoaded(Runnable run) {

@@ -26,7 +26,7 @@ public abstract class LayerAbstract {
 	}
 	
 	public static boolean getPRandomBoolean(int x, int z) {
-		return (getPRNumberBySeed(MathUtils.clamp(x, z)) & 0x1) == 0;
+		return (getPRNumberBySeed(MathUtils.clampLong(x, z)) & 0x1) == 0;
 	}
 	
 	// All into one method. for speed =P

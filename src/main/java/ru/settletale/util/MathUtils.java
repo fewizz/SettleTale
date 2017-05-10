@@ -4,8 +4,12 @@ import org.joml.Vector3d;
 import org.joml.Vector3f;
 
 public class MathUtils {
-	public static long clamp(int x, int z) {
-		return ((long) z & 0xFFFFFFFFL) | ((long) x << 32);
+	public static long clampLong(int x, int z) {
+		return (((long)z & 0xFFFFFFFFL) | (long)x << 32L);
+	}
+	
+	public static int clampInt(int x, int z) {
+		return (z & 0xFFFF | x << 16);
 	}
 
 	public static int floor(float f) {

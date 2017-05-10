@@ -3,10 +3,12 @@ package ru.settletale.client.resource;
 import java.nio.FloatBuffer;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import org.lwjgl.system.MemoryUtil;
 
 import ru.settletale.client.gl.Texture;
+import ru.settletale.client.render.Color;
 import ru.settletale.client.render.GLThread;
 import ru.settletale.client.render.MTLLib;
 import ru.settletale.client.render.Material;
@@ -33,14 +35,14 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 	@Override
 	public void loadResource(ResourceFile resourceFile) {
 		System.out.println("Loading objModel: " + resourceFile.key);
-		
+
 		String[] strings = FileUtils.readLines(resourceFile.path.toFile());
 		float[] back = new float[9];
 		int[][] backIndex = new int[6][4];
 		float[][] backPos = new float[4][4];
 		float[][] backNorm = new float[4][3];
 		float[][] backUV = new float[4][2];
-		int[] counts = getCountOfElements(strings, new String[] { "v", "vt", "vn" });
+		int[] counts = getCountOfElements(strings, "v", "vt", "vn");
 
 		FloatBuffer positions = MemoryUtil.memAllocFloat(counts[0] * 4);
 		FloatBuffer uvs = MemoryUtil.memAllocFloat(counts[1] * 2);
@@ -53,49 +55,54 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 		MTLLib currentMTLLib = null;
 		Material currentMaterial = null;
 
+		Texture<?> textureWhite = TextureLoader.TEXTURES.get("textures/white.png");
+		if (textureWhite == null) {
+			ResourceManager.loadResource("textures/white.png");
+			textureWhite = TextureLoader.TEXTURES.get("textures/white.png");
+		}
+		Material materialWhite = new Material(Color.WHITE);
+
 		for (int i = 0; i < strings.length; i++) {
 			String str = strings[i];
 
-			if(str.length() < 2) {
+			if (str.length() < 2)
 				continue;
-			}
-			
+
 			char firstChar = str.charAt(0);
 			char secondChar = str.charAt(1);
 
 			if (firstChar == 'v') {
-				if (secondChar == ' ') {
+				if (secondChar == ' ')
 					readPosition(str, positions, back);
-				}
-				else if (secondChar == 'n') {
+				else if (secondChar == 'n')
 					readNormal(str, normals, back);
-				}
-				else if (secondChar == 't') {
+				else if (secondChar == 't')
 					readUV(str, uvs, back);
-				}
 			}
 			else if (firstChar == 'f') {
-				//if(currentMaterial == null) {
-				//	currentMatID = tmb.register(new Material(), TextureLoader.TEXTURES.get("textures/white.png"));
-				//}
+				if(currentMaterial == null) {
+					currentMaterial = materialWhite;
+					currentMatID = tmb.addIfAdsent(currentMaterial, textureWhite);
+				}
 				readFace(str, dataBaker, positions, normals, uvs, currentMatID, backIndex, backPos, backNorm, backUV);
 			}
 			else {
 				if (str.startsWith("mtllib")) {
-					ResourceFile res = resourceFile.dir.getResourceFile(readMTLLibName(str));
+					ResourceFile res = resourceFile.dir.getResourceFileIncludingSubdirectories(readMTLLibName(str));
 					ResourceManager.loadResource(res);
 					currentMTLLib = MtlLibLoader.MTLS.get(res.key);
 				}
 				else if (str.startsWith("usemtl")) {
 					String materialName = readMaterialName(str);
 					currentMaterial = currentMTLLib.getMaterial(materialName);
-					
+
+					Objects.requireNonNull(currentMaterial, "Material \"" + materialName + "\" not found in MTLLib");
+
 					Texture<?> tex = currentMTLLib.getDiffuseTexture(currentMaterial);
-					if(tex == null) {
-						tex = TextureLoader.TEXTURES.get("textures/white.png");
-					}
-					
-					currentMatID = tmb.register(currentMaterial, currentMTLLib.getDiffuseTexture(currentMaterial));
+					if (tex == null)
+						tex = textureWhite;
+
+					currentMatID = tmb.addIfAdsent(currentMaterial, tex);
 				}
 			}
 		}
@@ -106,7 +113,7 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 
 		ObjModel model = new ObjModel();
 		model.setTextureAndMaterialBinder(tmb);
-		
+
 		ResourceManager.runAfterResourceLoaded(() -> {
 			GLThread.addTask(() -> {
 				model.compile(dataBaker);
@@ -256,12 +263,12 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 	public static String readMTLLibName(String str) {
 		return str.split(" ")[1];
 	}
-	
+
 	public static String readMaterialName(String str) {
 		return str.split(" ")[1];
 	}
 
-	public static int[] getCountOfElements(String[] strings, String[] elementNames) {
+	public static int[] getCountOfElements(String[] strings, String... elementNames) {
 		int counts[] = new int[elementNames.length];
 
 		for (String str : strings) {

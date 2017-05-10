@@ -60,7 +60,7 @@ public class FontLoader extends ResourceLoaderAbstract {
 		}
 		
 		for(FontPage page : font.pages) {
-			ResourceFile res = resourceFile.dir.getResourceFile(page.textureName);
+			ResourceFile res = resourceFile.dir.getResourceFileIncludingSubdirectories(page.textureName);
 			ResourceManager.loadResource(res);
 			page.texture = TextureLoader.TEXTURES.get(res.key);
 		}

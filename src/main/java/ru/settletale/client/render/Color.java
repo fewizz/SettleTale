@@ -1,5 +1,8 @@
 package ru.settletale.client.render;
 
+import org.joml.Vector3f;
+import org.joml.Vector4f;
+
 public class Color {
 	public static final ColorImmutable RED = new ColorImmutable(0xFF, 0x00, 0x00, 0xFF);
 	public static final ColorImmutable GREEN = new ColorImmutable(0x00, 0xFF, 0x00, 0xFF);
@@ -61,6 +64,40 @@ public class Color {
 
 	public byte a() {
 		return this.a;
+	}
+
+	public float fr() {
+		return (float) this.r / 255F;
+	}
+
+	public float fg() {
+		return (float) this.g / 255F;
+	}
+
+	public float fb() {
+		return (float) this.b / 255F;
+	}
+
+	public float fa() {
+		return (float) this.a / 255F;
+	}
+
+	public Vector3f get(Vector3f v3f) {
+		v3f.set(fr(), fg(), fb());
+		return v3f;
+	}
+	
+	public Vector4f get(Vector4f v4f) {
+		v4f.set(fr(), fg(), fb(), fa());
+		return v4f;
+	}
+	
+	public Vector4f getAsNewVector4f() {
+		return new Vector4f(fr(), fg(), fb(), fa());
+	}
+	
+	public Vector3f getAsNewVector3f() {
+		return new Vector3f(fr(), fg(), fb());
 	}
 
 	public static class ColorImmutable extends Color {

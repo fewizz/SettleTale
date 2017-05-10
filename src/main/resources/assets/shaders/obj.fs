@@ -32,7 +32,7 @@ void main(void) {
 	}
 	else {
 		if(hasNormal == 1) {
-			color_out = vec4(1);//materials[matID].diffuseColor.xyz * normal_vs.y, materials[matID].diffuseColor);
+			color_out = vec4(materials[matID].diffuseColor.xyz * normal_vs.y, materials[matID].diffuseColor);
 		}
 		else {
 			color_out = materials[matID].diffuseColor;
