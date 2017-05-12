@@ -9,7 +9,7 @@ import ru.settletale.client.vertex.VertexArrayDataBaker;
 
 public class ObjModel {
 	TexturedMaterialBinder tb;
-	RenderLayer layer = new RenderLayer();
+	RenderLayer layer;
 	
 	static final ShaderProgram PROGRAM = new ShaderProgram();
 	
@@ -23,6 +23,7 @@ public class ObjModel {
 			PROGRAM.link();
 		}
 		
+		layer = new RenderLayer();
 		layer.setVertexArrayDataBaker(baker);
 		layer.setShaderProgram(PROGRAM);
 		layer.compile();

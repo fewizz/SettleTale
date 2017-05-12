@@ -27,19 +27,20 @@ public class TexturedMaterialBinder {
 
 	public int addIfAdsent(Material material, Texture<?> texture) {
 		materials.addIfAbsent(material);
+		int matIndex = materials.indexOf(material);
 		diffuseTexturesMap.put(material, texture);
 		textureUnits.addIfAbsent(texture);
-		return materials.indexOf(material);
+		return matIndex;
 	}
-	
+
 	public void bindTextures() {
 		textureUnits.forEachIndexed((index, tex) -> GL.bindTextureUnit(index, tex));
 	}
-	
+
 	public void updateUniforms(ShaderProgram program) {
-		if(!ubo.isGenerated())
+		if (!ubo.isGenerated())
 			ubo.gen();
-		
+
 		try (MemoryStack ms = MemoryStack.stackPush()) {
 			IntBuffer buff = ms.mallocInt(materials.size());
 
@@ -48,10 +49,10 @@ public class TexturedMaterialBinder {
 				int unitIndex = textureUnits.indexOf(diffuseTexturesMap.get(material));
 				buff.put(matIndex, unitIndex);
 			});
-			
+
 			program.setUniformIntArray(diffuseTexturesUniformArraylocation, buff);
 		}
-		
+
 		try (MemoryStack ms = MemoryStack.stackPush()) {
 			FloatBuffer buff = ms.mallocFloat(materials.size() * 4);
 
@@ -61,11 +62,11 @@ public class TexturedMaterialBinder {
 				buff.put(material.colorDiffuse.z);
 				buff.put(1F);
 			});
-			
+
 			buff.flip();
 			ubo.data(buff);
 		}
-		
+
 		GL.bindBufferBase(ubo, GlobalUniforms.MATERIALS);
 	}
 }

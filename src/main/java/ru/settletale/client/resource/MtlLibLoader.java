@@ -26,9 +26,8 @@ public class MtlLibLoader extends ResourceLoaderAbstract {
 		Material mat = null;
 
 		for (String str : strings) {
-			if(str.length() == 0) {
+			if(str.length() == 0)
 				continue;
-			}
 			
 			for(;;) {
 				if(str.length() < 1) {

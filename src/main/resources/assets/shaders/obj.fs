@@ -16,7 +16,7 @@ struct MaterialStruct {
 };
 
 layout (binding = 4, std140) uniform Material {
-	MaterialStruct materials[16];
+	MaterialStruct materials[32];
 };
 
 void main(void) {
@@ -24,7 +24,7 @@ void main(void) {
 	if(hasUV == 1) {
 		if(hasNormal == 1) {
 			vec4 tex = texture(diffTextures[matID], uv_vs);
-			color_out = vec4(tex.xyz * normal_vs.y, tex.a) * materials[matID].diffuseColor;
+			color_out = vec4(tex.xyz * normal_vs.y, tex.a);// * materials[matID].diffuseColor;
 		}
 		else {
 			color_out = texture(diffTextures[matID], uv_vs) * materials[matID].diffuseColor;
@@ -39,6 +39,7 @@ void main(void) {
 		}
 	}
 	
-	if(color_out.a == 0) discard;
+	//if(color_out.a == 0) discard;
 	//color_out = vec4(1);
+	//color_out = texture(diffTextures[matID], uv_vs);
 }

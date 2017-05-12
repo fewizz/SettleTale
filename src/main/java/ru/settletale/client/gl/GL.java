@@ -115,8 +115,8 @@ public class GL {
 		if (activeTextureIndex != index) {
 			setActiveTextureUnitIndex(index);
 		}
-
-		setActiveTextureUnitTexture(texture);
+		texture.bind();
+		//setActiveTextureUnitTexture(texture);
 	}
 	
 	static void onTextureDeleted(Texture<?> texture) {
@@ -128,6 +128,7 @@ public class GL {
 	}
 
 	public static void setActiveTextureUnitIndex(int index) {
+		//activeTextures[index] = activeTextures[activeTextureIndex];
 		activeTextureIndex = index;
 		GL13.glActiveTexture(GL13.GL_TEXTURE0 + activeTextureIndex);
 	}

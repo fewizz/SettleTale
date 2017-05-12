@@ -92,9 +92,11 @@ public class WorldRenderer implements IRegionManagerListener {
 
 		GL.VIEW_MATRIX.push();
 		GL.VIEW_MATRIX.translate(0, 50, 0);
-		GL.VIEW_MATRIX.scale(20F);
+		GL.VIEW_MATRIX.scale(10F);
 		GL.updateMatriciesUniformBlock();
 		ObjModelLoader.MODELS.get("models/dabrovic/sponza.obj").render();
+		
+		
 		GL.VIEW_MATRIX.pop();
 		
 		glLineWidth(10);

@@ -24,9 +24,9 @@ void main(void) {
 	uv_vs = uv;
 	//flags_vs = flags;
 	
-	matID = 0;//flags & 0xFF;
-	hasUV = 0;//(flags >> 8) & 0x1;
-	hasNormal = 0;//(flags >> 9) & 0x1;
+	matID = flags & 0xFF;
+	hasUV = (flags >> 8) & 0x1;
+	hasNormal = (flags >> 9) & 0x1;
 	
 	gl_Position = projMat * viewMat * pos;
 }

@@ -99,8 +99,10 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 					Objects.requireNonNull(currentMaterial, "Material \"" + materialName + "\" not found in MTLLib");
 
 					Texture<?> tex = currentMTLLib.getDiffuseTexture(currentMaterial);
-					if (tex == null)
+					if (tex == null) {
+						System.out.println("Material " + materialName + " haven't texture.");
 						tex = textureWhite;
+					}
 
 					currentMatID = tmb.addIfAdsent(currentMaterial, tex);
 				}
@@ -161,13 +163,13 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 
 	public static void readFace(String str, VertexArrayDataBaker pa, FloatBuffer positions, FloatBuffer normals, FloatBuffer uvs, int matID, int[][] back, float[][] backPos, float[][] backNorm, float[][] backUV) {
 		//Needs to know, if they uses
-		back[0][1] = -1; //For UV
-		back[0][2] = -1; //For Normal
+		back[1][1] = -1; //For UV
+		back[1][2] = -1; //For Normal
 
 		int count = StringUtils.readInts(str, back, ' ', '/', -1);
 
-		boolean hasUV = back[0][1] != -1;
-		boolean hasNormal = back[0][2] != -1;
+		boolean hasUV = back[1][1] != -1;
+		boolean hasNormal = back[1][2] != -1;
 
 		boolean isQuad = count == 8 || count == 12;
 
