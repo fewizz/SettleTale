@@ -4,12 +4,13 @@
 
 in vec3 normal_vs;
 in vec2 uv_vs;
-flat in int hasUV;
-flat in int hasNormal;
-flat in int matID;
+//flat in int hasUV;
+//flat in int hasNormal;
+//flat in int matID;
+flat in int flags_vs;
 out vec4 color_out;
 
-layout (location = 0) uniform sampler2D diffTextures[16];
+layout (location = 0) uniform sampler2D diffTextures[32];
 
 struct MaterialStruct {
 	vec4 diffuseColor;
@@ -20,6 +21,9 @@ layout (binding = 4, std140) uniform Material {
 };
 
 void main(void) {
+	int matID = flags_vs & 0xFF;
+	int hasUV = (flags_vs >> 8) & 0x1;
+	int hasNormal = (flags_vs >> 9) & 0x1;
 	
 	if(hasUV == 1) {
 		if(hasNormal == 1) {
@@ -39,7 +43,7 @@ void main(void) {
 		}
 	}
 	
-	//if(color_out.a == 0) discard;
+	if(color_out.a == 0) discard;
 	//color_out = vec4(1);
 	//color_out = texture(diffTextures[matID], uv_vs);
 }

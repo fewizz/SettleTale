@@ -4,22 +4,12 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL32;
 
-public class Shader extends GLObject<Shader> {
+public class Shader extends GLBindableObject<Shader> {
 	final Type type;
-	final String source;
+	String source;
 	
-	public Shader(Type type, String source) {
+	public Shader(Type type) {
 		this.type = type;
-		this.source = source;
-	}
-	
-	@Override
-	public Shader gen() {
-		super.gen();
-		
-		GL20.glShaderSource(id, source);
-		
-		return this;
 	}
 	
 	@Override
@@ -30,6 +20,12 @@ public class Shader extends GLObject<Shader> {
 	@Override
 	public boolean isBase() {
 		return true;
+	}
+
+	public Shader setSource(String source) {
+		this.source = source;
+		GL20.glShaderSource(id, source);
+		return this;
 	}
 
 	@Override

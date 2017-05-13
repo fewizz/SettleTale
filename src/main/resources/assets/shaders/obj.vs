@@ -10,9 +10,7 @@ layout (location = 3) in int flags;
 
 out vec3 normal_vs;
 out vec2 uv_vs;
-flat out int hasUV;
-flat out int hasNormal;
-flat out int matID;
+flat out int flags_vs;
 
 layout (binding = 0, std140) uniform Transform {
 	mat4 projMat;
@@ -22,11 +20,7 @@ layout (binding = 0, std140) uniform Transform {
 void main(void) {
 	normal_vs = normal;
 	uv_vs = uv;
-	//flags_vs = flags;
-	
-	matID = flags & 0xFF;
-	hasUV = (flags >> 8) & 0x1;
-	hasNormal = (flags >> 9) & 0x1;
+	flags_vs = flags;
 	
 	gl_Position = projMat * viewMat * pos;
 }

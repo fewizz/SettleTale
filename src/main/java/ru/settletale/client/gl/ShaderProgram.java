@@ -5,7 +5,7 @@ import java.nio.IntBuffer;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 
-public class ShaderProgram extends GLObject<ShaderProgram> {
+public class ShaderProgram extends GLBindableObject<ShaderProgram> {
 	
 	@Override
 	public int genInternal() {

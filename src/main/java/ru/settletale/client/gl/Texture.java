@@ -4,7 +4,7 @@ import java.nio.ByteBuffer;
 
 import org.lwjgl.opengl.GL11;
 
-public abstract class Texture<T> extends GLObject<T> {
+public abstract class Texture<T> extends GLBindableObject<T> {
 	public final int type;
 	public int internalFormat;
 	public int bufferDataFormat;

@@ -9,7 +9,7 @@ import org.lwjgl.opengl.GL45;
 
 import ru.settletale.util.DirectBufferUtils;
 
-public class GLBuffer<T> extends GLObject<T> {
+public class GLBuffer<T> extends GLBindableObject<T> {
 	protected final int type;
 	private int loadedSize = 0;
 	private Usage usage;

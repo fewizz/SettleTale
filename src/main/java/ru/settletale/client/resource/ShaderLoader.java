@@ -22,10 +22,10 @@ public class ShaderLoader extends ResourceLoaderAbstract {
 		String source = FileUtils.readWholeLines(resourceFile.path.toFile());
 		
 		Shader.Type type = Shader.Type.getByExtension(resourceFile.getExtension());
-		Shader shader = new Shader(type, source);
+		Shader shader = new Shader(type);
 		
 		GLThread.addTask(() -> {
-			shader.gen().compile();
+			shader.gen().setSource(source).compile();
 		});
 		
 		SHADERS.put(resourceFile.key, shader);
