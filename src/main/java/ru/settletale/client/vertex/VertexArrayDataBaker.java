@@ -2,68 +2,41 @@ package ru.settletale.client.vertex;
 
 import java.nio.ByteBuffer;
 
-public class VertexArrayDataBaker {
-	private final AttribArrayData[] attributes;
-	private int vertexCount = 0;
-	private int attributeCount = 0;
+import com.koloboke.collect.map.IntObjMap;
+import com.koloboke.collect.map.hash.HashIntObjMaps;
 
-	public VertexArrayDataBaker(VertexAttribType... attribTypes) {
-		this();
+public class VertexArrayDataBaker {
+	private final IntObjMap<AttribArrayData> attributes = HashIntObjMaps.newMutableMap(0);
+	private int lastVertexIndex = 0;
+	private final int vertexCount;
+	protected final boolean isDynamic;
+	
+	private VertexArrayDataBaker(int vertexCount, boolean dynamic, VertexAttribType... attribTypes) {
+		this.isDynamic = dynamic;
+		this.vertexCount = vertexCount;
 		for(int attribIndex = 0; attribIndex < attribTypes.length; attribIndex++) {
 			addStorage(attribTypes[attribIndex], attribIndex);
 		}
 	}
-	
-	public VertexArrayDataBaker() {
-		this.attributes = new AttribArrayData[16];
-	}
-
-	public VertexAttribType getAttribType(int index) {
-		return attributes[index].attribType;
-	}
-
-	public int getCount() {
-		return this.attributeCount;
-	}
 
 	public VertexArrayDataBaker addStorage(VertexAttribType at, int index) {
-		boolean replaces = attributes[index] != null;
-		attributes[index] = at.getNewVertexAttribArrayBuffer();
-
-		if (!replaces)
-			attributeCount++;
-		
+		attributes.put(index, at.getNewVertexAttribArrayBuffer(vertexCount, isDynamic));
 		return this;
 	}
 
 	public void endVertex() {
-		for (int index = 0; index < attributes.length; index++) {
-			if (attributes[index] != null)
-				attributes[index].dataEnd(vertexCount);
-		}
-
-		vertexCount++;
-	}
-
-	public ByteBuffer getBuffer(int index) {
-		return attributes[index].getBuffer();
+		attributes.forEach((int index, AttribArrayData data) -> data.dataEnd(lastVertexIndex));
+		lastVertexIndex++;
 	}
 
 	public void clearData() {
-		for (int index = 0; index < attributes.length; index++) {
-			if (attributes[index] != null)
-				attributes[index].clear();
-		}
-		vertexCount = 0;
+		attributes.forEach((int index, AttribArrayData data) -> data.clear());
+		lastVertexIndex = 0;
 	}
 
 	public void delete() {
 		clearData();
-		
-		for (int index = 0; index < attributes.length; index++) {
-			if (attributes[index] != null)
-				attributes[index].delete();
-		}
+		attributes.forEach((int index, AttribArrayData data) -> data.delete());
 	}
 
 	public int getVertexCount() {
@@ -71,7 +44,7 @@ public class VertexArrayDataBaker {
 	}
 
 	public void putFloat(int index, float f1, float f2, float f3, float f4) {
-		attributes[index].data(f1, f2, f3, f4);
+		attributes.get(index).data(f1, f2, f3, f4);
 	}
 
 	public void putFloat(int index, float f1) {
@@ -87,7 +60,7 @@ public class VertexArrayDataBaker {
 	}
 
 	public void putInt(int index, int i1, int i2, int i3, int i4) {
-		attributes[index].data(i1, i2, i3, i4);
+		attributes.get(index).data(i1, i2, i3, i4);
 	}
 
 	public void putInt(int index, int i1) {
@@ -99,14 +72,26 @@ public class VertexArrayDataBaker {
 	}
 
 	public void putShort(int index, short s1, short s2, short s3, short s4) {
-		attributes[index].data(s1, s2, s3, s4);
+		attributes.get(index).data(s1, s2, s3, s4);
 	}
 
 	public void putByte(int index, byte b1, byte b2, byte b3, byte b4) {
-		attributes[index].data(b1, b2, b3, b4);
+		attributes.get(index).data(b1, b2, b3, b4);
 	}
 
 	public void putByte(int index, byte b1) {
 		this.putByte(index, b1, (byte) 0, (byte) 0, (byte) 0);
+	}
+	
+	public VertexAttribType getAttribType(int index) {
+		return attributes.get(index).attribType;
+	}
+
+	public int getAttributeCount() {
+		return attributes.size();
+	}
+	
+	public ByteBuffer getBuffer(int attributeLocation) {
+		return attributes.get(attributeLocation).getBuffer();
 	}
 }

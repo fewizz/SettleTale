@@ -6,8 +6,8 @@ public class AttribArrayDataShort extends AttribArrayData {
 	short s3;
 	short s4;
 
-	public AttribArrayDataShort(VertexAttribType attribType) {
-		super(attribType);
+	public AttribArrayDataShort(int vertexCount, boolean dynamic, VertexAttribType attribType) {
+		super(vertexCount, dynamic, attribType);
 	}
 
 	@Override

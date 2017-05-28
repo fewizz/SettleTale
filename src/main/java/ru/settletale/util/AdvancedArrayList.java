@@ -25,11 +25,6 @@ public class AdvancedArrayList<T> extends ArrayList<T> implements AdvancedList<T
 		}
 	}
 	
-	public void setWithForce(int index, T obj) {
-		ensureCapacity(index + 1);
-		set(index, obj);
-	}
-	
 	@SuppressWarnings("unchecked")
 	@Override
 	public void forEachIndexed(Consumer<T> c) {

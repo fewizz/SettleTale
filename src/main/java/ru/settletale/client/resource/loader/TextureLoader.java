@@ -1,4 +1,4 @@
-package ru.settletale.client.resource;
+package ru.settletale.client.resource.loader;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -14,6 +14,7 @@ import org.lwjgl.system.MemoryUtil;
 import ru.settletale.client.gl.GL;
 import ru.settletale.client.gl.Texture2D;
 import ru.settletale.client.render.GLThread;
+import ru.settletale.client.resource.ResourceFile;
 
 public class TextureLoader extends ResourceLoaderAbstract {
 	public static final Map<String, Texture2D> TEXTURES = new HashMap<>();

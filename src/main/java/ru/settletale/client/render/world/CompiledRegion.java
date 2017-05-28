@@ -9,13 +9,15 @@ import org.lwjgl.opengl.GL30;
 import org.lwjgl.system.MemoryUtil;
 
 import ru.settletale.client.gl.GL;
+import ru.settletale.client.gl.Shader;
 import ru.settletale.client.gl.ShaderProgram;
 import ru.settletale.client.gl.Texture1D;
 import ru.settletale.client.gl.Texture2D;
+import ru.settletale.client.gl.Shader.Type;
 import ru.settletale.client.render.RenderLayer;
 import ru.settletale.client.render.RenderLayerIndexed;
-import ru.settletale.client.resource.ShaderLoader;
-import ru.settletale.client.resource.TextureLoader;
+import ru.settletale.client.resource.loader.ShaderSourceLoader;
+import ru.settletale.client.resource.loader.TextureLoader;
 import ru.settletale.world.biome.BiomeAbstract;
 import ru.settletale.world.region.Region;
 import ru.settletale.client.vertex.VertexArrayDataBakerIndexed;
@@ -25,7 +27,7 @@ import ru.settletale.registry.Biomes;
 public class CompiledRegion {
 	public static final int POSITION = 0;
 	public static final int NORMAL = 1;
-	public static final VertexArrayDataBakerIndexed SHARED_VERTEX_ARRAY = new VertexArrayDataBakerIndexed(VertexAttribType.FLOAT_3, VertexAttribType.FLOAT_1);
+	public static final VertexArrayDataBakerIndexed SHARED_VERTEX_ARRAY = new VertexArrayDataBakerIndexed(1024, 1024, true, VertexAttribType.FLOAT_3, VertexAttribType.FLOAT_1);
 	static final Texture1D TEXTURE_BIOMES = new Texture1D(Region.WIDTH * Region.WIDTH);
 	static Texture2D textureGrass;
 	static final ByteBuffer TEMP_BUFFER = MemoryUtil.memAlloc(Region.WIDTH_EXTENDED * Region.WIDTH_EXTENDED * 2);
@@ -46,8 +48,8 @@ public class CompiledRegion {
 		if (!PROGRAM.isGenerated()) {
 			GL.debug("CR shader start");
 			PROGRAM.gen();
-			PROGRAM.attachShader(ShaderLoader.SHADERS.get("shaders/terrain.vs"));
-			PROGRAM.attachShader(ShaderLoader.SHADERS.get("shaders/terrain.fs"));
+			PROGRAM.attachShader(new Shader().gen(Type.VERTEX).source(ShaderSourceLoader.SHADER_SOURCES.get("shaders/terrain.vs")));
+			PROGRAM.attachShader(new Shader().gen(Type.FRAGMENT).source(ShaderSourceLoader.SHADER_SOURCES.get("shaders/terrain.fs")));
 			PROGRAM.link();
 			GL.debug("CR shader end");
 		}
@@ -87,8 +89,8 @@ public class CompiledRegion {
 		textureIDs = new Texture2D(Region.WIDTH_EXTENDED, Region.WIDTH_EXTENDED).gen().format(GL30.GL_R8).bufferDataFormat(GL_RED).bufferDataType(GL_UNSIGNED_BYTE);
 
 		int byteIndex = 0;
-		for (int z = -1; z < Region.WIDTH + 1; z++) {
-			for (int x = -1; x < Region.WIDTH + 1; x++) {
+		for (int z = -Region.EXTENSION; z < Region.WIDTH + Region.EXTENSION; z++) {
+			for (int x = -Region.EXTENSION; x < Region.WIDTH + Region.EXTENSION; x++) {
 				TEMP_BUFFER.put(byteIndex++, (byte) region.getBiome(x, z).getBiomeID());
 			}
 			byteIndex += 2; // WTF? It's not RGB, but neeeds 3 bytes...

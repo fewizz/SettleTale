@@ -2,7 +2,6 @@
 #extension GL_ARB_shading_language_420pack : enable
 #extension GL_ARB_explicit_uniform_location : enable
 
-//layout(binding = 0) uniform sampler2D tex;
 layout (location = 0) uniform sampler2D textures[16];
 
 out vec4 color_out;
@@ -14,7 +13,8 @@ float iqnoise(vec2 pos);
 
 void main(void) {
 	vec2 uv = uv_out * textureSize(textures[texID_vs], 0);
-	color_out = color_vs * smoothstep(0.5, 0.5, iqnoise(uv));
+	color_out = color_vs;
+	color_out.a *= smoothstep(0.0, 1., iqnoise(uv));
 }
 
 float iqnoise(vec2 pos) {
@@ -24,13 +24,10 @@ float iqnoise(vec2 pos) {
 	float value = 0.;
 	float accum = 0.;
 	
-	const float min = -.5;
-	const float max = 1.5;
-	
-	for(float x = min; x<=max; x++)
-	for(float y = min; y<=max; y++)
+	for(int ix = -1; ix <= 1; ix++)
+	for(int iy = -1; iy <= 1; iy++)
 	{
-		vec2 samplePos = vec2(x, y);
+		vec2 samplePos = vec2(float(ix), float(iy));
 		vec2 locPos = samplePos - cellOffset;
 
 		float centerDistance = length(locPos);

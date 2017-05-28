@@ -35,7 +35,7 @@ public class GLThread extends ThreadWithTasks {
 	@Override
 	public void doStuff() {
 		doAvailableTasks();
-		MainRenderer.render();
+		Renderer.render();
 	}
 	
 	public static void initGLFW() {

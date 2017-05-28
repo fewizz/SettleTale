@@ -4,39 +4,35 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class Gui {
-	final List<GuiElement> elements = new ArrayList<>();
+	final List<Gui> childs = new ArrayList<>();
 	
 	public Gui() {
 		init();
 	}
 	
 	public void init() {
-		initElements();
+		initChilds();
 	}
 	
-	public void initElements() {
+	public void initChilds() {
 		
 	}
 	
-	public GuiElement getElement(int index) {
-		return elements.get(index);
-	}
-	
 	public void resize() {
-		elements.forEach(el -> {
+		childs.forEach(el -> {
 			el.resize();
 		});
 	}
 	
-	public void addElement(GuiElement el) {
-		elements.add(el);
-		el.resize();
+	public void addChild(Gui ch) {
+		childs.add(ch);
+		ch.resize();
 	}
 	
 	public void render() {
 		renderBackground();
 		
-		elements.forEach(el -> {
+		childs.forEach(el -> {
 			el.render();
 		});
 	}
@@ -45,7 +41,7 @@ public abstract class Gui {
 	}
 	
 	public void update() {
-		elements.forEach(el -> {
+		childs.forEach(el -> {
 			el.update();
 		});
 	}

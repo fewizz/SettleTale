@@ -6,9 +6,9 @@ import org.apache.commons.io.FilenameUtils;
 
 public class ResourceFile {
 	boolean loaded = false;
-	final String key;
-	final String name;
-	final public Path path;
+	public final String key;
+	public final String name;
+	public final Path path;
 	final public ResourceDirectory dir;
 
 	public ResourceFile(ResourceDirectory dir, Path path) {

@@ -44,14 +44,14 @@ public class ResourceDirectory {
 		directories.forEach(dir -> dir.loadResources());
 	}
 
-	public ResourceFile getResourceFileIncludingSubdirectories(String path) {
+	public ResourceFile findResourceFileIncludingSubdirectories(String path) {
 		path = path.replace('\\', '/');
 
 		ResourceDirectory dir = null;
 
 		if (path.contains("/")) {
-			dir = getResourceDirectory(path);
-			return dir.getResourceFileIncludingSubdirectories(path.substring(dir.name.length() + 1));
+			dir = findResourceDirectory(path);
+			return dir.findResourceFileIncludingSubdirectories(path.substring(dir.name.length() + 1));
 		}
 		else
 			dir = this;
@@ -64,7 +64,7 @@ public class ResourceDirectory {
 		throw new Error("File \"" + path + "\" not found in \"" + key + "\"");
 	}
 
-	public ResourceDirectory getResourceDirectory(String path) {
+	public ResourceDirectory findResourceDirectory(String path) {
 		path = path.replace('\\', '/');
 
 		for (ResourceDirectory dir : directories) {
@@ -72,7 +72,7 @@ public class ResourceDirectory {
 				path = path.substring(dir.name.length() + 1);
 
 				if (path.contains("/"))
-					return dir.getResourceDirectory(path);
+					return dir.findResourceDirectory(path);
 				else
 					return dir;
 

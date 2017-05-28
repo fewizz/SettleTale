@@ -1,9 +1,15 @@
-package ru.settletale.client.resource;
+package ru.settletale.client.resource.loader;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import org.lwjgl.opengl.GL11;
+
 import ru.settletale.client.render.Material;
+import ru.settletale.client.resource.ResourceFile;
+import ru.settletale.client.resource.ResourceManager;
+import ru.settletale.client.gl.Texture;
+import ru.settletale.client.render.GLThread;
 import ru.settletale.client.render.MTLLib;
 import ru.settletale.util.FileUtils;
 
@@ -26,24 +32,24 @@ public class MtlLibLoader extends ResourceLoaderAbstract {
 		Material mat = null;
 
 		for (String str : strings) {
-			if(str.length() == 0)
+			if (str.length() == 0)
 				continue;
-			
-			for(;;) {
-				if(str.length() < 1) {
+
+			for (;;) {
+				if (str.length() < 1) {
 					break;
 				}
-				
+
 				char firstChar = str.charAt(0);
-				
-				if(firstChar == '\t' || firstChar == ' ') {
+
+				if (firstChar == '\t' || firstChar == ' ') {
 					str = str.substring(1);
 				}
 				else {
 					break;
 				}
 			}
-			
+
 			if (str.startsWith("newmtl")) {
 				mat = new Material();
 				String name = str.split(" ")[1];
@@ -62,10 +68,28 @@ public class MtlLibLoader extends ResourceLoaderAbstract {
 				String[] values = str.split(" ");
 
 				String textureDiffuse = values[values.length - 1];
-				ResourceFile res = resourceFile.dir.getResourceFileIncludingSubdirectories(textureDiffuse);
+				ResourceFile res = resourceFile.dir.findResourceFileIncludingSubdirectories(textureDiffuse);
 				ResourceManager.loadResource(res);
 
-				matLib.addTextureToMaterial(mat, TextureLoader.TEXTURES.get(res.key));
+				matLib.addDiffuseTextureToMaterial(mat, TextureLoader.TEXTURES.get(res.key));
+			}
+
+			if (str.startsWith("map_bump")) {
+				String[] values = str.split(" ");
+
+				String textureBump = values[values.length - 1];
+				ResourceFile res = resourceFile.dir.findResourceFileIncludingSubdirectories(textureBump);
+				ResourceManager.loadResource(res);
+
+				Texture<?> tex = TextureLoader.TEXTURES.get(res.key);
+				matLib.addBumpTextureToMaterial(mat, tex);
+
+				if (tex != null) {
+					GLThread.addTask(() -> {
+						tex.parameter(GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
+						tex.parameter(GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
+					});
+				}
 			}
 		}
 

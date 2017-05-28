@@ -1,15 +1,13 @@
 package ru.settletale.client.vertex;
 
-import ru.settletale.util.DirectBufferUtils;
-
 public class AttribArrayDataByte extends AttribArrayData {
 	byte b1;
 	byte b2;
 	byte b3;
 	byte b4;
 	
-	public AttribArrayDataByte(VertexAttribType attribType) {
-		super(attribType);
+	public AttribArrayDataByte(int vertexCount, boolean dynamic, VertexAttribType attribType) {
+		super(vertexCount, dynamic, attribType);
 	}
 
 	@Override
@@ -21,30 +19,29 @@ public class AttribArrayDataByte extends AttribArrayData {
 	}
 
 	@Override
-	public void dataEnd(int id) {
-		id *= growBytes;
+	public void dataEnd(int index) {
+		index *= growBytes;
 		
-		int limit = id + growBytes;
+		int maxIndex = index + growBytes;
 		
-		if(limit > buff.capacity())
-			buff = DirectBufferUtils.growBuffer(buff, 1.5F);
+		growIfNeed(maxIndex);
 		
-		buff.limit(limit);
+		buff.limit(maxIndex);
 		
-		buff.put(id, b1);
+		buff.put(index, b1);
 		
-		switch (perVertexElemrntCount) {
+		switch (attribType.perVertexElementCount) {
 			case 2:
-				buff.put(id + 1, b2);
+				buff.put(index + 1, b2);
 				break;
 			case 3: 
-				buff.put(id + 1, b2);
-				buff.put(id + 2, b3);
+				buff.put(index + 1, b2);
+				buff.put(index + 2, b3);
 				break;
 			case 4:
-				buff.put(id + 1, b2);
-				buff.put(id + 2, b3);
-				buff.put(id + 3, b4);
+				buff.put(index + 1, b2);
+				buff.put(index + 2, b3);
+				buff.put(index + 3, b4);
 				break;
 
 			default:

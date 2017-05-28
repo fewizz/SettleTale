@@ -1,15 +1,13 @@
 package ru.settletale.client.vertex;
 
-import ru.settletale.util.DirectBufferUtils;
-
 public class AttribArrayDataInt extends AttribArrayData {
 	int i1;
 	int i2;
 	int i3;
 	int i4;
 	
-	public AttribArrayDataInt(VertexAttribType attribType) {
-		super(attribType);
+	public AttribArrayDataInt(int vertexCount, boolean dynamic, VertexAttribType attribType) {
+		super(vertexCount, dynamic, attribType);
 	}
 
 	@Override
@@ -21,30 +19,29 @@ public class AttribArrayDataInt extends AttribArrayData {
 	}
 
 	@Override
-	public void dataEnd(int id) {
-		id *= growBytes;
+	public void dataEnd(int index) {
+		index *= growBytes;
 		
-		int limit = id + growBytes;
+		int limit = index + growBytes;
 		
-		if(limit > buff.capacity())
-			buff = DirectBufferUtils.growBuffer(buff, 1.5F);
+		growIfNeed(limit);
 		
 		buff.limit(limit);
 		
-		buff.putInt(id, i1);
+		buff.putInt(index, i1);
 		
-		switch (perVertexElemrntCount) {
+		switch (attribType.perVertexElementCount) {
 			case 2:
-				buff.putInt(id + Integer.BYTES * 1, i2);
+				buff.putInt(index + Integer.BYTES * 1, i2);
 				break;
 			case 3: 
-				buff.putInt(id + Integer.BYTES * 1, i2);
-				buff.putInt(id + Integer.BYTES * 2, i3);
+				buff.putInt(index + Integer.BYTES * 1, i2);
+				buff.putInt(index + Integer.BYTES * 2, i3);
 				break;
 			case 4:
-				buff.putInt(id + Integer.BYTES * 1, i2);
-				buff.putInt(id + Integer.BYTES * 2, i3);
-				buff.putInt(id + Integer.BYTES * 3, i4);
+				buff.putInt(index + Integer.BYTES * 1, i2);
+				buff.putInt(index + Integer.BYTES * 2, i3);
+				buff.putInt(index + Integer.BYTES * 3, i4);
 				break;
 
 			default:

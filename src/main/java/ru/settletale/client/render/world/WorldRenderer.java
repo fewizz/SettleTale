@@ -8,15 +8,17 @@ import com.koloboke.collect.map.hash.HashLongObjMaps;
 import ru.settletale.client.Camera;
 import ru.settletale.client.Window;
 import ru.settletale.client.gl.GL;
+import ru.settletale.client.gl.Shader;
 import ru.settletale.client.gl.ShaderProgram;
+import ru.settletale.client.gl.Shader.Type;
 import ru.settletale.client.render.Color;
 import ru.settletale.client.render.Drawer;
 import ru.settletale.client.render.FontRenderer;
 import ru.settletale.client.render.GLThread;
-import ru.settletale.client.render.MainRenderer;
-import ru.settletale.client.resource.ObjModelLoader;
-import ru.settletale.client.resource.ShaderLoader;
-import ru.settletale.client.resource.TextureLoader;
+import ru.settletale.client.render.Renderer;
+import ru.settletale.client.resource.loader.ObjModelLoader;
+import ru.settletale.client.resource.loader.ShaderSourceLoader;
+import ru.settletale.client.resource.loader.TextureLoader;
 import ru.settletale.world.region.IRegionManagerListener;
 import ru.settletale.world.region.Region;
 
@@ -34,8 +36,8 @@ public class WorldRenderer implements IRegionManagerListener {
 		glEnable(GL_ALPHA_TEST);
 		glCullFace(GL_BACK);
 		PROGRAM_SKY.gen();
-		PROGRAM_SKY.attachShader(ShaderLoader.SHADERS.get("shaders/sky.vs"));
-		PROGRAM_SKY.attachShader(ShaderLoader.SHADERS.get("shaders/sky.fs"));
+		PROGRAM_SKY.attachShader(new Shader().gen(Type.VERTEX).source(ShaderSourceLoader.SHADER_SOURCES.get("shaders/sky.vs")));
+		PROGRAM_SKY.attachShader(new Shader().gen(Type.FRAGMENT).source(ShaderSourceLoader.SHADER_SOURCES.get("shaders/sky.fs")));
 		PROGRAM_SKY.link();
 	}
 
@@ -149,7 +151,7 @@ public class WorldRenderer implements IRegionManagerListener {
 		FontRenderer.setSize(25);
 		FontRenderer.setColor(Color.WHITE);
 		FontRenderer.getPosition().set(10, Window.height - 30, 0);
-		FontRenderer.setText("FPS: " + MainRenderer.lastFPS);
+		FontRenderer.setText("FPS: " + Renderer.lastFPS);
 		FontRenderer.render();
 
 		GL.debug("World rend end");

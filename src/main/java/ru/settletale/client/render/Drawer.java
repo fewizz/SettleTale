@@ -4,9 +4,11 @@ import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 import ru.settletale.client.gl.GL;
+import ru.settletale.client.gl.Shader;
 import ru.settletale.client.gl.ShaderProgram;
 import ru.settletale.client.gl.Texture2D;
-import ru.settletale.client.resource.ShaderLoader;
+import ru.settletale.client.gl.Shader.Type;
+import ru.settletale.client.resource.loader.ShaderSourceLoader;
 import ru.settletale.client.vertex.VertexAttribType;
 
 public class Drawer {
@@ -29,18 +31,18 @@ public class Drawer {
 
 	public static void init() {
 		PROGRAM.gen();
-		PROGRAM.attachShader(ShaderLoader.SHADERS.get("shaders/drawer.vs"));
-		PROGRAM.attachShader(ShaderLoader.SHADERS.get("shaders/drawer.fs"));
+		PROGRAM.attachShader(new Shader().gen(Type.VERTEX).source(ShaderSourceLoader.SHADER_SOURCES.get("shaders/drawer.vs")));
+		PROGRAM.attachShader(new Shader().gen(Type.FRAGMENT).source(ShaderSourceLoader.SHADER_SOURCES.get("shaders/drawer.fs")));
 		PROGRAM.link();
 
 		PROGRAM_TEX.gen();
-		PROGRAM_TEX.attachShader(ShaderLoader.SHADERS.get("shaders/drawer_tex.vs"));
-		PROGRAM_TEX.attachShader(ShaderLoader.SHADERS.get("shaders/drawer_tex.fs"));
+		PROGRAM_TEX.attachShader(new Shader().gen(Type.VERTEX).source(ShaderSourceLoader.SHADER_SOURCES.get("shaders/drawer_tex.vs")));
+		PROGRAM_TEX.attachShader(new Shader().gen(Type.FRAGMENT).source(ShaderSourceLoader.SHADER_SOURCES.get("shaders/drawer_tex.fs")));
 		PROGRAM_TEX.link();
 
 		PROGRAM_MULTITEX.gen();
-		PROGRAM_MULTITEX.attachShader(ShaderLoader.SHADERS.get("shaders/drawer_multitex.vs"));
-		PROGRAM_MULTITEX.attachShader(ShaderLoader.SHADERS.get("shaders/drawer_multitex.fs"));
+		PROGRAM_MULTITEX.attachShader(new Shader().gen(Type.VERTEX).source(ShaderSourceLoader.SHADER_SOURCES.get("shaders/drawer_multitex.vs")));
+		PROGRAM_MULTITEX.attachShader(new Shader().gen(Type.FRAGMENT).source(ShaderSourceLoader.SHADER_SOURCES.get("shaders/drawer_multitex.fs")));
 		PROGRAM_MULTITEX.link();
 
 		LAYER.setAllowSubDataWhenPossible(true);

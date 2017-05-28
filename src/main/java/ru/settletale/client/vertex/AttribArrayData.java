@@ -4,18 +4,22 @@ import java.nio.ByteBuffer;
 
 import org.lwjgl.system.MemoryUtil;
 
+import ru.settletale.util.DirectBufferUtils;
+
 public abstract class AttribArrayData {
-	VertexAttribType attribType;
-	final int perVertexElemrntCount;
+	final VertexAttribType attribType;
 	final int growBytes;
 	ByteBuffer buff;
+	final int vertexCount;
+	final boolean isDynamic;
 
-	public AttribArrayData(VertexAttribType attribType) {
+	public AttribArrayData(int vertexCount, boolean dynamic, VertexAttribType attribType) {
+		this.vertexCount = vertexCount;
 		this.attribType = attribType;
-		this.perVertexElemrntCount = attribType.perVertexElementCount;
 		this.growBytes = attribType.perVertexElementCount * attribType.clientDataType.getSizeInBytes();
-		buff = MemoryUtil.memAlloc(4096);
+		buff = MemoryUtil.memAlloc(vertexCount * growBytes);
 		buff.limit(0);
+		this.isDynamic = dynamic;
 	}
 
 	public void data(byte b1, byte b2, byte b3, byte b4) {
@@ -42,6 +46,15 @@ public abstract class AttribArrayData {
 	
 	public void delete() {
 		MemoryUtil.memFree(buff);
+	}
+	
+	protected void growIfNeed(int index) {
+		if(index >= buff.capacity()) {
+			if(!isDynamic) {
+				throw new Error("Max index reached");
+			}
+			buff = DirectBufferUtils.growBuffer(buff, 1.5F);
+		}
 	}
 
 }

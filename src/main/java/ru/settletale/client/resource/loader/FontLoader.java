@@ -1,4 +1,4 @@
-package ru.settletale.client.resource;
+package ru.settletale.client.resource.loader;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -9,6 +9,8 @@ import java.util.Map;
 import ru.settletale.client.render.Font;
 import ru.settletale.client.render.FontChar;
 import ru.settletale.client.render.FontPage;
+import ru.settletale.client.resource.ResourceFile;
+import ru.settletale.client.resource.ResourceManager;
 
 public class FontLoader extends ResourceLoaderAbstract {
 	public static final Map<String, Font> FONTS = new HashMap<>();
@@ -60,7 +62,7 @@ public class FontLoader extends ResourceLoaderAbstract {
 		}
 		
 		for(FontPage page : font.pages) {
-			ResourceFile res = resourceFile.dir.getResourceFileIncludingSubdirectories(page.textureName);
+			ResourceFile res = resourceFile.dir.findResourceFileIncludingSubdirectories(page.textureName);
 			ResourceManager.loadResource(res);
 			page.texture = TextureLoader.TEXTURES.get(res.key);
 		}

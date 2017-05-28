@@ -4,10 +4,12 @@ import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
 
 import ru.settletale.client.gl.GL;
+import ru.settletale.client.gl.Shader;
 import ru.settletale.client.gl.ShaderProgram;
 import ru.settletale.client.gl.Texture2D;
-import ru.settletale.client.resource.FontLoader;
-import ru.settletale.client.resource.ShaderLoader;
+import ru.settletale.client.gl.Shader.Type;
+import ru.settletale.client.resource.loader.FontLoader;
+import ru.settletale.client.resource.loader.ShaderSourceLoader;
 
 public class FontRenderer {
 	static final Vector3f POSITION = new Vector3f(0);
@@ -119,8 +121,8 @@ public class FontRenderer {
 	static void linkDefaultProgramIfNeed() {
 		if (!DEFAULT_PROGRAM.isGenerated()) {
 			DEFAULT_PROGRAM.gen();
-			DEFAULT_PROGRAM.attachShader(ShaderLoader.SHADERS.get("shaders/font.vs"));
-			DEFAULT_PROGRAM.attachShader(ShaderLoader.SHADERS.get("shaders/font.fs"));
+			DEFAULT_PROGRAM.attachShader(new Shader().gen(Type.VERTEX).source(ShaderSourceLoader.SHADER_SOURCES.get("shaders/font.vs")));
+			DEFAULT_PROGRAM.attachShader(new Shader().gen(Type.FRAGMENT).source(ShaderSourceLoader.SHADER_SOURCES.get("shaders/font.fs")));
 			DEFAULT_PROGRAM.link();
 		}
 	}

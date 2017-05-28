@@ -15,15 +15,21 @@ import ru.settletale.client.vertex.VertexArrayDataBaker;
 
 public class RenderLayer {
 	protected VertexArrayDataBaker attribs;
-	protected VertexArray vao;
+	protected final VertexArray vao;
 	protected ShaderProgram program;
-	protected List<VertexBuffer> vboList;
+	protected final List<VertexBuffer> vboList;
 	protected boolean allowSubData = false;
 	protected int vertexCount;
 
+	public RenderLayer(int vertexCount, VertexAttribType... storages) {
+		this();
+		this.vertexCount = vertexCount;
+		setVertexArrayDataBaker(new VertexArrayDataBaker(vertexCount, false, storages));
+	}
+	
 	public RenderLayer(VertexAttribType... storages) {
 		this();
-		setVertexArrayDataBaker(new VertexArrayDataBaker(storages));
+		setVertexArrayDataBaker(new VertexArrayDataBaker(1024, true, storages));
 	}
 
 	public RenderLayer(VertexArrayDataBaker va) {
@@ -46,13 +52,13 @@ public class RenderLayer {
 
 		this.vertexCount = attribs.getVertexCount();
 		
-		for(int index = 0; index < attribs.getCount(); index++) {
+		for(int index = 0; index < attribs.getAttributeCount(); index++) {
 			if(vboList.size() <= index || vboList.get(index) == null) {
 				vboList.add(new VertexBuffer().gen());
 			}
 		}
 
-		for (int attribIndex = 0; attribIndex < attribs.getCount(); attribIndex++) {
+		for (int attribIndex = 0; attribIndex < attribs.getAttributeCount(); attribIndex++) {
 			VertexBuffer vbo = vboList.get(attribIndex);
 			ByteBuffer buffer = attribs.getBuffer(attribIndex);
 

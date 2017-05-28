@@ -1,15 +1,13 @@
 package ru.settletale.client.vertex;
 
-import ru.settletale.util.DirectBufferUtils;
-
 public class AttribArrayDataFloat extends AttribArrayData {
 	float f1;
 	float f2;
 	float f3;
 	float f4;
 	
-	public AttribArrayDataFloat(VertexAttribType attribType) {
-		super(attribType);
+	public AttribArrayDataFloat(int vertexCount, boolean dynamic, VertexAttribType attribType) {
+		super(vertexCount, dynamic, attribType);
 	}
 
 	@Override
@@ -21,30 +19,29 @@ public class AttribArrayDataFloat extends AttribArrayData {
 	}
 
 	@Override
-	public void dataEnd(int id) {
-		id *= growBytes;
+	public void dataEnd(int index) {
+		index *= growBytes;
 		
-		int limit = id + growBytes;
+		int limit = index + growBytes;
 		
-		if(limit > buff.capacity())
-			buff = DirectBufferUtils.growBuffer(buff, 1.5F);
+		growIfNeed(limit);
 		
 		buff.limit(limit);
 		
-		buff.putFloat(id, f1);
+		buff.putFloat(index, f1);
 		
-		switch (perVertexElemrntCount) {
+		switch (attribType.perVertexElementCount) {
 			case 2:
-				buff.putFloat(id + Float.BYTES * 1, (float) f2);
+				buff.putFloat(index + Float.BYTES * 1, (float) f2);
 				break;
 			case 3: 
-				buff.putFloat(id + Float.BYTES * 1, (float) f2);
-				buff.putFloat(id + Float.BYTES * 2, (float) f3);
+				buff.putFloat(index + Float.BYTES * 1, (float) f2);
+				buff.putFloat(index + Float.BYTES * 2, (float) f3);
 				break;
 			case 4:
-				buff.putFloat(id + Float.BYTES * 1, (float) f2);
-				buff.putFloat(id + Float.BYTES * 2, (float) f3);
-				buff.putFloat(id + Float.BYTES * 3, (float) f4);
+				buff.putFloat(index + Float.BYTES * 1, (float) f2);
+				buff.putFloat(index + Float.BYTES * 2, (float) f3);
+				buff.putFloat(index + Float.BYTES * 3, (float) f4);
 				break;
 
 			default:

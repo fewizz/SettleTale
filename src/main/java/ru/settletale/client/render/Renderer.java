@@ -9,7 +9,7 @@ import ru.settletale.client.KeyListener;
 import ru.settletale.client.render.world.WorldRenderer;
 import ru.settletale.util.TickTimer;
 
-public class MainRenderer {
+public class Renderer {
 	public static final TickTimer TIMER = new TickTimer(Window.frameRate);
 	static int frames = 0;
 	static long start = System.nanoTime();

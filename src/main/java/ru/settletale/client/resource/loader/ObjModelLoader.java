@@ -1,10 +1,12 @@
-package ru.settletale.client.resource;
+package ru.settletale.client.resource.loader;
 
 import java.nio.FloatBuffer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import org.joml.GeometryUtils;
+import org.joml.Vector3f;
 import org.lwjgl.system.MemoryUtil;
 
 import ru.settletale.client.gl.Texture;
@@ -14,6 +16,8 @@ import ru.settletale.client.render.MTLLib;
 import ru.settletale.client.render.Material;
 import ru.settletale.client.render.ObjModel;
 import ru.settletale.client.render.TexturedMaterialBinder;
+import ru.settletale.client.resource.ResourceFile;
+import ru.settletale.client.resource.ResourceManager;
 import ru.settletale.client.vertex.VertexAttribType;
 import ru.settletale.client.vertex.VertexArrayDataBaker;
 import ru.settletale.util.FileUtils;
@@ -42,13 +46,14 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 		float[][] backPos = new float[4][4];
 		float[][] backNorm = new float[4][3];
 		float[][] backUV = new float[4][2];
+		Vector3f backNormVec = new Vector3f();
 		int[] counts = getCountOfElements(strings, "v", "vt", "vn");
 
 		FloatBuffer positions = MemoryUtil.memAllocFloat(counts[0] * 4);
 		FloatBuffer uvs = MemoryUtil.memAllocFloat(counts[1] * 2);
 		FloatBuffer normals = MemoryUtil.memAllocFloat(counts[2] * 3);
 
-		VertexArrayDataBaker dataBaker = new VertexArrayDataBaker(VertexAttribType.FLOAT_4, VertexAttribType.FLOAT_3, VertexAttribType.FLOAT_2, VertexAttribType.INT_1);
+		VertexArrayDataBaker dataBaker = new VertexArrayDataBaker(50000, true, VertexAttribType.FLOAT_4, VertexAttribType.FLOAT_3, VertexAttribType.FLOAT_2, VertexAttribType.INT_1);
 		TexturedMaterialBinder tmb = new TexturedMaterialBinder();
 
 		int currentMatID = -1;
@@ -80,15 +85,15 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 					readUV(str, uvs, back);
 			}
 			else if (firstChar == 'f') {
-				if(currentMaterial == null) {
+				if (currentMaterial == null) {
 					currentMaterial = materialWhite;
-					currentMatID = tmb.addIfAdsent(currentMaterial, textureWhite);
+					currentMatID = tmb.addIfAdsent(currentMaterial, textureWhite, textureWhite);
 				}
-				readFace(str, dataBaker, positions, normals, uvs, currentMatID, backIndex, backPos, backNorm, backUV);
+				readFace(str, dataBaker, positions, normals, uvs, currentMatID, backIndex, backPos, backNorm, backNormVec, backUV);
 			}
 			else {
 				if (str.startsWith("mtllib")) {
-					ResourceFile res = resourceFile.dir.getResourceFileIncludingSubdirectories(readMTLLibName(str));
+					ResourceFile res = resourceFile.dir.findResourceFileIncludingSubdirectories(readMTLLibName(str));
 					ResourceManager.loadResource(res);
 					currentMTLLib = MtlLibLoader.MTLS.get(res.key);
 				}
@@ -98,13 +103,18 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 
 					Objects.requireNonNull(currentMaterial, "Material \"" + materialName + "\" not found in MTLLib");
 
-					Texture<?> tex = currentMTLLib.getDiffuseTexture(currentMaterial);
-					if (tex == null) {
+					Texture<?> texDiff = currentMTLLib.getDiffuseTexture(currentMaterial);
+					Texture<?> texBump = currentMTLLib.getBumpTexture(currentMaterial);
+
+					if (texDiff == null) {
 						System.out.println("Material " + materialName + " haven't texture.");
-						tex = textureWhite;
+						texDiff = textureWhite;
+					}
+					if (texBump == null) {
+						texBump = textureWhite;
 					}
 
-					currentMatID = tmb.addIfAdsent(currentMaterial, tex);
+					currentMatID = tmb.addIfAdsent(currentMaterial, texDiff, texBump);
 				}
 			}
 		}
@@ -116,9 +126,12 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 		ObjModel model = new ObjModel();
 		model.setTextureAndMaterialBinder(tmb);
 
-		ResourceManager.runAfterResourceLoaded(() -> {
+		ResourceManager.runAfterResourcesLoaded(() -> {
 			GLThread.addTask(() -> {
 				model.compile(dataBaker);
+				MemoryUtil.memFree(positions);
+				MemoryUtil.memFree(normals);
+				MemoryUtil.memFree(uvs);
 			});
 		});
 
@@ -161,7 +174,7 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 		fb.put(v);
 	}
 
-	public static void readFace(String str, VertexArrayDataBaker pa, FloatBuffer positions, FloatBuffer normals, FloatBuffer uvs, int matID, int[][] back, float[][] backPos, float[][] backNorm, float[][] backUV) {
+	public static void readFace(String str, VertexArrayDataBaker pa, FloatBuffer positions, FloatBuffer normals, FloatBuffer uvs, int matID, int[][] back, float[][] backPos, float[][] backNorm, Vector3f backNormVec, float[][] backUV) {
 		//Needs to know, if they uses
 		back[1][1] = -1; //For UV
 		back[1][2] = -1; //For Normal
@@ -176,15 +189,15 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 		if (!hasUV) {
 			backUV = null;
 		}
-		if (!hasNormal) {
-			backNorm = null;
-		}
+		//if (!hasNormal) {
+		//backNorm = null;
+		//}
 
 		int vertCount = isQuad ? 4 : 3;
 
 		int flags = matID;
 		flags |= (hasUV ? 1 : 0) << 8;
-		flags |= (hasNormal ? 1 : 0) << 9;
+		//flags |= (hasNormal ? 1 : 0) << 9;
 		pa.putInt(FLAGS, flags);
 
 		for (int k = 0; k < vertCount; k++) {
@@ -215,51 +228,64 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 				uvIndex = (vt - 1) * 2;
 			}
 
-			if (isQuad) {
-				backPos[k][0] = positions.get(posIndex + 0);
-				backPos[k][1] = positions.get(posIndex + 1);
-				backPos[k][2] = positions.get(posIndex + 2);
-				backPos[k][3] = positions.get(posIndex + 3);
+			backPos[k][0] = positions.get(posIndex + 0);
+			backPos[k][1] = positions.get(posIndex + 1);
+			backPos[k][2] = positions.get(posIndex + 2);
+			backPos[k][3] = positions.get(posIndex + 3);
 
-				if (hasNormal) {
-					backNorm[k][0] = normals.get(normIndex + 0);
-					backNorm[k][1] = normals.get(normIndex + 1);
-					backNorm[k][2] = normals.get(normIndex + 2);
-				}
-
-				if (hasUV) {
-					backUV[k][0] = uvs.get(uvIndex + 0);
-					backUV[k][1] = uvs.get(uvIndex + 1);
-				}
+			if (hasNormal) {
+				backNorm[k][0] = normals.get(normIndex + 0);
+				backNorm[k][1] = normals.get(normIndex + 1);
+				backNorm[k][2] = normals.get(normIndex + 2);
 			}
-			else {
-				pa.putFloat(POS, positions.get(posIndex + 0), positions.get(posIndex + 1), positions.get(posIndex + 2), positions.get(posIndex + 3));
-				if (hasNormal)
-					pa.putFloat(NORM, normals.get(normIndex + 0), normals.get(normIndex + 1), normals.get(normIndex + 2));
-				if (hasUV)
-					pa.putFloat(UV, uvs.get(uvIndex + 0), uvs.get(uvIndex + 1));
-				pa.endVertex();
+
+			if (hasUV) {
+				backUV[k][0] = uvs.get(uvIndex + 0);
+				backUV[k][1] = uvs.get(uvIndex + 1);
 			}
 		}
 
 		if (isQuad) {
+			if (!hasNormal) {
+				calculateNorm(0, 1, 2, backPos, backNorm, backNormVec);
+			}
+
 			fillPA(pa, 0, backPos, backNorm, backUV);
 			fillPA(pa, 1, backPos, backNorm, backUV);
 			fillPA(pa, 2, backPos, backNorm, backUV);
 
+			if (!hasNormal) {
+				calculateNorm(3, 0, 2, backPos, backNorm, backNormVec);
+			}
 			fillPA(pa, 3, backPos, backNorm, backUV);
 			fillPA(pa, 0, backPos, backNorm, backUV);
+			fillPA(pa, 2, backPos, backNorm, backUV);
+		}
+		else {
+			if (!hasNormal) {
+				calculateNorm(0, 1, 2, backPos, backNorm, backNormVec);
+			}
+
+			fillPA(pa, 0, backPos, backNorm, backUV);
+			fillPA(pa, 1, backPos, backNorm, backUV);
 			fillPA(pa, 2, backPos, backNorm, backUV);
 		}
 	}
 
 	static void fillPA(VertexArrayDataBaker pa, int indx, float[][] backPos, float[][] backNorm, float[][] backUV) {
 		pa.putFloat(POS, backPos[indx][0], backPos[indx][1], backPos[indx][2], backPos[indx][3]);
-		if (backNorm != null)
-			pa.putFloat(NORM, backNorm[indx][0], backNorm[indx][1], backNorm[indx][2]);
+		//if (backNorm != null)
+		pa.putFloat(NORM, backNorm[indx][0], backNorm[indx][1], backNorm[indx][2]);
 		if (backUV != null)
 			pa.putFloat(UV, backUV[indx][0], backUV[indx][1]);
 		pa.endVertex();
+	}
+
+	static void calculateNorm(int i1, int i2, int i3, float[][] backPos, float[][] backNorm, Vector3f backVec) {
+		GeometryUtils.normal(backPos[i1][0], backPos[i1][1], backPos[i1][2], backPos[i2][0], backPos[i2][1], backPos[i2][2], backPos[i3][0], backPos[i3][1], backPos[i3][2], backVec);
+		backNorm[i1][0] = backNorm[i2][0] = backNorm[i3][0] = backVec.x;
+		backNorm[i1][1] = backNorm[i2][1] = backNorm[i3][1] = backVec.y;
+		backNorm[i1][2] = backNorm[i2][2] = backNorm[i3][2] = backVec.z;
 	}
 
 	public static String readMTLLibName(String str) {

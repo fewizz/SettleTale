@@ -17,19 +17,28 @@ import ru.settletale.util.AdvancedList;
 public class TexturedMaterialBinder {
 	final AdvancedList<Material> materials = new AdvancedArrayList<>();
 	final Map<Material, Texture<?>> diffuseTexturesMap = new HashMap<>();
+	final Map<Material, Texture<?>> bumpTexturesMap = new HashMap<>();
 	final AdvancedArrayList<Texture<?>> textureUnits = new AdvancedArrayList<>();
 	final UniformBuffer ubo = new UniformBuffer();
 	int diffuseTexturesUniformArraylocation = -1;
+	int bumpTexturesUniformArraylocation = -1;
 
 	public void setDiffuseTexturesUniformArraylocation(int location) {
 		this.diffuseTexturesUniformArraylocation = location;
 	}
+	
+	public void setBumpTexturesUniformArraylocation(int location) {
+		this.bumpTexturesUniformArraylocation = location;
+	}
 
-	public int addIfAdsent(Material material, Texture<?> texture) {
+	public int addIfAdsent(Material material, Texture<?> diffTexture, Texture<?> bumpTexture) {
 		materials.addIfAbsent(material);
 		int matIndex = materials.indexOf(material);
-		diffuseTexturesMap.put(material, texture);
-		textureUnits.addIfAbsent(texture);
+		diffuseTexturesMap.put(material, diffTexture);
+		bumpTexturesMap.put(material, bumpTexture);
+		
+		textureUnits.addIfAbsent(diffTexture);
+		textureUnits.addIfAbsent(bumpTexture);
 		return matIndex;
 	}
 
@@ -51,6 +60,15 @@ public class TexturedMaterialBinder {
 			});
 
 			program.setUniformIntArray(diffuseTexturesUniformArraylocation, buff);
+			
+			buff.clear();
+			materials.forEach(material -> {
+				int matIndex = materials.indexOf(material);
+				int unitIndex = textureUnits.indexOf(bumpTexturesMap.get(material));
+				buff.put(matIndex, unitIndex);
+			});
+
+			program.setUniformIntArray(bumpTexturesUniformArraylocation, buff);
 		}
 
 		try (MemoryStack ms = MemoryStack.stackPush()) {

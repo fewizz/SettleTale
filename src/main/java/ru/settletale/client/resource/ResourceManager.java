@@ -10,6 +10,14 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import ru.settletale.client.resource.loader.ColladaLoader;
+import ru.settletale.client.resource.loader.FontLoader;
+import ru.settletale.client.resource.loader.MtlLibLoader;
+import ru.settletale.client.resource.loader.ObjModelLoader;
+import ru.settletale.client.resource.loader.ResourceLoaderAbstract;
+import ru.settletale.client.resource.loader.ShaderSourceLoader;
+import ru.settletale.client.resource.loader.TextureLoader;
+
 public class ResourceManager {
 	static final List<ResourceLoaderAbstract> RESOURCE_LOADERS = new ArrayList<>();
 	static final Map<String, ResourceFile> KEY_LOADED_RES_MAP = new HashMap<>();
@@ -18,10 +26,11 @@ public class ResourceManager {
 
 	public static void loadResources() {
 		RESOURCE_LOADERS.add(new TextureLoader());
-		RESOURCE_LOADERS.add(new ShaderLoader());
+		RESOURCE_LOADERS.add(new ShaderSourceLoader());
 		RESOURCE_LOADERS.add(new FontLoader());
 		RESOURCE_LOADERS.add(new ObjModelLoader());
 		RESOURCE_LOADERS.add(new MtlLibLoader());
+		RESOURCE_LOADERS.add(new ColladaLoader());
 
 		startResourceScanning();
 		
@@ -29,7 +38,7 @@ public class ResourceManager {
 			root.loadResources();
 		});
 		
-		TASKS.forEach(run -> run.run());
+		TASKS.forEach(Runnable::run);
 	}
 	
 	private static void startResourceScanning() {
@@ -37,15 +46,17 @@ public class ResourceManager {
 		scanFolder(Paths.get("src/main/resources/assets/"));
 	}
 
-	public static void loadResource(String resPath) {
+	public static boolean loadResource(String resPath) {
 		for(ResourceDirectory dir : ROOTS) {
-			ResourceFile file = dir.getResourceFileIncludingSubdirectories(resPath);
+			ResourceFile file = dir.findResourceFileIncludingSubdirectories(resPath);
 			
 			if(file != null) {
 				loadResource(file);
-				return;
+				return true;
 			}
 		}
+		
+		return false;
 	}
 	
 	public static void loadResource(ResourceFile res) {
@@ -84,7 +95,7 @@ public class ResourceManager {
 		return KEY_LOADED_RES_MAP.containsValue(res);
 	}
 	
-	public static void runAfterResourceLoaded(Runnable run) {
+	public static void runAfterResourcesLoaded(Runnable run) {
 		TASKS.add(run);
 	}
 }
