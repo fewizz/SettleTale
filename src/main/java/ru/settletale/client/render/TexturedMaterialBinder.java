@@ -18,7 +18,7 @@ public class TexturedMaterialBinder {
 	final AdvancedList<Material> materials = new AdvancedArrayList<>();
 	final Map<Material, Texture<?>> diffuseTexturesMap = new HashMap<>();
 	final Map<Material, Texture<?>> bumpTexturesMap = new HashMap<>();
-	final AdvancedArrayList<Texture<?>> textureUnits = new AdvancedArrayList<>();
+	final AdvancedList<Texture<?>> textureUnits = new AdvancedArrayList<>();
 	final UniformBuffer ubo = new UniformBuffer();
 	int diffuseTexturesUniformArraylocation = -1;
 	int bumpTexturesUniformArraylocation = -1;

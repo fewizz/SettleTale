@@ -50,7 +50,7 @@ public class RenderLayer {
 
 		GL.debug("RenderLayer vao creating");
 
-		this.vertexCount = attribs.getVertexCount();
+		this.vertexCount = attribs.getUsedVertexCount();
 		
 		for(int index = 0; index < attribs.getAttributeCount(); index++) {
 			if(vboList.size() <= index || vboList.get(index) == null) {
@@ -102,7 +102,7 @@ public class RenderLayer {
 
 	public void clearVertexArrayDataBakerIfExists() {
 		if (hasVertexAttribArray())
-			getVertexArrayDataBaker().clearData();
+			getVertexArrayDataBaker().clear();
 	}
 
 	public void deleteVertexBuffers() {

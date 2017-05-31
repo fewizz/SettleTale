@@ -7,19 +7,17 @@ import org.lwjgl.system.MemoryUtil;
 import ru.settletale.util.DirectBufferUtils;
 
 public abstract class AttribArrayData {
+	final VertexArrayDataBaker baker;
 	final VertexAttribType attribType;
 	final int growBytes;
 	ByteBuffer buff;
-	final int vertexCount;
-	final boolean isDynamic;
 
-	public AttribArrayData(int vertexCount, boolean dynamic, VertexAttribType attribType) {
-		this.vertexCount = vertexCount;
+	public AttribArrayData(VertexArrayDataBaker baker, VertexAttribType attribType) {
+		this.baker = baker;
 		this.attribType = attribType;
 		this.growBytes = attribType.perVertexElementCount * attribType.clientDataType.getSizeInBytes();
-		buff = MemoryUtil.memAlloc(vertexCount * growBytes);
+		buff = MemoryUtil.memAlloc(baker.maxVertexCount * growBytes);
 		buff.limit(0);
-		this.isDynamic = dynamic;
 	}
 
 	public void data(byte b1, byte b2, byte b3, byte b4) {
@@ -34,7 +32,7 @@ public abstract class AttribArrayData {
 	public void data(int i1, int i2, int i3, int i4) {
 	}
 	
-	public abstract void dataEnd(int id);
+	public abstract void dataEnd();
 
 	public ByteBuffer getBuffer() {
 		return buff;
@@ -48,13 +46,8 @@ public abstract class AttribArrayData {
 		MemoryUtil.memFree(buff);
 	}
 	
-	protected void growIfNeed(int index) {
-		if(index >= buff.capacity()) {
-			if(!isDynamic) {
-				throw new Error("Max index reached");
-			}
-			buff = DirectBufferUtils.growBuffer(buff, 1.5F);
-		}
+	public void grow(float factor) {
+		buff = DirectBufferUtils.growBuffer(buff, (float)growBytes * factor);
 	}
 
 }

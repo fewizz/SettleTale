@@ -6,8 +6,8 @@ public class AttribArrayDataByte extends AttribArrayData {
 	byte b3;
 	byte b4;
 	
-	public AttribArrayDataByte(int vertexCount, boolean dynamic, VertexAttribType attribType) {
-		super(vertexCount, dynamic, attribType);
+	public AttribArrayDataByte(VertexArrayDataBaker baker, VertexAttribType attribType) {
+		super(baker, attribType);
 	}
 
 	@Override
@@ -19,12 +19,10 @@ public class AttribArrayDataByte extends AttribArrayData {
 	}
 
 	@Override
-	public void dataEnd(int index) {
-		index *= growBytes;
+	public void dataEnd() {
+		int index = baker.lastVertexIndex * growBytes;
 		
 		int maxIndex = index + growBytes;
-		
-		growIfNeed(maxIndex);
 		
 		buff.limit(maxIndex);
 		

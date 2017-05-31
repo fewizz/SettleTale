@@ -35,21 +35,21 @@ public class VertexArrayDataBakerIndexed extends VertexArrayDataBaker {
 		int sizeBytes = Short.BYTES;
 		index *= sizeBytes;
 
-		int limit = index + sizeBytes;
+		int limitIndex = index + sizeBytes;
 
 		if (indexBuffer == null) {
 			initIndexBuffer();
 		}
 
-		if (limit >= indexBufferSize) {
-			if(!isDynamic) {
+		if (limitIndex >= indexBufferSize - 1) {
+			if(!dynamic) {
 				throw new Error("Max index reached");
 			}
 			indexBuffer = DirectBufferUtils.growBuffer(indexBuffer, 1.5F);
 			indexBufferSize = indexBuffer.capacity();
 		}
 
-		indexBuffer.limit(limit);
+		indexBuffer.limit(limitIndex);
 
 		indexBuffer.putShort(index, (short) vertexIndex);
 
@@ -63,8 +63,8 @@ public class VertexArrayDataBakerIndexed extends VertexArrayDataBaker {
 	}
 
 	@Override
-	public void clearData() {
-		super.clearData();
+	public void clear() {
+		super.clear();
 		indexCount = 0;
 	}
 

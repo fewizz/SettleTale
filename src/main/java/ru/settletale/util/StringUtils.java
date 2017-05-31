@@ -1,5 +1,8 @@
 package ru.settletale.util;
 
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
+
 public class StringUtils {
 	public static final byte RIGHT = 0;
 	public static final byte LEFT = 1;
@@ -44,9 +47,18 @@ public class StringUtils {
 
 		return false;
 	}
-
-	/** Splitter is ' ' **/
-	public static int readFloats(String str, float[] arr) {
+	
+	@FunctionalInterface
+	public static interface IFloatIterFunc {
+		public void iter(int index, float val);
+	}
+	
+	@FunctionalInterface
+	public static interface IIntIterFunc {
+		public void iter(int index, int val);
+	}
+	
+	public static int forEachFloatValue(String str, IFloatIterFunc func) {
 		byte part = LEFT;
 
 		float val = 0;
@@ -104,7 +116,8 @@ public class StringUtils {
 						val = val * (float) Math.pow(10, num * (signE ? -1 : 1));
 					}
 
-					arr[count++] = val * (sign ? -1 : 1);
+					func.iter(count++, val * (sign ? -1 : 1));
+					
 					sign = false;
 					signE = false;
 					num = 0;
@@ -125,12 +138,62 @@ public class StringUtils {
 				val = val * (float) Math.pow(10, num * (signE ? -1 : 1));
 			}
 
-			arr[count++] = val * (sign ? -1 : 1);
+			func.iter(count++, val * (sign ? -1 : 1));
 		}
 
 		return count;
 	}
 
+	/** Splitter is ' ' **/
+	public static int readFloats(String str, float[] arr) {
+		return forEachFloatValue(str, (index, val) -> arr[index++] = val);
+	}
+	
+	public static int readFloats(String str, FloatBuffer fb) {
+		return forEachFloatValue(str, (index, val) -> fb.put(index, val));
+	}
+
+	public static int forEachIntValue(String str, IIntIterFunc func) {
+		boolean sign = false;
+		int num = 0;
+		int count = 0;
+		boolean prevWasNum = false;
+
+		int len = str.length();
+
+		for (int i = 0; i < len; i++) {
+			char ch = str.charAt(i);
+
+			if (ch >= '0' && ch <= '9') {
+				num *= 10;
+				num += ch - '0';
+				prevWasNum = true;
+			}
+			else if (ch == '-' && !prevWasNum) {
+				sign = true;
+			}
+			else {
+				if (prevWasNum) {
+					func.iter(count++, num * (sign ? -1 : 1));
+					sign = false;
+					num = 0;
+				}
+
+				prevWasNum = false;
+			}
+		}
+		
+		if (prevWasNum) {
+			func.iter(count++, num * (sign ? -1 : 1));
+		}
+
+		return count;
+	}
+	
+	public static int readInts(String str, IntBuffer ib) {
+		return forEachIntValue(str, (index, val) -> ib.put(index, val));
+	}
+	
 	/** Example: 1/2*3/4*5/3. Here, s1 - '*', s2 - '/'. Def uses if number between splits is undefinded. **/
 	public static int readInts(String str, int[][] arr, char externalSplitter, char interiorSplitter, int def) {
 		boolean sign = false;

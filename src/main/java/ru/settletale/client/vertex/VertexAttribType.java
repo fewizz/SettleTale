@@ -37,15 +37,15 @@ public enum VertexAttribType {
 		this.normalised = normalised;
 	}
 	
-	public AttribArrayData getNewVertexAttribArrayBuffer(int vertexCount, boolean dynamic) {
+	public AttribArrayData getNewVertexAttribArrayBuffer(VertexArrayDataBaker baker) {
 		switch (clientDataType) {
 			case BYTE:
 			case UBYTE:
-				return new AttribArrayDataByte(vertexCount, dynamic, this);
+				return new AttribArrayDataByte(baker, this);
 			case INT:
-				return new AttribArrayDataInt(vertexCount, dynamic, this);
+				return new AttribArrayDataInt(baker, this);
 			case FLOAT:
-				return new AttribArrayDataFloat(vertexCount, dynamic, this);
+				return new AttribArrayDataFloat(baker, this);
 			default:
 				return null;
 		}

@@ -83,7 +83,7 @@ public class CompiledRegion {
 		this.layer.setVertexArrayDataBaker(SHARED_VERTEX_ARRAY);
 		this.layer.compile();
 		this.layer.setVertexArrayDataBaker(null);
-		SHARED_VERTEX_ARRAY.clearData();
+		SHARED_VERTEX_ARRAY.clear();
 		this.layer.setShaderProgram(PROGRAM);
 
 		textureIDs = new Texture2D(Region.WIDTH_EXTENDED, Region.WIDTH_EXTENDED).gen().format(GL30.GL_R8).bufferDataFormat(GL_RED).bufferDataType(GL_UNSIGNED_BYTE);

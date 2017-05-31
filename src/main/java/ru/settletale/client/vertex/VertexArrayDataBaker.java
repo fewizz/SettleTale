@@ -7,40 +7,55 @@ import com.koloboke.collect.map.hash.HashIntObjMaps;
 
 public class VertexArrayDataBaker {
 	private final IntObjMap<AttribArrayData> attributes = HashIntObjMaps.newMutableMap(0);
-	private int lastVertexIndex = 0;
-	private final int vertexCount;
-	protected final boolean isDynamic;
+	int lastVertexIndex = -1;
+	int maxVertexCount;
+	float growFactor = 1.5F;
+	protected final boolean dynamic;
 	
-	private VertexArrayDataBaker(int vertexCount, boolean dynamic, VertexAttribType... attribTypes) {
-		this.isDynamic = dynamic;
-		this.vertexCount = vertexCount;
+	public VertexArrayDataBaker(int expectedVertexCount, boolean dynamic, VertexAttribType... attribTypes) {
+		this.dynamic = dynamic;
+		this.maxVertexCount = expectedVertexCount;
+		
 		for(int attribIndex = 0; attribIndex < attribTypes.length; attribIndex++) {
 			addStorage(attribTypes[attribIndex], attribIndex);
 		}
 	}
 
 	public VertexArrayDataBaker addStorage(VertexAttribType at, int index) {
-		attributes.put(index, at.getNewVertexAttribArrayBuffer(vertexCount, isDynamic));
+		attributes.put(index, at.getNewVertexAttribArrayBuffer(this));
 		return this;
 	}
 
 	public void endVertex() {
-		attributes.forEach((int index, AttribArrayData data) -> data.dataEnd(lastVertexIndex));
 		lastVertexIndex++;
+		
+		if(dynamic && lastVertexIndex >= maxVertexCount - 1) {
+			if(!dynamic) {
+				throw new IndexOutOfBoundsException();
+			}
+			attributes.forEach((int index, AttribArrayData data) -> data.grow(growFactor));
+			maxVertexCount *= growFactor;
+		}
+		
+		attributes.forEach((int index, AttribArrayData data) -> data.dataEnd());
 	}
 
-	public void clearData() {
+	public void clear() {
 		attributes.forEach((int index, AttribArrayData data) -> data.clear());
-		lastVertexIndex = 0;
+		lastVertexIndex = -1;
 	}
 
 	public void delete() {
-		clearData();
+		clear();
 		attributes.forEach((int index, AttribArrayData data) -> data.delete());
 	}
 
-	public int getVertexCount() {
-		return this.vertexCount;
+	public int getMaxVertexCount() {
+		return this.maxVertexCount;
+	}
+	
+	public int getUsedVertexCount() {
+		return this.lastVertexIndex + 1;
 	}
 
 	public void putFloat(int index, float f1, float f2, float f3, float f4) {
