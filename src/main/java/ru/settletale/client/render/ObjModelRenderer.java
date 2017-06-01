@@ -12,7 +12,7 @@ import ru.settletale.client.gl.Shader.Type;
 import ru.settletale.client.resource.loader.ShaderSourceLoader;
 import ru.settletale.client.vertex.VertexArrayDataBaker;
 
-public class ObjModel {
+public class ObjModelRenderer {
 	TexturedMaterialBinder tb;
 	RenderLayer layer;
 	

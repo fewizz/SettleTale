@@ -10,7 +10,7 @@ import org.w3c.dom.Element;
 import ru.settletale.util.StringUtils;
 import ru.settletale.util.XMLUtils;
 
-public class Polylist {
+public class Polylist extends ColladaPrimitiveContainer {
 	final int count;
 	final List<Input> inputs;
 	final IntBuffer vCounts;
@@ -33,5 +33,15 @@ public class Polylist {
 		
 		Element pElement = XMLUtils.getFirstChildElement("p", element);
 		StringUtils.readInts(pElement.getTextContent(), indexes);
+	}
+
+	@Override
+	public int getTotalUsedVertexCount() {
+		int count = 0;
+		for(int i = 0; i < vCounts.capacity(); i++) {
+			count += vCounts.get(i);
+		}
+		
+		return count;
 	}
 }

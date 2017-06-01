@@ -14,7 +14,7 @@ import ru.settletale.client.render.Color;
 import ru.settletale.client.render.GLThread;
 import ru.settletale.client.render.MTLLib;
 import ru.settletale.client.render.Material;
-import ru.settletale.client.render.ObjModel;
+import ru.settletale.client.render.ObjModelRenderer;
 import ru.settletale.client.render.TexturedMaterialBinder;
 import ru.settletale.client.resource.ResourceFile;
 import ru.settletale.client.resource.ResourceManager;
@@ -29,7 +29,7 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 	static final int UV = 2;
 	static final int FLAGS = 3;
 
-	public static final Map<String, ObjModel> MODELS = new HashMap<>();
+	public static final Map<String, ObjModelRenderer> MODELS = new HashMap<>();
 
 	@Override
 	public String[] getRequiredExtensions() {
@@ -123,7 +123,7 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 		normals.rewind();
 		uvs.rewind();
 
-		ObjModel model = new ObjModel();
+		ObjModelRenderer model = new ObjModelRenderer();
 		model.setTextureAndMaterialBinder(tmb);
 
 		ResourceManager.runAfterResourcesLoaded(() -> {
