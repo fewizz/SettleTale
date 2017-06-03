@@ -24,12 +24,14 @@ public class Mesh {
 		primitiveContainers = new ArrayList<>();
 		
 		XMLUtils.forEachChildElementWithName("polylist", meshElement, elem -> {
-			Polylist p = new Polylist(elem);
+			Polylist p = new Polylist(this, elem);
 			primitiveContainers.add(p);
 		});
 	}
 	
 	public Source getSource(String id) {
+		id = id.replace("#", "");
+		
 		for(Source s : sources) {
 			if(s.id.equals(id)) 
 				return s;

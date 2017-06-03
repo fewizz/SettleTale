@@ -14,6 +14,6 @@ public class Vertices extends ColladaElementWithID {
 		
 		this.mesh = mesh;
 		input = new Input(XMLUtils.getFirstChildElement("input", element));
-		source = mesh.getSource(input.source.replace("#", ""));
+		source = mesh.getSource(input.source);
 	}
 }

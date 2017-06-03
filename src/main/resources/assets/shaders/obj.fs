@@ -22,12 +22,12 @@ void main(void) {
 	int matID = flags_vs & 0xFF;
 	int hasUV = (flags_vs >> 8) & 0x1;
 	
-	if(hasUV == 1) {
+	/*if(hasUV == 1) {
 		vec4 tex = texture(diffTextures[matID], uv_vs);
 		
-		float dotBump = texture(bumpTextures[matID], uv_vs).y;
+		//float dotBump = texture(bumpTextures[matID], uv_vs).y;
 		
-		color_out = vec4(tex.xyz * dotBump * normal_vs.y, tex.a);// * materials[matID].diffuseColor;
+		color_out = vec4(tex.xyz * normal_vs.y, tex.a);// * materials[matID].diffuseColor;
 		
 		
 		//}
@@ -46,5 +46,6 @@ void main(void) {
 		//}
 	}
 	
-	if(color_out.a == 0) discard;
+	if(color_out.a == 0) discard;*/
+	color_out = vec4(1);
 }

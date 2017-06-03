@@ -197,7 +197,7 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 
 		int flags = matID;
 		flags |= (hasUV ? 1 : 0) << 8;
-		//flags |= (hasNormal ? 1 : 0) << 9;
+		flags |= (hasNormal ? 1 : 0) << 9;
 		pa.putInt(FLAGS, flags);
 
 		for (int k = 0; k < vertCount; k++) {

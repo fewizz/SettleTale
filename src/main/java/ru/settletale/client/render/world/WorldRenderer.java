@@ -16,6 +16,7 @@ import ru.settletale.client.render.Drawer;
 import ru.settletale.client.render.FontRenderer;
 import ru.settletale.client.render.GLThread;
 import ru.settletale.client.render.Renderer;
+import ru.settletale.client.resource.loader.ColladaLoader;
 import ru.settletale.client.resource.loader.ObjModelLoader;
 import ru.settletale.client.resource.loader.ShaderSourceLoader;
 import ru.settletale.client.resource.loader.TextureLoader;
@@ -97,6 +98,7 @@ public class WorldRenderer implements IRegionManagerListener {
 		GL.VIEW_MATRIX.scale(10F);
 		GL.updateMatriciesUniformBlock();
 		//ObjModelLoader.MODELS.get("models/dabrovic/sponza.obj").render();
+		ColladaLoader.MODELS.get("models/DAE/Glock 3d.dae").render();
 		
 		
 		GL.VIEW_MATRIX.pop();

@@ -1,5 +1,6 @@
 package ru.settletale.util;
 
+import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
@@ -152,9 +153,13 @@ public class StringUtils {
 	public static int readFloats(String str, FloatBuffer fb) {
 		return forEachFloatValue(str, (index, val) -> fb.put(index, val));
 	}
+	
+	public static int readFloats(String str, ByteBuffer fb) {
+		return forEachFloatValue(str, (index, val) -> fb.putFloat(index * Float.BYTES, val));
+	}
 
 	public static int forEachIntValue(String str, IIntIterFunc func) {
-		boolean sign = false;
+		int sign = 1;
 		int num = 0;
 		int count = 0;
 		boolean prevWasNum = false;
@@ -170,12 +175,12 @@ public class StringUtils {
 				prevWasNum = true;
 			}
 			else if (ch == '-' && !prevWasNum) {
-				sign = true;
+				sign = -1;
 			}
 			else {
 				if (prevWasNum) {
-					func.iter(count++, num * (sign ? -1 : 1));
-					sign = false;
+					func.iter(count++, num * sign);
+					sign = 1;
 					num = 0;
 				}
 
@@ -184,7 +189,7 @@ public class StringUtils {
 		}
 		
 		if (prevWasNum) {
-			func.iter(count++, num * (sign ? -1 : 1));
+			func.iter(count++, num * sign);
 		}
 
 		return count;

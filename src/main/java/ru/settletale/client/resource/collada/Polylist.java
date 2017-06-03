@@ -1,8 +1,6 @@
 package ru.settletale.client.resource.collada;
 
 import java.nio.IntBuffer;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.lwjgl.system.MemoryUtil;
 import org.w3c.dom.Element;
@@ -12,25 +10,26 @@ import ru.settletale.util.XMLUtils;
 
 public class Polylist extends ColladaPrimitiveContainer {
 	final int count;
-	final List<Input> inputs;
-	final IntBuffer vCounts;
-	final IntBuffer indexes;
+	public final IntBuffer vCounts;
+	public final IntBuffer indexes;
 	
-	public Polylist(Element element) {
+	public Polylist(Mesh mesh, Element element) {
+		super(mesh, element);
+		
 		count = Integer.parseInt(element.getAttribute("count"));
 		
-		inputs = new ArrayList<>();
-		
-		XMLUtils.forEachChildElementWithName("input", element, e -> {
-			inputs.add(new Input(e));
-		});
-		
 		vCounts = MemoryUtil.memAllocInt(count);
-		indexes = MemoryUtil.memAllocInt(count * inputs.size());
 		
 		Element vCountElement = XMLUtils.getFirstChildElement("vcount", element);
 		StringUtils.readInts(vCountElement.getTextContent(), vCounts);
 		
+		int indexesSize = 0;
+		
+		for(int i = 0; i < vCounts.capacity(); i++) {
+			indexesSize += vCounts.get(i) * inputs.size();
+		}
+		
+		indexes = MemoryUtil.memAllocInt(indexesSize);
 		Element pElement = XMLUtils.getFirstChildElement("p", element);
 		StringUtils.readInts(pElement.getTextContent(), indexes);
 	}

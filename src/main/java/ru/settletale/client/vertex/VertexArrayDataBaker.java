@@ -12,9 +12,13 @@ public class VertexArrayDataBaker {
 	float growFactor = 1.5F;
 	protected final boolean dynamic;
 	
-	public VertexArrayDataBaker(int expectedVertexCount, boolean dynamic, VertexAttribType... attribTypes) {
+	public VertexArrayDataBaker(int expectedVertexCount, boolean dynamic) {
 		this.dynamic = dynamic;
 		this.maxVertexCount = expectedVertexCount;
+	}
+	
+	public VertexArrayDataBaker(int expectedVertexCount, boolean dynamic, VertexAttribType... attribTypes) {
+		this(expectedVertexCount, dynamic);
 		
 		for(int attribIndex = 0; attribIndex < attribTypes.length; attribIndex++) {
 			addStorage(attribTypes[attribIndex], attribIndex);
@@ -58,6 +62,10 @@ public class VertexArrayDataBaker {
 		return this.lastVertexIndex + 1;
 	}
 
+	public void putFloat(int index, float[] fArray) {
+		attributes.get(index).data(fArray[0], fArray[1], fArray[2], fArray[3]);
+	}
+	
 	public void putFloat(int index, float f1, float f2, float f3, float f4) {
 		attributes.get(index).data(f1, f2, f3, f4);
 	}
