@@ -5,6 +5,32 @@ import java.nio.ByteBuffer;
 import static org.lwjgl.opengl.GL11.*;
 
 public abstract class Texture<T> extends GLBindableObject<T> {
+	public static final Texture<Texture<?>> DEFAULT = new Texture<Texture<?>>(GL_TEXTURE_2D) {
+		@Override
+		public Texture<?> gen() {
+			id = 0;
+			return getThis();
+		}
+
+		@Override
+		public void delete() {
+			throw new Error();
+		}
+
+		@Override
+		void data(ByteBuffer buffer) {
+			throw new Error();
+		}
+
+		@Override
+		void subData(ByteBuffer buffer) {
+			throw new Error();
+		}
+	};
+	static {
+		DEFAULT.gen();
+	}
+
 	public final int type;
 	public int internalFormat;
 	public int bufferDataFormat;
@@ -34,7 +60,7 @@ public abstract class Texture<T> extends GLBindableObject<T> {
 	abstract void subData(ByteBuffer buffer);
 
 	@Override
-	public int genInternal() {
+	protected int genInternal() {
 		return glGenTextures();
 	}
 
@@ -55,8 +81,25 @@ public abstract class Texture<T> extends GLBindableObject<T> {
 
 	@Override
 	public void bind() {
+		if (!isGenerated()) {
+			throw new Error("Texture is not generated!");
+		}
 		GL.setActiveTextureUnitTexture(this);
-		super.bind();
+
+		if (getLastGlobalID() == id) {
+			return;
+		}
+		bindInternal();
+		setLastGlobalID(id);
+	}
+
+	public void bindWithForce() {
+		if (!isGenerated()) {
+			throw new Error("Texture is not generated!");
+		}
+		GL.setActiveTextureUnitTexture(this);
+		bindInternal();
+		setLastGlobalID(id);
 	}
 
 	public T setDefaultParams() {
@@ -81,18 +124,13 @@ public abstract class Texture<T> extends GLBindableObject<T> {
 	}
 
 	@Override
-	public void deleteInternal() {
-		glDeleteTextures(id);
+	protected void deleteInternal() {
 		GL.onTextureDeleted(this);
+		glDeleteTextures(id);
 	}
 
 	@Override
-	public void bindInternal() {
+	protected void bindInternal() {
 		glBindTexture(type, id);
-	}
-
-	@Override
-	public void unbindInternal() {
-		glBindTexture(type, 0);
 	}
 }

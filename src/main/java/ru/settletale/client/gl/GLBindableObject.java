@@ -95,28 +95,16 @@ public abstract class GLBindableObject<T> extends GLObject<T> {
 		setLastGlobalID(id);
 	}
 
-	public boolean unbind() {
-		if (getLastGlobalID() == ID_NOT_GENERATED) {
-			return false;
-		}
-		unbindInternal();
-		setLastGlobalID(-1);
-		return true;
-	}
-
 	@Override
-	public void deleteInternal() {
+	public void delete() {
 		bind();
 		deleteInternal();
 
 		if (getLastGlobalID() == id) {
-			setLastGlobalID(ID_NOT_GENERATED);
+			setLastGlobalID(ID_DEFAULT);
 		}
 		id = ID_NOT_GENERATED;
 	}
 
-	public abstract void bindInternal();
-
-	public abstract void unbindInternal();
-
+	protected abstract void bindInternal();
 }

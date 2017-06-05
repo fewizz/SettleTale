@@ -86,7 +86,7 @@ public class Drawer {
 	public static void texture(Texture2D tex) {
 		TEXTURE_BINDER.setCurrentUniformLocation(0);
 		byte arrayIndex = (byte) TEXTURE_BINDER.register(tex);
-		LAYER.getVertexArrayDataBaker().putByte(TEX_ID, arrayIndex);
+		LAYER.getVertexArrayDataBaker().putBytes(TEX_ID, arrayIndex);
 	}
 
 	public static void vertex(float x, float y) {
@@ -94,9 +94,9 @@ public class Drawer {
 	}
 
 	public static void vertex(float x, float y, float z) {
-		LAYER.getVertexArrayDataBaker().putFloat(POSITION_ID, x * SCALE.x, y * SCALE.y, z * SCALE.z);
-		LAYER.getVertexArrayDataBaker().putByte(COLOR_ID, COLOR.r(), COLOR.g(), COLOR.b(), COLOR.a());
-		LAYER.getVertexArrayDataBaker().putFloat(UV_ID, UV.x, UV.y);
+		LAYER.getVertexArrayDataBaker().putFloats(POSITION_ID, x * SCALE.x, y * SCALE.y, z * SCALE.z);
+		LAYER.getVertexArrayDataBaker().putBytes(COLOR_ID, COLOR.r(), COLOR.g(), COLOR.b(), COLOR.a());
+		LAYER.getVertexArrayDataBaker().putFloats(UV_ID, UV.x, UV.y);
 		LAYER.getVertexArrayDataBaker().endVertex();
 	}
 }

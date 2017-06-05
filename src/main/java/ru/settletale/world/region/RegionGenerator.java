@@ -1,6 +1,6 @@
 package ru.settletale.world.region;
 
-import ru.settletale.Game;
+import ru.settletale.SettleTaleStart;
 import ru.settletale.registry.Biomes;
 import ru.settletale.util.OpenSimplexNoise;
 import ru.settletale.world.biome.BiomeAbstract;
@@ -31,8 +31,8 @@ public class RegionGenerator {
 	}
 	
 	public void start() {
-		noise = new OpenSimplexNoise(Game.getWorld().seed);
-		LayerAbstract.seed = Game.getWorld().seed;
+		noise = new OpenSimplexNoise(SettleTaleStart.getWorld().seed);
+		LayerAbstract.seed = SettleTaleStart.getWorld().seed;
 	}
 	
 	/** Temp varies **/

@@ -2,14 +2,14 @@ package ru.settletale.world.region;
 
 import java.util.Iterator;
 
-import ru.settletale.Game;
-import ru.settletale.client.PlatformClient;
+import ru.settletale.SettleTaleStart;
+import ru.settletale.client.GameClient;
 import ru.settletale.util.MathUtils;
 import ru.settletale.util.TickTimer;
 
 public class RegionManagerOnePlayer extends RegionManagerAbstract {
 	protected RegionGenerator regionGenerator;
-	public static final int REGION_LOAD_RADIUS = 6;
+	public static final int REGION_LOAD_RADIUS = 15;
 
 	public RegionManagerOnePlayer() {
 		super();
@@ -23,12 +23,12 @@ public class RegionManagerOnePlayer extends RegionManagerAbstract {
 
 	@Override
 	public void update() {
-		int regX = MathUtils.floor(PlatformClient.player.position.x / Region.WIDTH_F);
-		int regZ = MathUtils.floor(PlatformClient.player.position.z / Region.WIDTH_F);
+		int regX = MathUtils.floor(GameClient.player.position.x / Region.WIDTH_F);
+		int regZ = MathUtils.floor(GameClient.player.position.z / Region.WIDTH_F);
 
 		regions.forEach((long key, Region obj) -> obj.active = false);
 
-		TickTimer worldTimer = Game.getWorld().updateThread.timer;
+		TickTimer worldTimer = SettleTaleStart.getWorld().updateThread.timer;
 
 		for (int x = -REGION_LOAD_RADIUS + regX; x <= REGION_LOAD_RADIUS + regX; x++) {
 			for (int z = -REGION_LOAD_RADIUS + regZ; z <= REGION_LOAD_RADIUS + regZ; z++) {

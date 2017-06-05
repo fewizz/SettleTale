@@ -7,9 +7,11 @@ import ru.settletale.util.XMLUtils;
 public class Collada {
 	final Element colladaElement;
 	public LibraryGeometries geometries;
+	public final Asset asset;
 	
 	public Collada(Element colladaElement) {
 		this.colladaElement = colladaElement;
+		asset = new Asset(XMLUtils.getFirstChildElement("asset", colladaElement));
 	}
 	
 	public Collada loadGeometries() {

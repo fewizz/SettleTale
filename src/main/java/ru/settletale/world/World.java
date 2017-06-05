@@ -3,7 +3,7 @@ package ru.settletale.world;
 import java.util.Random;
 
 import ru.settletale.client.KeyListener;
-import ru.settletale.client.PlatformClient;
+import ru.settletale.client.GameClient;
 import ru.settletale.world.region.Region;
 import ru.settletale.world.region.RegionManagerAbstract;
 
@@ -26,7 +26,7 @@ public class World {
 
 	public void update() {
 		KeyListener.updateForCurrentThread();
-		PlatformClient.player.update();
+		GameClient.player.update();
 		regionManager.update();
 	}
 

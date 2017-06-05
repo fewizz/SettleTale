@@ -13,15 +13,16 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
+import ru.settletale.client.GameClient;
 import ru.settletale.client.render.ColladaModelRenderer;
 import ru.settletale.client.render.RenderLayer;
 import ru.settletale.client.render.ColladaModelRenderer.ColladaGeometryRenderer;
-import ru.settletale.client.render.GLThread;
 import ru.settletale.client.resource.ResourceFile;
 import ru.settletale.client.resource.ResourceManager;
 import ru.settletale.client.resource.collada.Collada;
 import ru.settletale.client.resource.collada.Polylist;
 import ru.settletale.client.resource.collada.Source;
+import ru.settletale.client.resource.collada.Asset.UpAxis;
 import ru.settletale.client.resource.collada.Input.Semantic;
 import ru.settletale.client.vertex.VertexArrayDataBaker;
 import ru.settletale.client.vertex.VertexAttribType;
@@ -63,7 +64,7 @@ public class ColladaLoader extends ResourceLoaderAbstract {
 					layer.setVertexArrayDataBaker(baker);
 					
 					if(pc instanceof Polylist) {
-						fillPolylist((Polylist) pc, baker);
+						fillPolylist(collada, (Polylist) pc, baker);
 					}
 					
 					layers.add(layer);
@@ -73,7 +74,7 @@ public class ColladaLoader extends ResourceLoaderAbstract {
 			});
 			
 			ResourceManager.runAfterResourcesLoaded(() -> {
-				GLThread.addTask(() -> {
+				GameClient.GL_THREAD.addRunnableTask(() -> {
 					model.compile();
 				});
 			});
@@ -84,7 +85,7 @@ public class ColladaLoader extends ResourceLoaderAbstract {
 		}
 	}
 	
-	private void fillPolylist(Polylist polylist, VertexArrayDataBaker baker) {
+	private void fillPolylist(Collada collada, Polylist polylist, VertexArrayDataBaker baker) {
 		int posOffset = polylist.getInput(Semantic.VERTEX).offset;
 		int normOffset = polylist.usesNormal() ? polylist.getInput(Semantic.NORMAL).offset : -1;
 		
@@ -96,9 +97,10 @@ public class ColladaLoader extends ResourceLoaderAbstract {
 		int flags = 0;
 		flags |= (false ? 1 : 0) << 8;
 		flags |= (polylist.usesNormal() ? 1 : 0) << 9;
-		baker.putInt(FLAGS, flags);
+		baker.putInts(FLAGS, flags);
 		
 		float[] back = new float[4];
+		back[3] = 1F;
 		
 		int vertexIndex = 0;
 		
@@ -106,26 +108,16 @@ public class ColladaLoader extends ResourceLoaderAbstract {
 			int vertexCount = polylist.vCounts.get(prim);
 			
 			if(vertexCount == 3) {
-				poses.getFloats(polylist.indexes.get(vertexIndex * inputsCount + posOffset), back);
-				baker.putFloat(POS, back[0], back[1], back[2], 1F);
-				norms.getFloats(polylist.indexes.get(vertexIndex * inputsCount + normOffset), back);
-				baker.putFloat(NORM, back[0], back[1], back[2]);
-				baker.endVertex();
-				vertexIndex++;
-				
-				poses.getFloats(polylist.indexes.get(vertexIndex * inputsCount + posOffset), back);
-				baker.putFloat(POS, back[0], back[1], back[2], 1F);
-				norms.getFloats(polylist.indexes.get(vertexIndex * inputsCount + normOffset), back);
-				baker.putFloat(NORM, back[0], back[1], back[2]);
-				baker.endVertex();
-				vertexIndex++;
-				
-				poses.getFloats(polylist.indexes.get(vertexIndex * inputsCount + posOffset), back);
-				baker.putFloat(POS, back[0], back[1], back[2], 1F);
-				norms.getFloats(polylist.indexes.get(vertexIndex * inputsCount + normOffset), back);
-				baker.putFloat(NORM, back[0], back[1], back[2]);
-				baker.endVertex();
-				vertexIndex++;
+				for(int v = 0; v < 3; v++) {
+					poses.getFloats(polylist.indexes.get(vertexIndex * inputsCount + posOffset), back);
+					UpAxis.chaneToYUpAxis(collada.asset.upAxis, back);
+					baker.putFloats(POS, back, 4);
+					norms.getFloats(polylist.indexes.get(vertexIndex * inputsCount + normOffset), back);
+					UpAxis.chaneToYUpAxis(collada.asset.upAxis, back);
+					baker.putFloats(NORM, back, 3);
+					baker.endVertex();
+					vertexIndex++;
+				}
 			}
 		}
 	}

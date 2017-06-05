@@ -4,7 +4,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL32;
 
-public class Shader extends GLBindableObject<Shader> {
+public class Shader extends GLObject<Shader> {
 	Type type;
 	String source;
 
@@ -39,14 +39,6 @@ public class Shader extends GLBindableObject<Shader> {
 	@Override
 	public int genInternal() {
 		return GL20.glCreateShader(type.glCode);
-	}
-
-	@Override
-	public void bindInternal() {
-	}
-
-	@Override
-	public void unbindInternal() {
 	}
 
 	public Shader compile() {

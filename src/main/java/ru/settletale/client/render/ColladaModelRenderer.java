@@ -18,8 +18,8 @@ public class ColladaModelRenderer {
 	public void compile() {
 		if(!PROGRAM.isGenerated()) {
 			PROGRAM.gen();
-			PROGRAM.attachShader(new Shader().gen(Type.VERTEX).source(ShaderSourceLoader.SHADER_SOURCES.get("shaders/obj.vs")));
-			PROGRAM.attachShader(new Shader().gen(Type.FRAGMENT).source(ShaderSourceLoader.SHADER_SOURCES.get("shaders/obj.fs")));
+			PROGRAM.attachShader(new Shader().gen(Type.VERTEX).source(ShaderSourceLoader.SHADER_SOURCES.get("shaders/collada/collada.vs")));
+			PROGRAM.attachShader(new Shader().gen(Type.FRAGMENT).source(ShaderSourceLoader.SHADER_SOURCES.get("shaders/collada/collada.fs")));
 			PROGRAM.link();
 		}
 		

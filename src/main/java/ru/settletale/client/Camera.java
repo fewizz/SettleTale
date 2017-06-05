@@ -2,7 +2,7 @@ package ru.settletale.client;
 
 import org.joml.Vector3d;
 
-import ru.settletale.Game;
+import ru.settletale.SettleTaleStart;
 import ru.settletale.client.render.Renderer;
 import ru.settletale.entity.EntityPlayer;
 import ru.settletale.util.MathUtils;
@@ -14,9 +14,9 @@ public class Camera {
 	public static float rotationY;
 
 	public static void update() {
-		EntityPlayer player = PlatformClient.player;
+		EntityPlayer player = GameClient.player;
 		
-		TickTimer t = Game.getWorld().updateThread.timer;
+		TickTimer t = SettleTaleStart.getWorld().updateThread.timer;
 		double d = (Renderer.TIMER.startTimeNano - t.startTimeNano) / (float)(t.waitTimeNano);
 		
 		d = Math.min(d, 1);

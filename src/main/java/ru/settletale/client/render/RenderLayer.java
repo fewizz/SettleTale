@@ -1,23 +1,25 @@
 package ru.settletale.client.render;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.lwjgl.opengl.GL11;
+
+import com.koloboke.collect.map.IntObjMap;
+import com.koloboke.collect.map.hash.HashIntObjMaps;
 
 import ru.settletale.client.gl.GL;
 import ru.settletale.client.gl.ShaderProgram;
 import ru.settletale.client.gl.VertexArray;
 import ru.settletale.client.gl.VertexBuffer;
 import ru.settletale.client.vertex.VertexAttribType;
+import ru.settletale.client.vertex.AttribArrayData;
 import ru.settletale.client.vertex.VertexArrayDataBaker;
 
 public class RenderLayer {
 	protected VertexArrayDataBaker attribs;
 	protected final VertexArray vao;
 	protected ShaderProgram program;
-	protected final List<VertexBuffer> vboList;
+	protected final IntObjMap<VertexBuffer> vbos;
 	protected boolean allowSubData = false;
 	protected int vertexCount;
 
@@ -38,7 +40,7 @@ public class RenderLayer {
 	}
 
 	public RenderLayer() {
-		vboList = new ArrayList<>();
+		vbos = HashIntObjMaps.newMutableMap(0);
 		vao = new VertexArray();
 	}
 
@@ -52,16 +54,12 @@ public class RenderLayer {
 
 		this.vertexCount = attribs.getUsedVertexCount();
 		
-		for(int index = 0; index < attribs.getAttributeCount(); index++) {
-			if(vboList.size() <= index || vboList.get(index) == null) {
-				vboList.add(new VertexBuffer().gen());
-			}
-		}
-
-		for (int attribIndex = 0; attribIndex < attribs.getAttributeCount(); attribIndex++) {
-			VertexBuffer vbo = vboList.get(attribIndex);
-			ByteBuffer buffer = attribs.getBuffer(attribIndex);
-
+		attribs.forEachAttribDataArray((int attribIndex, AttribArrayData data) -> {
+			vbos.computeIfAbsent(attribIndex, index -> new VertexBuffer().gen());
+			VertexBuffer vbo = vbos.get(attribIndex);
+			
+			ByteBuffer buffer = data.getBuffer();
+			
 			if (allowSubData)
 				vbo.loadDataOrSubData(buffer);
 			else
@@ -71,7 +69,7 @@ public class RenderLayer {
 
 			vao.bindAttribPointer(vbo, attribIndex, attribs.getAttribType(attribIndex));
 			GL.debug("Bind buffers to vao");
-		}
+		});
 	}
 
 	public void render(int mode) {
@@ -106,7 +104,7 @@ public class RenderLayer {
 	}
 
 	public void deleteVertexBuffers() {
-		vboList.forEach(vbo -> vbo.delete());
+		vbos.forEach((int index, VertexBuffer buff) -> buff.delete());
 	}
 
 	public void delete() {

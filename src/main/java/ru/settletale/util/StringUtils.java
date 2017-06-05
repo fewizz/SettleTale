@@ -10,7 +10,7 @@ public class StringUtils {
 	public static final byte E = 2;
 
 	public static void main(String[] args) {
-		String str = "0.456 5.456 8646.87987 654.56465 6546.4444";//"1/2 3/4 5/3";
+		//String str = "0.456 5.456 8646.87987 654.56465 6546.4444";//"1/2 3/4 5/3";
 
 		//System.out.println(Float.toHexString(f));
 		/*int[][] arr = new int[3][6];
@@ -23,12 +23,16 @@ public class StringUtils {
 			}
 		}*/
 		
-		float[] arr = new float[5];
+		/*float[] arr = new float[5];
 		readFloats(str, arr);
 		
 		for (int i = 0; i < 5; i++) {
 			System.out.println(arr[i]);
-		}
+		}*/
+		
+		forEachFloatValue("-4.37114e-8", (int index, float val) -> {
+			System.out.println(val + " ");
+		});
 	}
 
 	public static boolean isSharpCommentLine(String str) {
@@ -64,7 +68,7 @@ public class StringUtils {
 
 		float val = 0;
 
-		boolean sign = false;
+		float sign = 1F;
 		boolean signE = false;
 		int numPow = 1;
 		float num = 0;
@@ -84,7 +88,7 @@ public class StringUtils {
 			}
 			else if (ch == '-') {
 				if (!prevWasNum) {
-					sign = true;
+					sign = -1;
 				}
 				else {
 					signE = true;
@@ -110,16 +114,19 @@ public class StringUtils {
 			}
 			else {
 				if (prevWasNum) {
-					if (part == RIGHT) {
+					if (part == LEFT) {
+						val = num;
+					}
+					else if (part == RIGHT) {
 						val += num / (float) numPow;
 					}
 					else if (part == E) {
 						val = val * (float) Math.pow(10, num * (signE ? -1 : 1));
 					}
 
-					func.iter(count++, val * (sign ? -1 : 1));
+					func.iter(count++, val * sign);
 					
-					sign = false;
+					sign = 1F;
 					signE = false;
 					num = 0;
 					numPow = 1;
@@ -139,7 +146,7 @@ public class StringUtils {
 				val = val * (float) Math.pow(10, num * (signE ? -1 : 1));
 			}
 
-			func.iter(count++, val * (sign ? -1 : 1));
+			func.iter(count++, val * sign);
 		}
 
 		return count;

@@ -6,7 +6,7 @@ import org.joml.Matrix4f;
 import org.lwjgl.BufferUtils;
 
 public class Matrix4fv extends Matrix4f {
-	final FloatBuffer buffer;
+	public final FloatBuffer buffer;
 	final FloatBuffer[] stack = new FloatBuffer[32];
 	int currentIndex = 0;
 

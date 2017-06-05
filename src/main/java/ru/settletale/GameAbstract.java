@@ -3,7 +3,7 @@ package ru.settletale;
 import ru.settletale.util.Side;
 import ru.settletale.world.World;
 
-public abstract class PlatformAbstract {
+public abstract class GameAbstract {
 	protected World world;
 
 	public abstract void start();

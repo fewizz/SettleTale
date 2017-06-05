@@ -9,9 +9,9 @@ import org.joml.GeometryUtils;
 import org.joml.Vector3f;
 import org.lwjgl.system.MemoryUtil;
 
+import ru.settletale.client.GameClient;
 import ru.settletale.client.gl.Texture;
 import ru.settletale.client.render.Color;
-import ru.settletale.client.render.GLThread;
 import ru.settletale.client.render.MTLLib;
 import ru.settletale.client.render.Material;
 import ru.settletale.client.render.ObjModelRenderer;
@@ -127,7 +127,7 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 		model.setTextureAndMaterialBinder(tmb);
 
 		ResourceManager.runAfterResourcesLoaded(() -> {
-			GLThread.addTask(() -> {
+			GameClient.GL_THREAD.addRunnableTask(() -> {
 				model.compile(dataBaker);
 				MemoryUtil.memFree(positions);
 				MemoryUtil.memFree(normals);
@@ -198,7 +198,7 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 		int flags = matID;
 		flags |= (hasUV ? 1 : 0) << 8;
 		flags |= (hasNormal ? 1 : 0) << 9;
-		pa.putInt(FLAGS, flags);
+		pa.putInts(FLAGS, flags);
 
 		for (int k = 0; k < vertCount; k++) {
 			int v = back[k + 1][0];
@@ -273,11 +273,11 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 	}
 
 	static void fillPA(VertexArrayDataBaker pa, int indx, float[][] backPos, float[][] backNorm, float[][] backUV) {
-		pa.putFloat(POS, backPos[indx][0], backPos[indx][1], backPos[indx][2], backPos[indx][3]);
+		pa.putFloats(POS, backPos[indx][0], backPos[indx][1], backPos[indx][2], backPos[indx][3]);
 		//if (backNorm != null)
-		pa.putFloat(NORM, backNorm[indx][0], backNorm[indx][1], backNorm[indx][2]);
+		pa.putFloats(NORM, backNorm[indx][0], backNorm[indx][1], backNorm[indx][2]);
 		if (backUV != null)
-			pa.putFloat(UV, backUV[indx][0], backUV[indx][1]);
+			pa.putFloats(UV, backUV[indx][0], backUV[indx][1]);
 		pa.endVertex();
 	}
 

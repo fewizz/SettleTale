@@ -6,18 +6,17 @@ import com.koloboke.collect.map.hash.HashLongObjMap;
 import com.koloboke.collect.map.hash.HashLongObjMaps;
 
 import ru.settletale.client.Camera;
+import ru.settletale.client.GameClient;
 import ru.settletale.client.Window;
 import ru.settletale.client.gl.GL;
 import ru.settletale.client.gl.Shader;
 import ru.settletale.client.gl.ShaderProgram;
+import ru.settletale.client.gl.VertexArray;
 import ru.settletale.client.gl.Shader.Type;
 import ru.settletale.client.render.Color;
 import ru.settletale.client.render.Drawer;
 import ru.settletale.client.render.FontRenderer;
-import ru.settletale.client.render.GLThread;
 import ru.settletale.client.render.Renderer;
-import ru.settletale.client.resource.loader.ColladaLoader;
-import ru.settletale.client.resource.loader.ObjModelLoader;
 import ru.settletale.client.resource.loader.ShaderSourceLoader;
 import ru.settletale.client.resource.loader.TextureLoader;
 import ru.settletale.world.region.IRegionManagerListener;
@@ -54,7 +53,7 @@ public class WorldRenderer implements IRegionManagerListener {
 		GL.VIEW_MATRIX.translate((float) -Camera.position.x, (float) -Camera.position.y, (float) -Camera.position.z);
 		GL.debug("First translates");
 
-		GL.updateCombinedMatrixUniformBlock();
+		Renderer.updateCombinedMatrixUniformBlock();
 
 		GL.debug("World rend after transforms");
 
@@ -72,8 +71,8 @@ public class WorldRenderer implements IRegionManagerListener {
 
 		glDisable(GL_CULL_FACE);
 
-		GL.updateInversedMatricesUniformBlock();
-		GL.bindDefaultVAO();
+		Renderer.updateInversedMatricesUniformBlock();
+		VertexArray.DEFAULT.bind();
 		PROGRAM_SKY.bind();
 		glDrawArrays(GL_QUADS, 0, 4);
 		GL.debug("Render sky end");
@@ -94,14 +93,16 @@ public class WorldRenderer implements IRegionManagerListener {
 		}*/
 
 		GL.VIEW_MATRIX.push();
-		GL.VIEW_MATRIX.translate(0, 50, 0);
-		GL.VIEW_MATRIX.scale(10F);
-		GL.updateMatriciesUniformBlock();
+		GL.VIEW_MATRIX.translate(0, 100, 0);
+		GL.VIEW_MATRIX.scale(5F);
+		//GL.updateMatriciesUniformBlock();
+		Renderer.updateCombinedMatrixUniformBlock();
 		//ObjModelLoader.MODELS.get("models/dabrovic/sponza.obj").render();
-		ColladaLoader.MODELS.get("models/DAE/Glock 3d.dae").render();
+		//ColladaLoader.MODELS.get("models/DAE/Glock 3d.dae").render();
 		
 		
 		GL.VIEW_MATRIX.pop();
+		Renderer.updateCombinedMatrixUniformBlock();
 		
 		glLineWidth(10);
 		Drawer.begin(GL_LINES);
@@ -148,7 +149,7 @@ public class WorldRenderer implements IRegionManagerListener {
 		GL.PROJ_MATRIX.identity();
 		GL.PROJ_MATRIX.ortho2D(0, Window.width, 0, Window.height);
 		GL.VIEW_MATRIX.identity();
-		GL.updateCombinedMatrixUniformBlock();
+		Renderer.updateCombinedMatrixUniformBlock();
 
 		FontRenderer.setSize(25);
 		FontRenderer.setColor(Color.WHITE);
@@ -162,16 +163,18 @@ public class WorldRenderer implements IRegionManagerListener {
 	@Override
 	public void onRegionAdded(Region r) {
 		r.increaseThreadUsage();
-		GLThread.addTask(() -> {
+		GameClient.GL_THREAD.addRunnableTask(() -> {
 			REGIONS_TO_RENDER.put(r.coordClamped, new CompiledRegion(r));
 		});
 	}
 
 	@Override
 	public void onRegionRemoved(Region r) {
-		GLThread.addTask(() -> {
+		GameClient.GL_THREAD.addRunnableTask(() -> {
 			if (REGIONS_TO_RENDER.containsKey(r.coordClamped)) {
-				REGIONS_TO_RENDER.get(r.coordClamped).clear();
+				CompiledRegion cr = REGIONS_TO_RENDER.get(r.coordClamped);
+				if(cr.compiled)
+					cr.clear();
 				REGIONS_TO_RENDER.remove(r.coordClamped);
 				r.decreaseThreadUsage();
 			}

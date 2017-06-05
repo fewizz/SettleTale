@@ -2,6 +2,7 @@ package ru.settletale.client.gl;
 
 public abstract class GLObject<T> {
 	public static final int ID_NOT_GENERATED = -1;
+	public static final int ID_DEFAULT = 0;
 	protected int id = ID_NOT_GENERATED;
 
 	public T gen() {
@@ -29,7 +30,7 @@ public abstract class GLObject<T> {
 
 	public abstract boolean isBase();
 
-	public abstract int genInternal();
+	protected abstract int genInternal();
 
-	public abstract void deleteInternal();
+	protected abstract void deleteInternal();
 }

@@ -43,7 +43,6 @@ public class TextureBinder {
 		textureUnits.addIfAbsent(texture);
 		int unitIndex = textureUnits.indexOf(texture);
 		int position = currentIndexArray.setNextFreePositionIfAbsent(unitIndex);
-		currentIndexArray.set(position, unitIndex);
 		return position;
 	}
 

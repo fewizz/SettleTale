@@ -2,8 +2,7 @@ package ru.settletale.client;
 
 import static org.lwjgl.opengl.GL11.*;
 
-import ru.settletale.client.gl.GL;
-import ru.settletale.client.render.GLThread;
+import ru.settletale.client.render.Renderer;
 
 public class Window {
 	public static float frameRate = 100F;
@@ -18,9 +17,9 @@ public class Window {
 		Window.width = w;
 		Window.height = h;
 
-		GLThread.addTask(() -> {
+		GameClient.GL_THREAD.addRunnableTask(() -> {
 			glViewport(0, 0, width, height);
-			GL.updateDisplaySizeUniformBlock();
+			Renderer.updateDisplaySizeUniformBlock();
 		});
 	}
 }

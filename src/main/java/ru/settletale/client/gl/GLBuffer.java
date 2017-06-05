@@ -45,11 +45,6 @@ public class GLBuffer<T> extends GLBindableObject<T> {
 	public void bindInternal() {
 		GL15.glBindBuffer(type, id);
 	}
-
-	@Override
-	public void unbindInternal() {
-		GL15.glBindBuffer(type, 0);
-	}
 	
 	public void storageFlags(int flags) {
 		this.storageFlags = flags;

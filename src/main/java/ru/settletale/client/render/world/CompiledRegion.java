@@ -180,8 +180,8 @@ public class CompiledRegion {
 
 				NORMAL_TEMP.normalize();
 
-				SHARED_VERTEX_ARRAY.putFloat(POSITION, pxf, region.getHeight(x, z), pzf);
-				SHARED_VERTEX_ARRAY.putFloat(NORMAL, NORMAL_TEMP.y);
+				SHARED_VERTEX_ARRAY.putFloats(POSITION, pxf, region.getHeight(x, z), pzf);
+				SHARED_VERTEX_ARRAY.putFloats(NORMAL, NORMAL_TEMP.y);
 
 				SHARED_VERTEX_ARRAY.endVertex();
 

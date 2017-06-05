@@ -8,8 +8,8 @@ import org.lwjgl.opengl.GL11;
 import ru.settletale.client.render.Material;
 import ru.settletale.client.resource.ResourceFile;
 import ru.settletale.client.resource.ResourceManager;
+import ru.settletale.client.GameClient;
 import ru.settletale.client.gl.Texture;
-import ru.settletale.client.render.GLThread;
 import ru.settletale.client.render.MTLLib;
 import ru.settletale.util.FileUtils;
 
@@ -85,7 +85,7 @@ public class MtlLibLoader extends ResourceLoaderAbstract {
 				matLib.addBumpTextureToMaterial(mat, tex);
 
 				if (tex != null) {
-					GLThread.addTask(() -> {
+					GameClient.GL_THREAD.addRunnableTask(() -> {
 						tex.parameter(GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
 						tex.parameter(GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
 					});

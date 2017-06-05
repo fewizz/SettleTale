@@ -9,6 +9,16 @@ import org.lwjgl.system.MemoryUtil;
 import ru.settletale.client.vertex.VertexAttribType;
 
 public class VertexArray extends GLBindableObject<VertexArray> {
+	public static final VertexArray DEFAULT = new VertexArray() {
+		@Override
+		public VertexArray gen() {
+			id = 0;
+			return this;
+		}
+	};
+	static {
+		DEFAULT.gen();
+	}
 	
 	@Override
 	public int genInternal() {
@@ -87,10 +97,5 @@ public class VertexArray extends GLBindableObject<VertexArray> {
 	@Override
 	public void bindInternal() {
 		GL30.glBindVertexArray(id);
-	}
-
-	@Override
-	public void unbindInternal() {
-		GL30.glBindVertexArray(0);
 	}
 }

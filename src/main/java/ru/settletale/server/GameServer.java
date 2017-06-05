@@ -4,12 +4,12 @@ import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import ru.settletale.PlatformAbstract;
+import ru.settletale.GameAbstract;
 import ru.settletale.util.Side;
 import ru.settletale.world.World;
 import ru.settletale.world.region.RegionManagerOnePlayer;
 
-public class PlatformServer extends PlatformAbstract {
+public class GameServer extends GameAbstract {
 	ServerBootstrap boot;
 
 	@Override
