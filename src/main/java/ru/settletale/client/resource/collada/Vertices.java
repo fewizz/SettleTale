@@ -4,7 +4,7 @@ import org.w3c.dom.Element;
 
 import ru.settletale.util.XMLUtils;
 
-public class Vertices extends ColladaElementWithID {
+public class Vertices extends ObjectWithID {
 	public final Source source;
 	public final Input input;
 	public final Mesh mesh;

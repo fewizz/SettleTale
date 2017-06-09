@@ -4,7 +4,7 @@ import org.w3c.dom.Element;
 
 import ru.settletale.util.XMLUtils;
 
-public class Geometry extends ColladaElementWithIDAndName {
+public class Geometry extends ObjectWithIDAndName {
 	public final Mesh mesh;
 
 	public Geometry(Element geometryElement) {

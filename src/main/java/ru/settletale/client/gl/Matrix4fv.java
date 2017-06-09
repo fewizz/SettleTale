@@ -3,35 +3,37 @@ package ru.settletale.client.gl;
 import java.nio.FloatBuffer;
 
 import org.joml.Matrix4f;
-import org.lwjgl.BufferUtils;
+import org.lwjgl.system.MemoryUtil;
 
 public class Matrix4fv extends Matrix4f {
 	public final FloatBuffer buffer;
 	final FloatBuffer[] stack = new FloatBuffer[32];
-	int currentIndex = 0;
+	int index = 0;
 
 	public Matrix4fv() {
-		buffer = BufferUtils.createFloatBuffer(4 * 4);
+		buffer = MemoryUtil.memAllocFloat(4 * 4);
 
 		for (int i = 0; i < stack.length; i++) {
-			stack[i] = BufferUtils.createFloatBuffer(4 * 4);
+			stack[i] = MemoryUtil.memAllocFloat(4 * 4);
 		}
 	}
 
 	public void push() {
 		updateBackedBuffer();
-		stack[currentIndex].put(buffer);
-		stack[currentIndex].position(0);
+		
+		stack[index].put(buffer);
+		stack[index].position(0);
 		buffer.position(0);
-		currentIndex++;
+		
+		index++;
 	}
 
 	public void pop() {
-		stack[currentIndex].clear();
-		currentIndex--;
+		stack[index].clear();
+		index--;
 		
-		buffer.put(stack[currentIndex]);
-		stack[currentIndex].position(0);
+		buffer.put(stack[index]);
+		stack[index].position(0);
 		buffer.position(0);
 		super.set(buffer);
 	}
@@ -39,6 +41,19 @@ public class Matrix4fv extends Matrix4f {
 	public void updateBackedBuffer() {
 		buffer.position(0);
 		super.get(buffer);
+	}
+	
+	public boolean isChangedScinceLastUpdate() {
+		if(buffer.get(0) != m00() || buffer.get(1) != m01() || buffer.get(2) != m02() || buffer.get(3) != m03())
+			return false;
+		if(buffer.get(4) != m10() || buffer.get(5) != m11() || buffer.get(6) != m12() || buffer.get(7) != m13())
+			return false;
+		if(buffer.get(8) != m20() || buffer.get(9) != m21() || buffer.get(10) != m22() || buffer.get(11) != m23())
+			return false;
+		if(buffer.get(12) != m10() || buffer.get(13) != m31() || buffer.get(14) != m32() || buffer.get(15) != m33())
+			return false;
+		
+		return true;
 	}
 
 	public void rotateDeg(float ang, float x, float y, float z) {

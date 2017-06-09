@@ -2,10 +2,10 @@ package ru.settletale.client.resource.collada;
 
 import org.w3c.dom.Element;
 
-public class ColladaElementWithIDAndName extends ColladaElementWithID {
+public class ObjectWithIDAndName extends ObjectWithID {
 	public final String name;
 	
-	public ColladaElementWithIDAndName(Element element) {
+	public ObjectWithIDAndName(Element element) {
 		super(element);
 		name = element.getAttribute("name");
 	}

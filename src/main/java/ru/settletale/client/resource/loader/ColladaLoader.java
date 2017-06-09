@@ -22,7 +22,6 @@ import ru.settletale.client.resource.ResourceManager;
 import ru.settletale.client.resource.collada.Collada;
 import ru.settletale.client.resource.collada.Polylist;
 import ru.settletale.client.resource.collada.Source;
-import ru.settletale.client.resource.collada.Asset.UpAxis;
 import ru.settletale.client.resource.collada.Input.Semantic;
 import ru.settletale.client.vertex.VertexArrayDataBaker;
 import ru.settletale.client.vertex.VertexAttribType;
@@ -47,8 +46,8 @@ public class ColladaLoader extends ResourceLoaderAbstract {
 			DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 			Document doc = documentBuilder.parse(resourceFile.path.toFile());
 
-			Collada collada = new Collada(XMLUtils.getFirstChildElement("COLLADA", doc)).loadGeometries();
-			ColladaModelRenderer model = new ColladaModelRenderer();
+			Collada collada = new Collada(XMLUtils.getFirstChildElement("COLLADA", doc));
+			ColladaModelRenderer model = new ColladaModelRenderer(collada.asset.upAxis);
 			
 			collada.geometries.geometriesList.forEach(geom -> {
 				List<RenderLayer> layers = new ArrayList<>();
@@ -70,7 +69,7 @@ public class ColladaLoader extends ResourceLoaderAbstract {
 					layers.add(layer);
 				});
 				
-				model.geometries.add(new ColladaGeometryRenderer(geom.name, layers));
+				model.geometries.add(new ColladaGeometryRenderer(geom.name, layers, null));
 			});
 			
 			ResourceManager.runAfterResourcesLoaded(() -> {
@@ -110,10 +109,10 @@ public class ColladaLoader extends ResourceLoaderAbstract {
 			if(vertexCount == 3) {
 				for(int v = 0; v < 3; v++) {
 					poses.getFloats(polylist.indexes.get(vertexIndex * inputsCount + posOffset), back);
-					UpAxis.chaneToYUpAxis(collada.asset.upAxis, back);
+					//UpAxis.chaneToYUpAxis(collada.asset.upAxis, back);
 					baker.putFloats(POS, back, 4);
 					norms.getFloats(polylist.indexes.get(vertexIndex * inputsCount + normOffset), back);
-					UpAxis.chaneToYUpAxis(collada.asset.upAxis, back);
+					//UpAxis.chaneToYUpAxis(collada.asset.upAxis, back);
 					baker.putFloats(NORM, back, 3);
 					baker.endVertex();
 					vertexIndex++;

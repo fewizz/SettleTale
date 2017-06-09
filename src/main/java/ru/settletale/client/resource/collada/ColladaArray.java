@@ -8,7 +8,7 @@ import org.w3c.dom.Element;
 import ru.settletale.util.PrimitiveType;
 import ru.settletale.util.StringUtils;
 
-public class ColladaArray extends ColladaElementWithIDAndName {
+public class ColladaArray extends ObjectWithIDAndName {
 	public final ByteBuffer buffer;
 	public final PrimitiveType primitiveType;
 	public final int count;
@@ -25,8 +25,7 @@ public class ColladaArray extends ColladaElementWithIDAndName {
 			StringUtils.readFloats(text, buffer);
 		}
 		else {
-			primitiveType = null;
-			buffer = null;
+			throw new Error("Undefined primitive type");
 		}
 	}
 }

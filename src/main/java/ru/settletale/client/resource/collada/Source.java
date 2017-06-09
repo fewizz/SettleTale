@@ -4,7 +4,7 @@ import org.w3c.dom.Element;
 
 import ru.settletale.util.XMLUtils;
 
-public class Source extends ColladaElementWithID {
+public class Source extends ObjectWithID {
 	public final ColladaArray array;
 	public final Accessor accessor;
 
