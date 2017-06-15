@@ -1,4 +1,4 @@
-package ru.settletale.client.vertex;
+package ru.settletale.client.render.vertex;
 
 import ru.settletale.util.PrimitiveType;
 
@@ -15,7 +15,7 @@ public enum VertexAttribType {
 
 	final PrimitiveType clientDataType;
 	final PrimitiveType serverDataType;
-	final int perVertexElementCount;
+	final int componentCount;
 	final boolean normalised;
 
 	private VertexAttribType(int size, PrimitiveType dataType) {
@@ -31,28 +31,14 @@ public enum VertexAttribType {
 	}
 	
 	private VertexAttribType(int size, PrimitiveType dataType, PrimitiveType attributeType, boolean normalised) {
-		this.perVertexElementCount = size;
+		this.componentCount = size;
 		this.clientDataType = dataType;
 		this.serverDataType = attributeType;
 		this.normalised = normalised;
 	}
-	
-	public AttribArrayData getNewVertexAttribArrayBuffer(VertexArrayDataBaker baker) {
-		switch (clientDataType) {
-			case BYTE:
-			case UBYTE:
-				return new AttribArrayDataByte(baker, this);
-			case INT:
-				return new AttribArrayDataInt(baker, this);
-			case FLOAT:
-				return new AttribArrayDataFloat(baker, this);
-			default:
-				return null;
-		}
-	}
 
 	public int getPerVertexElementCount() {
-		return perVertexElementCount;
+		return componentCount;
 	}
 
 	public PrimitiveType getClientDataType() {

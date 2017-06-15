@@ -8,12 +8,12 @@ import org.w3c.dom.Element;
 import ru.settletale.client.resource.collada.Input.Semantic;
 import ru.settletale.util.XMLUtils;
 
-public abstract class ColladaPrimitiveContainer {
+public abstract class PrimitiveContainer {
 	public final Mesh mesh;
 	public final List<Input> inputs;
 	final boolean usesNormal;
 	
-	public ColladaPrimitiveContainer(Mesh mesh, Element element) {
+	public PrimitiveContainer(Mesh mesh, Element element) {
 		this.mesh = mesh;
 		inputs = new ArrayList<>();
 		

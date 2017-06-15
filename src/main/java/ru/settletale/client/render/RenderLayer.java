@@ -7,13 +7,12 @@ import org.lwjgl.opengl.GL11;
 import com.koloboke.collect.map.IntObjMap;
 import com.koloboke.collect.map.hash.HashIntObjMaps;
 
-import ru.settletale.client.gl.GL;
 import ru.settletale.client.gl.ShaderProgram;
 import ru.settletale.client.gl.VertexArray;
 import ru.settletale.client.gl.VertexBuffer;
-import ru.settletale.client.vertex.VertexAttribType;
-import ru.settletale.client.vertex.AttribArrayData;
-import ru.settletale.client.vertex.VertexArrayDataBaker;
+import ru.settletale.client.render.vertex.AttribArrayData;
+import ru.settletale.client.render.vertex.VertexArrayDataBaker;
+import ru.settletale.client.render.vertex.VertexAttribType;
 
 public class RenderLayer {
 	protected VertexArrayDataBaker attribs;
@@ -50,7 +49,7 @@ public class RenderLayer {
 
 		vao.bind();
 
-		GL.debug("RenderLayer vao creating");
+		Renderer.debugGL("RenderLayer vao creating");
 
 		this.vertexCount = attribs.getUsedVertexCount();
 		
@@ -58,17 +57,17 @@ public class RenderLayer {
 			vbos.computeIfAbsent(attribIndex, index -> new VertexBuffer().gen());
 			VertexBuffer vbo = vbos.get(attribIndex);
 			
-			ByteBuffer buffer = data.getBuffer();
+			ByteBuffer buffer = data.getBuffer(vertexCount);
 			
 			if (allowSubData)
 				vbo.loadDataOrSubData(buffer);
 			else
 				vbo.data(buffer);
 
-			GL.debug("RenderLayer loadData");
+			Renderer.debugGL("RenderLayer loadData");
 
 			vao.bindAttribPointer(vbo, attribIndex, attribs.getAttribType(attribIndex));
-			GL.debug("Bind buffers to vao");
+			Renderer.debugGL("Bind buffers to vao");
 		});
 	}
 

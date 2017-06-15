@@ -5,6 +5,8 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
+import ru.settletale.client.render.Renderer;
+
 public abstract class GLBindableObject<T> extends GLObject<T> {
 	protected final GlobalID globalID;
 	private static final Map<Class<?>, Class<?>> CLASS_TO_CLASS = new HashMap<>();
@@ -30,7 +32,7 @@ public abstract class GLBindableObject<T> extends GLObject<T> {
 	private Class<?> getBaseClass() {
 		Class<?> baseClass = getClass();
 
-		if (GL.DEBUG)
+		if (Renderer.DEBUG_GL)
 			System.out.println(baseClass.getName());
 
 		for (;;) {
@@ -65,7 +67,7 @@ public abstract class GLBindableObject<T> extends GLObject<T> {
 			throw new Error("Class + " + baseClass.getName() + " is not base!");
 		}
 
-		if (GL.DEBUG) {
+		if (Renderer.DEBUG_GL) {
 			System.out.println(": " + baseClass.getName());
 		}
 

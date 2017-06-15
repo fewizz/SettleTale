@@ -12,8 +12,8 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.system.MemoryUtil;
 
 import ru.settletale.client.GameClient;
-import ru.settletale.client.gl.GL;
 import ru.settletale.client.gl.Texture2D;
+import ru.settletale.client.render.Renderer;
 import ru.settletale.client.resource.ResourceFile;
 
 public class TextureLoader extends ResourceLoaderAbstract {
@@ -54,7 +54,7 @@ public class TextureLoader extends ResourceLoaderAbstract {
 
 		GameClient.GL_THREAD.addRunnableTask(() -> {
 			tex.gen().setDefaultParams().bufferDataFormat(GL11.GL_RGBA).bufferDataType(GL11.GL_UNSIGNED_BYTE).data(buffer);
-			GL.debug("Load texture: " + resourceFile.key);
+			Renderer.debugGL("Load texture: " + resourceFile.key);
 			MemoryUtil.memFree(buffer);
 		});
 

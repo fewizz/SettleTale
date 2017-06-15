@@ -8,7 +8,7 @@ import org.w3c.dom.Element;
 import ru.settletale.util.StringUtils;
 import ru.settletale.util.XMLUtils;
 
-public class Polylist extends ColladaPrimitiveContainer {
+public class Polylist extends PrimitiveContainer {
 	final int count;
 	public final IntBuffer vCounts;
 	public final IntBuffer indexes;

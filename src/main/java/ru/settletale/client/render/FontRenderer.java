@@ -3,7 +3,6 @@ package ru.settletale.client.render;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
 
-import ru.settletale.client.gl.GL;
 import ru.settletale.client.gl.Shader;
 import ru.settletale.client.gl.ShaderProgram;
 import ru.settletale.client.gl.Texture2D;
@@ -72,7 +71,6 @@ public class FontRenderer {
 		float wTotal = POSITION.x + (centered ? -(font.getStringWidth(text) * scale) / 2F : 0);
 		float y = POSITION.y + (centered ? -(font.originalSize * scale) / 2F : 0);
 
-		GL.debug("Font start");
 		Drawer.begin(GL11.GL_QUADS);
 
 		for (int i = 0; i < text.length(); i++) {
@@ -110,12 +108,8 @@ public class FontRenderer {
 
 			wTotal += fch.xAdvance * scale;
 		}
-
-		GL.debug("Font predraw");
 		
 		Drawer.draw(program);
-
-		GL.debug("Font end");
 	}
 
 	static void linkDefaultProgramIfNeed() {

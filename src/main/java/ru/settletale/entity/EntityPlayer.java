@@ -6,7 +6,7 @@ import org.joml.Vector2i;
 import org.joml.Vector3d;
 import org.joml.Vector3f;
 
-import ru.settletale.SettleTaleStart;
+import ru.settletale.SettleTale;
 import ru.settletale.client.Camera;
 import ru.settletale.client.KeyListener;
 import ru.settletale.math.Distance;
@@ -144,7 +144,7 @@ public class EntityPlayer extends Entity {
 			double offX = (float) pixelOffset.x;
 			double offZ = (float) pixelOffset.y;
 
-			Region r = SettleTaleStart.getWorld().getRegion(MathUtils.floor(offX / Region.WIDTH_F), MathUtils.floor(offZ / Region.WIDTH_F));
+			Region r = SettleTale.getWorld().getRegion(MathUtils.floor(offX / Region.WIDTH_F), MathUtils.floor(offZ / Region.WIDTH_F));
 			if (r == null) {
 				continue;
 			}

@@ -42,7 +42,7 @@ public class WorldRenderer implements IRegionManagerListener {
 	}
 
 	public static void render() {
-		GL.debug("World rend start");
+		Renderer.debugGL("World rend start");
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		GL.PROJ_MATRIX.identity();
@@ -51,20 +51,20 @@ public class WorldRenderer implements IRegionManagerListener {
 		GL.VIEW_MATRIX.rotateDeg(Camera.rotationX, 1, 0, 0);
 		GL.VIEW_MATRIX.rotateDeg(Camera.rotationY, 0, 1, 0);
 		GL.VIEW_MATRIX.translate((float) -Camera.position.x, (float) -Camera.position.y, (float) -Camera.position.z);
-		GL.debug("First translates");
+		Renderer.debugGL("First translates");
 
 		Renderer.updateCombinedMatrixUniformBlock();
 
-		GL.debug("World rend after transforms");
+		Renderer.debugGL("World rend after transforms");
 
 		glEnable(GL_CULL_FACE);
 
 		REGIONS_TO_RENDER.forEach((long l, CompiledRegion r) -> {
 			if (!r.compiled) {
-				GL.debug("Fill buffers");
-				GL.debug("Fill VBOs");
+				Renderer.debugGL("Fill buffers");
+				Renderer.debugGL("Fill VBOs");
 				r.compile();
-				GL.debug("Array clear");
+				Renderer.debugGL("Array clear");
 			}
 			r.render();
 		});
@@ -75,7 +75,7 @@ public class WorldRenderer implements IRegionManagerListener {
 		VertexArray.DEFAULT.bind();
 		PROGRAM_SKY.bind();
 		glDrawArrays(GL_QUADS, 0, 4);
-		GL.debug("Render sky end");
+		Renderer.debugGL("Render sky end");
 
 		/*if (PlatformClient.player.camInter != null) {
 			glPointSize(15);
@@ -157,7 +157,7 @@ public class WorldRenderer implements IRegionManagerListener {
 		FontRenderer.setText("FPS: " + Renderer.lastFPS);
 		FontRenderer.render();
 
-		GL.debug("World rend end");
+		Renderer.debugGL("World rend end");
 	}
 
 	@Override

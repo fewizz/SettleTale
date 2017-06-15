@@ -3,13 +3,12 @@ package ru.settletale.client.render;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
-import ru.settletale.client.gl.GL;
 import ru.settletale.client.gl.Shader;
 import ru.settletale.client.gl.ShaderProgram;
 import ru.settletale.client.gl.Texture2D;
 import ru.settletale.client.gl.Shader.Type;
+import ru.settletale.client.render.vertex.VertexAttribType;
 import ru.settletale.client.resource.loader.ShaderSourceLoader;
-import ru.settletale.client.vertex.VertexAttribType;
 
 public class Drawer {
 	public static final RenderLayer LAYER = new RenderLayer(VertexAttribType.FLOAT_3, VertexAttribType.UBYTE_4_FLOAT_4_NORMALISED, VertexAttribType.FLOAT_2, VertexAttribType.UBYTE_1_INT_1);
@@ -71,22 +70,22 @@ public class Drawer {
 	}
 
 	public static void draw(ShaderProgram program) {
-		GL.debug("Drawer start", true);
+		Renderer.debugGL("Drawer start", true);
 
 		LAYER.compile();
 
-		GL.debug("Drawer pre vao bind");
+		Renderer.debugGL("Drawer pre vao bind");
 		TEXTURE_BINDER.updateUniforms(program);
 		TEXTURE_BINDER.bindTextures();
 		LAYER.setShaderProgram(program);
 		LAYER.render(drawingMode);
-		GL.debug("Draw drawArrays");
+		Renderer.debugGL("Draw drawArrays");
 	}
 
 	public static void texture(Texture2D tex) {
 		TEXTURE_BINDER.setCurrentUniformLocation(0);
 		byte arrayIndex = (byte) TEXTURE_BINDER.register(tex);
-		LAYER.getVertexArrayDataBaker().putBytes(TEX_ID, arrayIndex);
+		LAYER.getVertexArrayDataBaker().putByte(TEX_ID, arrayIndex);
 	}
 
 	public static void vertex(float x, float y) {
@@ -96,7 +95,7 @@ public class Drawer {
 	public static void vertex(float x, float y, float z) {
 		LAYER.getVertexArrayDataBaker().putFloats(POSITION_ID, x * SCALE.x, y * SCALE.y, z * SCALE.z);
 		LAYER.getVertexArrayDataBaker().putBytes(COLOR_ID, COLOR.r(), COLOR.g(), COLOR.b(), COLOR.a());
-		LAYER.getVertexArrayDataBaker().putFloats(UV_ID, UV.x, UV.y);
+		LAYER.getVertexArrayDataBaker().putFloats(UV_ID, UV);
 		LAYER.getVertexArrayDataBaker().endVertex();
 	}
 }

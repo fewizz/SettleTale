@@ -6,12 +6,12 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.system.MemoryUtil;
 
 import ru.settletale.client.gl.ElementArrayBuffer;
-import ru.settletale.client.vertex.VertexAttribType;
-import ru.settletale.client.vertex.VertexArrayDataBakerIndexed;
+import ru.settletale.client.render.vertex.VertexArrayDataBakerIndexed;
+import ru.settletale.client.render.vertex.VertexAttribType;
 
 public class RenderLayerIndexed extends RenderLayer {
 	int indexCount;
-	ElementArrayBuffer indexBuffer;
+	ElementArrayBuffer ibo;
 
 	public RenderLayerIndexed() {
 		super();
@@ -24,7 +24,7 @@ public class RenderLayerIndexed extends RenderLayer {
 	}
 
 	private void initIndexBuffer() {
-		indexBuffer = new ElementArrayBuffer();
+		ibo = new ElementArrayBuffer();
 	}
 
 	@Override
@@ -33,17 +33,17 @@ public class RenderLayerIndexed extends RenderLayer {
 
 		this.indexCount = ((VertexArrayDataBakerIndexed) attribs).getIndexCount();
 
-		if (!indexBuffer.isGenerated()) {
-			indexBuffer.gen();
+		if (!ibo.isGenerated()) {
+			ibo.gen();
 		}
 		
 		ByteBuffer buffer = ((VertexArrayDataBakerIndexed) attribs).getIndexBuffer();
 		
 		if (allowSubData) {
-			indexBuffer.loadDataOrSubData(buffer);
+			ibo.loadDataOrSubData(buffer);
 		}
 		else {
-			indexBuffer.data(buffer);
+			ibo.data(buffer);
 		}
 	}
 
@@ -52,14 +52,13 @@ public class RenderLayerIndexed extends RenderLayer {
 		program.bind();
 		vao.bind();
 
-		indexBuffer.bind();
+		ibo.bind();
 		GL11.glDrawElements(GL11.GL_QUADS, indexCount, GL11.GL_UNSIGNED_SHORT, MemoryUtil.NULL);
 	}
 	
 	@Override
 	public void delete() {
 		super.delete();
-		
-		indexBuffer.delete();
+		ibo.delete();
 	}
 }

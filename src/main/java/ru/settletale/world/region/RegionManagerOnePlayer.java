@@ -2,7 +2,7 @@ package ru.settletale.world.region;
 
 import java.util.Iterator;
 
-import ru.settletale.SettleTaleStart;
+import ru.settletale.SettleTale;
 import ru.settletale.client.GameClient;
 import ru.settletale.util.MathUtils;
 import ru.settletale.util.TickTimer;
@@ -28,7 +28,7 @@ public class RegionManagerOnePlayer extends RegionManagerAbstract {
 
 		regions.forEach((long key, Region obj) -> obj.active = false);
 
-		TickTimer worldTimer = SettleTaleStart.getWorld().updateThread.timer;
+		TickTimer worldTimer = SettleTale.getWorld().updateThread.timer;
 
 		for (int x = -REGION_LOAD_RADIUS + regX; x <= REGION_LOAD_RADIUS + regX; x++) {
 			for (int z = -REGION_LOAD_RADIUS + regZ; z <= REGION_LOAD_RADIUS + regZ; z++) {

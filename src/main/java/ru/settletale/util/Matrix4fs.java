@@ -1,16 +1,16 @@
-package ru.settletale.client.gl;
+package ru.settletale.util;
 
 import java.nio.FloatBuffer;
 
 import org.joml.Matrix4f;
 import org.lwjgl.system.MemoryUtil;
 
-public class Matrix4fv extends Matrix4f {
+public class Matrix4fs extends Matrix4f {
 	public final FloatBuffer buffer;
 	final FloatBuffer[] stack = new FloatBuffer[32];
 	int index = 0;
 
-	public Matrix4fv() {
+	public Matrix4fs() {
 		buffer = MemoryUtil.memAllocFloat(4 * 4);
 
 		for (int i = 0; i < stack.length; i++) {

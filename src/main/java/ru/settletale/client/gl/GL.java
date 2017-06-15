@@ -6,12 +6,11 @@ import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL45;
+
+import ru.settletale.util.Matrix4fs;
 import ru.settletale.util.PrimitiveType;
 
 public class GL {
-	public static final boolean DEBUG = true;
-	public static final boolean DEBUG_ONLY_ERRORS = true;
-	private static String previousMessage = "";
 	private static Texture<?>[] activeTextures;
 	private static int activeTextureUnitIndex = 0;
 	public static int version;
@@ -19,12 +18,10 @@ public class GL {
 	public static int versionMinor;
 	public static String vendor;
 	public static int maxTextureUnitsAmount;
-	public static final Matrix4fv PROJ_MATRIX = new Matrix4fv();
-	public static final Matrix4fv VIEW_MATRIX = new Matrix4fv();
+	public static final Matrix4fs PROJ_MATRIX = new Matrix4fs();
+	public static final Matrix4fs VIEW_MATRIX = new Matrix4fs();
 
 	public static void init() {
-		debug("GL init start");
-
 		vendor = glGetString(GL_VENDOR);
 		versionMajor = getInteger(GL30.GL_MAJOR_VERSION);
 		versionMinor = getInteger(GL30.GL_MINOR_VERSION);
@@ -36,8 +33,6 @@ public class GL {
 		}
 		
 		System.out.println("Vendor: " + GL.vendor);
-
-		debug("GL init end");
 	}
 
 	public static void bindBufferBase(GLBuffer<?> buffer, int index) {
@@ -76,25 +71,6 @@ public class GL {
 
 	public static int getInteger(int pname) {
 		return glGetInteger(pname);
-	}
-	
-	public static void debug(String s) {
-		debug(s, false);
-	}
-
-	public static void debug(String s, boolean printParent) {
-		if (DEBUG) {
-			int errorHex = glGetError();
-			String errorName = null;
-
-			if (DEBUG_ONLY_ERRORS && errorHex != 0) {
-				errorName = getErrorNameFromHex(errorHex);
-
-				throw new Error("OpenGL Error 0x" + Integer.toHexString(errorHex) + " \"" + errorName + "\"" + ": " + s + (printParent ? " | Previous: " + previousMessage : ""));
-			}
-
-			previousMessage = s;
-		}
 	}
 
 	public static String getErrorNameFromHex(int hex) {

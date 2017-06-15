@@ -16,10 +16,10 @@ import ru.settletale.client.render.MTLLib;
 import ru.settletale.client.render.Material;
 import ru.settletale.client.render.ObjModelRenderer;
 import ru.settletale.client.render.TexturedMaterialBinder;
+import ru.settletale.client.render.vertex.VertexArrayDataBaker;
+import ru.settletale.client.render.vertex.VertexAttribType;
 import ru.settletale.client.resource.ResourceFile;
 import ru.settletale.client.resource.ResourceManager;
-import ru.settletale.client.vertex.VertexAttribType;
-import ru.settletale.client.vertex.VertexArrayDataBaker;
 import ru.settletale.util.FileUtils;
 import ru.settletale.util.StringUtils;
 
@@ -198,7 +198,7 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 		int flags = matID;
 		flags |= (hasUV ? 1 : 0) << 8;
 		flags |= (hasNormal ? 1 : 0) << 9;
-		pa.putInts(FLAGS, flags);
+		pa.putInt(FLAGS, flags);
 
 		for (int k = 0; k < vertCount; k++) {
 			int v = back[k + 1][0];

@@ -4,6 +4,8 @@ import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
+import ru.settletale.memory.MemoryBlock;
+
 public class StringUtils {
 	public static final byte RIGHT = 0;
 	public static final byte LEFT = 1;
@@ -163,6 +165,10 @@ public class StringUtils {
 	
 	public static int readFloats(String str, ByteBuffer fb) {
 		return forEachFloatValue(str, (index, val) -> fb.putFloat(index * Float.BYTES, val));
+	}
+	
+	public static int readFloats(String str, MemoryBlock mb) {
+		return forEachFloatValue(str, (index, val) -> mb.putFloatF(index, val));
 	}
 
 	public static int forEachIntValue(String str, IIntIterFunc func) {

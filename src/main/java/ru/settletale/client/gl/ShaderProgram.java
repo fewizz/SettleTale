@@ -33,9 +33,13 @@ public class ShaderProgram extends GLBindableObject<ShaderProgram> {
 		GL20.glLinkProgram(id);
 
 		if (GL20.glGetProgrami(id, GL20.GL_LINK_STATUS) == GL11.GL_FALSE) {
-			System.err.println("Program is not compiled!");
+			System.err.println("Program is not compiled! Error message:");
 			System.err.println(GL20.glGetProgramInfoLog(id));
 		}
+	}
+	
+	public void use() {
+		this.bind();
 	}
 
 	@Override

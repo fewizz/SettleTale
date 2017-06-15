@@ -6,7 +6,7 @@ import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL45;
 import org.lwjgl.system.MemoryUtil;
 
-import ru.settletale.client.vertex.VertexAttribType;
+import ru.settletale.client.render.vertex.VertexAttribType;
 
 public class VertexArray extends GLBindableObject<VertexArray> {
 	public static final VertexArray DEFAULT = new VertexArray() {

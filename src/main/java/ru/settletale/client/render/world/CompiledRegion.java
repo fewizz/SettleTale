@@ -16,18 +16,19 @@ import ru.settletale.client.gl.Texture2D;
 import ru.settletale.client.gl.Shader.Type;
 import ru.settletale.client.render.RenderLayer;
 import ru.settletale.client.render.RenderLayerIndexed;
+import ru.settletale.client.render.Renderer;
+import ru.settletale.client.render.vertex.VertexArrayDataBakerIndexed;
+import ru.settletale.client.render.vertex.VertexAttribType;
 import ru.settletale.client.resource.loader.ShaderSourceLoader;
 import ru.settletale.client.resource.loader.TextureLoader;
 import ru.settletale.world.biome.BiomeAbstract;
 import ru.settletale.world.region.Region;
-import ru.settletale.client.vertex.VertexArrayDataBakerIndexed;
-import ru.settletale.client.vertex.VertexAttribType;
 import ru.settletale.registry.Biomes;
 
 public class CompiledRegion {
 	public static final int POSITION = 0;
 	public static final int NORMAL = 1;
-	public static final VertexArrayDataBakerIndexed SHARED_VERTEX_ARRAY = new VertexArrayDataBakerIndexed(1024, 1024, true, VertexAttribType.FLOAT_3, VertexAttribType.FLOAT_1);
+	public static final VertexArrayDataBakerIndexed SHARED_VERTEX_ARRAY = new VertexArrayDataBakerIndexed((Region.WIDTH + 1) * (Region.WIDTH + 1), Region.WIDTH * Region.WIDTH * 4, false, VertexAttribType.FLOAT_3, VertexAttribType.FLOAT_1);
 	static final Texture1D TEXTURE_BIOMES = new Texture1D(Region.WIDTH * Region.WIDTH);
 	static Texture2D textureGrass;
 	static final ByteBuffer TEMP_BUFFER = MemoryUtil.memAlloc(Region.WIDTH_EXTENDED * Region.WIDTH_EXTENDED * 2);
@@ -46,12 +47,12 @@ public class CompiledRegion {
 		compileVertexAttributeArrays();
 
 		if (!PROGRAM.isGenerated()) {
-			GL.debug("CR shader start");
+			Renderer.debugGL("CR shader start");
 			PROGRAM.gen();
 			PROGRAM.attachShader(new Shader().gen(Type.VERTEX).source(ShaderSourceLoader.SHADER_SOURCES.get("shaders/terrain.vs")));
 			PROGRAM.attachShader(new Shader().gen(Type.FRAGMENT).source(ShaderSourceLoader.SHADER_SOURCES.get("shaders/terrain.fs")));
 			PROGRAM.link();
-			GL.debug("CR shader end");
+			Renderer.debugGL("CR shader end");
 		}
 		if (textureGrass == null) {
 			textureGrass = TextureLoader.TEXTURES.get("textures/grass.png");
@@ -77,7 +78,7 @@ public class CompiledRegion {
 			TEXTURE_BIOMES.data(buff);
 		}
 
-		GL.debug("CR compile start");
+		Renderer.debugGL("CR compile start");
 
 		this.layer = new RenderLayerIndexed();
 		this.layer.setVertexArrayDataBaker(SHARED_VERTEX_ARRAY);
@@ -96,24 +97,24 @@ public class CompiledRegion {
 			byteIndex += 2; // WTF? It's not RGB, but neeeds 3 bytes...
 		}
 
-		GL.debug("CR compile texture");
+		Renderer.debugGL("CR compile texture");
 		textureIDs.data(TEMP_BUFFER);
 		compiled = true;
 		
-		GL.debug("CR compile end");
+		Renderer.debugGL("CR compile end");
 	}
 
 	public void render() {
-		GL.debug("CR rend shader start");
+		Renderer.debugGL("CR rend shader start");
 
 		GL.bindTextureUnit(0, textureIDs);
 		GL.bindTextureUnit(1, TEXTURE_BIOMES);
 		GL.bindTextureUnit(2, textureGrass);
 
-		GL.debug("CR bind texture units end");
+		Renderer.debugGL("CR bind texture units end");
 
 		this.layer.render(GL_QUADS);
-		GL.debug("CR rend end");
+		Renderer.debugGL("CR rend end");
 	}
 
 	static final Vector3f NORMAL_TEMP = new Vector3f();
@@ -123,7 +124,7 @@ public class CompiledRegion {
 	static final Vector3f V3_TEMP = new Vector3f();
 
 	private void compileVertexAttributeArrays() {
-		GL.debug("Fill buffers0");
+		Renderer.debugGL("Fill buffers0");
 		int rendWidth = Region.WIDTH + 1;
 
 		for (int x = 0; x < Region.WIDTH; x++) {
@@ -181,7 +182,7 @@ public class CompiledRegion {
 				NORMAL_TEMP.normalize();
 
 				SHARED_VERTEX_ARRAY.putFloats(POSITION, pxf, region.getHeight(x, z), pzf);
-				SHARED_VERTEX_ARRAY.putFloats(NORMAL, NORMAL_TEMP.y);
+				SHARED_VERTEX_ARRAY.putFloat(NORMAL, NORMAL_TEMP.y);
 
 				SHARED_VERTEX_ARRAY.endVertex();
 

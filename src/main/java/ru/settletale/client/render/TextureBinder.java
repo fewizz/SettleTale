@@ -12,16 +12,16 @@ import ru.settletale.client.gl.ShaderProgram;
 import ru.settletale.client.gl.Texture;
 import ru.settletale.util.AdvancedArrayList;
 import ru.settletale.util.AdvancedList;
-import ru.settletale.util.IndexArray;
+import ru.settletale.util.IndexBuffer;
 
 /** Group = uniform**/
 public class TextureBinder {
 	int currentUniformLocation = -1;
-	IndexArray currentIndexArray;
+	IndexBuffer currentIndexArray;
 	/** All used texture units **/
 	final AdvancedList<Texture<?>> textureUnits = new AdvancedArrayList<>();
 	/** Array of texture unit indexes **/
-	final HashIntObjMap<IndexArray> arrays = HashIntObjMaps.newMutableMap();
+	final HashIntObjMap<IndexBuffer> arrays = HashIntObjMaps.newMutableMap();
 
 	public void setCurrentUniformLocation(int location) {
 		if (currentUniformLocation == location)
@@ -29,7 +29,7 @@ public class TextureBinder {
 
 		currentUniformLocation = location;
 
-		arrays.computeIfAbsent(location, key -> new IndexArray());
+		arrays.computeIfAbsent(location, key -> new IndexBuffer());
 		currentIndexArray = arrays.get(location);
 
 	}
@@ -55,7 +55,7 @@ public class TextureBinder {
 	}
 
 	public void updateUniforms(ShaderProgram program) {
-		arrays.forEach((int location, IndexArray array) -> {
+		arrays.forEach((int location, IndexBuffer array) -> {
 			if (array.isEmpty())
 				return;
 
@@ -68,7 +68,7 @@ public class TextureBinder {
 			}
 		});
 
-		GL.debug("Texture Unit Binder updateUniforms end");
+		Renderer.debugGL("Texture Unit Binder updateUniforms end");
 	}
 
 	public int getUsedTextureUnitCount() {
@@ -77,6 +77,6 @@ public class TextureBinder {
 
 	public void clear() {
 		textureUnits.clear();
-		arrays.forEach((int location, IndexArray array) -> array.clear());
+		arrays.forEach((int location, IndexBuffer array) -> array.clear());
 	}
 }

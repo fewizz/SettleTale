@@ -4,15 +4,15 @@ import java.nio.IntBuffer;
 
 import static org.lwjgl.system.MemoryUtil.*;
 
-public class IndexArray {
+public class IndexBuffer {
 	private static final int NOT_SET = -1;
-	private static final int RESERVE = 64;
+	private static final int DEFAULT_SIZE = 64;
 	private final IntBuffer buffer;
 	private int size = 0;
 	int minOccupied = -1;
 
 	public static void main(String[] args) {
-		IndexArray arr = new IndexArray();
+		IndexBuffer arr = new IndexBuffer();
 
 		arr.set(0, 10);
 		arr.set(2, 56);
@@ -30,8 +30,12 @@ public class IndexArray {
 		System.out.println(arr.getPositionOfIndex(5));
 	}
 
-	public IndexArray() {
-		buffer = memAllocInt(RESERVE);
+	public IndexBuffer() {
+		this(DEFAULT_SIZE);
+	}
+	
+	public IndexBuffer(int size) {
+		buffer = memAllocInt(size);
 		memSet(memAddress(buffer), NOT_SET, buffer.capacity() * Integer.BYTES);
 	}
 
@@ -140,7 +144,7 @@ public class IndexArray {
 	public void clear() {
 		minOccupied = -1;
 		size = 0;
-		changeBufferSize(RESERVE, false);
+		changeBufferSize(DEFAULT_SIZE, false);
 	}
 
 	public void delete() {

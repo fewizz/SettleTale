@@ -6,7 +6,7 @@ import ru.settletale.server.GameServer;
 import ru.settletale.util.Side;
 import ru.settletale.world.World;
 
-public class SettleTaleStart {
+public class SettleTale {
 	public static GameAbstract platform;
 	
 	public static void main(String... args) {

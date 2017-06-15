@@ -4,13 +4,12 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL33;
 
-import ru.settletale.client.gl.GL;
 import ru.settletale.client.gl.Query;
 import ru.settletale.client.gl.Shader;
 import ru.settletale.client.gl.ShaderProgram;
 import ru.settletale.client.gl.Shader.Type;
+import ru.settletale.client.render.vertex.VertexArrayDataBaker;
 import ru.settletale.client.resource.loader.ShaderSourceLoader;
-import ru.settletale.client.vertex.VertexArrayDataBaker;
 
 public class ObjModelRenderer {
 	TexturedMaterialBinder tb;
@@ -20,7 +19,7 @@ public class ObjModelRenderer {
 	static final ShaderProgram PROGRAM = new ShaderProgram();
 	
 	public void compile(VertexArrayDataBaker baker) {
-		GL.debug("ModelObj compile start");
+		Renderer.debugGL("ModelObj compile start");
 		
 		if(!PROGRAM.isGenerated()) {
 			PROGRAM.gen();
@@ -35,14 +34,14 @@ public class ObjModelRenderer {
 		layer.compile();
 		baker.delete();
 		
-		GL.debug("ModelObj compile end");
+		Renderer.debugGL("ModelObj compile end");
 	}
 	
 	public void render() {
 		if(!q.isGenerated()) {
 			q.gen();
 		}
-		GL.debug("ModelObj render start");
+		Renderer.debugGL("ModelObj render start");
 		
 		tb.bindTextures();
 		tb.setDiffuseTexturesUniformArraylocation(0);
@@ -54,7 +53,7 @@ public class ObjModelRenderer {
 		q.end();
 		System.out.println(q.getResult(GL15.GL_QUERY_RESULT) / 1000000F);
 		
-		GL.debug("ModelObj render end");
+		Renderer.debugGL("ModelObj render end");
 	}
 	
 	public void setTextureAndMaterialBinder(TexturedMaterialBinder tb) {

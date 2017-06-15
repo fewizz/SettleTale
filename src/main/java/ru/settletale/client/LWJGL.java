@@ -7,6 +7,7 @@ public class LWJGL {
 		//System.setProperty("org.lwjgl.opengl.capabilities", "static");
 		//System.setProperty("org.lwjgl.util.Debug", "true");
 		//System.setProperty("org.lwjgl.util.NoChecks", "true");
+		//System.setProperty("org.lwjgl.util.DebugAllocator", "true");
 		Library.initialize();
 	}
 }

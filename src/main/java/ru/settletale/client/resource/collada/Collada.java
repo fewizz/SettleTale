@@ -1,5 +1,6 @@
 package ru.settletale.client.resource.collada;
 
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import ru.settletale.util.XMLUtils;
@@ -9,7 +10,8 @@ public class Collada {
 	public LibraryGeometries geometries;
 	public LibraryVisualScenes visualScenes;
 	
-	public Collada(Element colladaElement) {
+	public Collada(Document doc) {
+		Element colladaElement = XMLUtils.getFirstChildElement("COLLADA", doc);
 		asset = new Asset(XMLUtils.getFirstChildElement("asset", colladaElement));
 		
 		geometries = new LibraryGeometries(XMLUtils.getFirstChildElement("library_geometries", colladaElement));
