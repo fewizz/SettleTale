@@ -10,9 +10,7 @@ layout (location = 2) in vec2 uv;
 out vec4 color_vs;
 out vec2 uv_out;
 
-layout (binding = 2, std140) uniform Transform {
-	mat4 combinedMat;
-};
+#include shaders/lib/uniformTransformCombined.glsl
 
 void main(void) {
 	color_vs = color;

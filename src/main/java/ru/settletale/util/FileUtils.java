@@ -3,12 +3,9 @@ package ru.settletale.util;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.CharBuffer;
-
-import org.lwjgl.system.MemoryUtil;
+import java.util.List;
 
 public class FileUtils {
-	static final CharBuffer BUFFER = MemoryUtil.memAlloc(0xFFFF).asCharBuffer();
 
 	public static int getLineCount(File f) {
 		try (FileReader fr = new FileReader(f)) {
@@ -20,9 +17,9 @@ public class FileUtils {
 		return -1;
 	}
 	
-	public static String[] readLines(File f) {
-		try (FileReader fr = new FileReader(f); FileReader fr2 = new FileReader(f);) {
-			return ReaderUtils.readLines(fr2, ReaderUtils.getLineCount(fr));
+	public static List<String> readLines(File f) {
+		try (FileReader fr = new FileReader(f)) {
+			return ReaderUtils.readLines(fr);
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
@@ -30,9 +27,9 @@ public class FileUtils {
 		return null;
 	}
 	
-	public static String readWholeLines(File f) {
+	public static String readAsOneString(File f) {
 		try (FileReader fr = new FileReader(f);) {
-			return ReaderUtils.readWholeLines(fr);
+			return ReaderUtils.readAsOneString(fr);
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}

@@ -10,12 +10,10 @@ out vec4 color_out;
 layout (location = 0) uniform sampler2D diffTextures[32];
 layout (location = 32) uniform sampler2D bumpTextures[32];
 
-struct MaterialStruct {
-	vec4 diffuseColor;
-};
+#include shaders/lib/structMaterial.glsl
 
 layout (binding = 4, std140) uniform Material {
-	MaterialStruct materials[32];
+	StructMaterial materials[32];
 };
 
 void main(void) {

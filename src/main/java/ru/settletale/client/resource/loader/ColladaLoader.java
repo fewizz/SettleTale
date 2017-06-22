@@ -1,6 +1,7 @@
 package ru.settletale.client.resource.loader;
 
 import java.io.IOException;
+import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -10,15 +11,18 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.joml.Vector3f;
-import org.joml.Vector4f;
+import org.joml.Matrix4f;
+import org.lwjgl.system.MemoryUtil;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 import ru.settletale.client.GameClient;
+import ru.settletale.client.gl.GL;
+import ru.settletale.client.gl.UniformBuffer;
 import ru.settletale.client.render.ColladaModelRenderer;
 import ru.settletale.client.render.RenderLayer;
 import ru.settletale.client.render.ColladaModelRenderer.ColladaGeometryRenderer;
+import ru.settletale.client.render.GlobalUniforms;
 import ru.settletale.client.render.vertex.VertexArrayDataBaker;
 import ru.settletale.client.render.vertex.VertexAttribType;
 import ru.settletale.client.resource.ResourceFile;
@@ -26,7 +30,11 @@ import ru.settletale.client.resource.ResourceManager;
 import ru.settletale.client.resource.collada.Collada;
 import ru.settletale.client.resource.collada.Polylist;
 import ru.settletale.client.resource.collada.Source;
+import ru.settletale.client.resource.collada.TransformationElement;
+import ru.settletale.memory.MemoryBlock;
 import ru.settletale.client.resource.collada.Input.Semantic;
+import ru.settletale.client.resource.collada.Material;
+import ru.settletale.client.resource.collada.Matrix;
 
 public class ColladaLoader extends ResourceLoaderAbstract {
 	public static final Map<String, ColladaModelRenderer> MODELS = new HashMap<>();
@@ -50,15 +58,25 @@ public class ColladaLoader extends ResourceLoaderAbstract {
 			Collada collada = new Collada(doc);
 			ColladaModelRenderer model = new ColladaModelRenderer(collada.asset.upAxis);
 
-			collada.geometries.geometriesList.forEach(geom -> {
+			collada.visualScenesList.forEach(vs -> vs.nodes.forEach(node -> {
 				List<RenderLayer> layers = new ArrayList<>();
 
-				geom.mesh.polylists.forEach(pl -> {
-					layers.add(generateLayerFromPolylist(pl));
+				node.geometyInstances.forEach(gi -> {
+					gi.geometry.mesh.polylists.forEach(pl -> {
+						layers.add(generateLayerFromPolylist(pl, gi.material));
+					});
 				});
+				
+				Matrix4f mat = null;
+				for(TransformationElement e : node.transformElements) {
+					if(e instanceof Matrix) {
+						mat = ((Matrix) e).matrix;
+						break;
+					}
+				}
 
-				model.geometries.add(new ColladaGeometryRenderer(geom.name, layers, null));
-			});
+				model.geometries.add(new ColladaGeometryRenderer(vs.name, layers, mat));
+			}));
 
 			ResourceManager.runAfterResourcesLoaded(() -> GameClient.GL_THREAD.addRunnableTask(() -> model.compile()));
 
@@ -68,13 +86,33 @@ public class ColladaLoader extends ResourceLoaderAbstract {
 		}
 	}
 
-	private RenderLayer generateLayerFromPolylist(Polylist polylist) {
+	private RenderLayer generateLayerFromPolylist(Polylist polylist, Material m) {
 		VertexArrayDataBaker baker = new VertexArrayDataBaker(polylist.getTotalUsedVertexCount(), false);
 		RenderLayer layer = new RenderLayer(baker);
-		baker.addStorage(VertexAttribType.FLOAT_4, POS);
-		baker.addStorage(VertexAttribType.INT_1, FLAGS);
-		baker.addStorage(VertexAttribType.FLOAT_2, UV);
-		baker.addStorage(VertexAttribType.FLOAT_3, NORM);
+		
+		FloatBuffer matMemoryBlock = MemoryUtil.memAllocFloat(4);
+		matMemoryBlock.put(0, m.effect.phong.diffuse.x);
+		matMemoryBlock.put(1, m.effect.phong.diffuse.y);
+		matMemoryBlock.put(2, m.effect.phong.diffuse.z);
+		matMemoryBlock.put(3, m.effect.phong.diffuse.w);
+		UniformBuffer ubo = new UniformBuffer();
+		
+		GameClient.GL_THREAD.addRunnableTask(() -> {
+			ubo.gen();
+			ubo.data(matMemoryBlock);
+		});
+		
+		layer.setTextureBinder(renderLayer -> {
+			GL.bindBufferBase(ubo, GlobalUniforms.MATERIALS);
+		});
+		
+		Source verts = polylist.mesh.vertices.source;
+		Source norms = polylist.mesh.getSource(polylist.getInput(Semantic.NORMAL).source);
+		
+		baker.addAttrib(VertexAttribType.FLOAT_4, POS);
+		baker.addAttrib(VertexAttribType.INT_1, FLAGS);
+		//baker.addAttrib(VertexAttribType.FLOAT_2, UV);
+		baker.addAttrib(VertexAttribType.FLOAT_3, NORM);
 		layer.setVertexArrayDataBaker(baker);
 		
 		int posOffset = polylist.getInput(Semantic.VERTEX).offset;
@@ -82,34 +120,28 @@ public class ColladaLoader extends ResourceLoaderAbstract {
 
 		int inputsCount = polylist.inputs.size();
 
-		Source poses = polylist.mesh.vertices.source;
-		Source norms = polylist.mesh.getSource(polylist.getInput(Semantic.NORMAL).source);
-
 		int flags = 0;
-		flags |= (false ? 1 : 0) << 8;
-		flags |= (polylist.usesNormal() ? 1 : 0) << 9;
+		//flags |= (false ? 1 : 0) << 8;
+		flags |= (polylist.usesNormal() ? 1 : 0) << 0;
 		baker.putInt(FLAGS, flags);
 
-		//float[] back = new float[4];
-		//back[3] = 1F;
-
+		MemoryBlock mbPos = baker.getAttribArrayData(POS).getCurrentAttribMemoryBlock();
+		mbPos.putFloatF(3, 1.0F); // If stride is 3
+		MemoryBlock mbNorm = baker.getAttribArrayData(NORM).getCurrentAttribMemoryBlock();
+		
+		int vertAttribBytes = verts.array.primitiveType.bytes * verts.accessor.stride;
+		int normAttribBytes = Float.BYTES * 3;
+		
 		int vertexIndex = 0;
-		Vector4f pos = new Vector4f();
-		Vector3f norm = new Vector3f();
 
 		for (int primitive = 0; primitive < polylist.vCounts.capacity(); primitive++) {
 			int vertexCount = polylist.vCounts.get(primitive);
 
 			if (vertexCount == 3) {
 				for (int v = 0; v < 3; v++) {
+					verts.array.memoryBlock.copyTo(mbPos, polylist.indexes.get(vertexIndex * inputsCount + posOffset) * vertAttribBytes, 0, vertAttribBytes);
+					norms.array.memoryBlock.copyTo(mbNorm, polylist.indexes.get(vertexIndex * inputsCount + normOffset) * normAttribBytes, 0, normAttribBytes);
 					
-					// poses.getFloats(polylist.indexes.get(vertexIndex * inputsCount + posOffset),
-					// back);
-
-					baker.putFloats(POS, pos);
-					// norms.getFloats(polylist.indexes.get(vertexIndex * inputsCount + normOffset),
-					// back);
-					baker.putFloats(NORM, norm);
 					baker.endVertex();
 					vertexIndex++;
 				}

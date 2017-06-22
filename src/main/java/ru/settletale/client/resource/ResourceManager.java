@@ -98,4 +98,16 @@ public class ResourceManager {
 	public static void runAfterResourcesLoaded(Runnable run) {
 		TASKS.add(run);
 	}
+	
+	public static Path getPath(String res) {
+		for(ResourceDirectory rd : ROOTS) {
+			Path p = rd.path.resolve(res);
+			
+			if(p != null) {
+				return p;
+			}
+		}
+		
+		return null;
+	}
 }

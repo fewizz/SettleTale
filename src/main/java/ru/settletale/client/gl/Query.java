@@ -22,7 +22,7 @@ public class Query extends GLObject<Query> {
 	}
 
 	public void begin() {
-		GL15.glBeginQuery(type, id);
+		GL15.glBeginQuery(type, getID());
 	}
 	
 	public void end() {
@@ -30,16 +30,16 @@ public class Query extends GLObject<Query> {
 	}
 	
 	public void getResult(int type, IntBuffer buffer) {
-		GL15.glGetQueryObjectiv(id, type, buffer);
+		GL15.glGetQueryObjectiv(getID(), type, buffer);
 	}
 	
 	public int getResult(int type) {
-		return GL15.glGetQueryObjecti(id, type);
+		return GL15.glGetQueryObjecti(getID(), type);
 	}
 
 	@Override
 	public void deleteInternal() {
-		GL15.glDeleteQueries(id);
+		GL15.glDeleteQueries(getID());
 	}
 
 }

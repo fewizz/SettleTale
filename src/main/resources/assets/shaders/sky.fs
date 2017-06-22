@@ -11,7 +11,7 @@ layout (binding = 1, std140) uniform Transform {
 	mat4 viewMatInv;
 };
 
-layout (binding = 3, std140) uniform DSize {
+layout (binding = 3, std140) uniform Display {
 	float w;
 	float h;
 } size;

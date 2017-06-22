@@ -8,8 +8,7 @@ public abstract class Texture<T> extends GLBindableObject<T> {
 	public static final Texture<Texture<?>> DEFAULT = new Texture<Texture<?>>(GL_TEXTURE_2D) {
 		@Override
 		public Texture<?> gen() {
-			id = 0;
-			return getThis();
+			throw new Error();
 		}
 
 		@Override
@@ -26,10 +25,17 @@ public abstract class Texture<T> extends GLBindableObject<T> {
 		void subData(ByteBuffer buffer) {
 			throw new Error();
 		}
+		
+		@Override
+		public int getID() {
+			return 0;
+		}
+		
+		@Override
+		public boolean isGenerated() {
+			return true;
+		}
 	};
-	static {
-		DEFAULT.gen();
-	}
 
 	public final int type;
 	public int internalFormat;
@@ -86,11 +92,11 @@ public abstract class Texture<T> extends GLBindableObject<T> {
 		}
 		GL.setActiveTextureUnitTexture(this);
 
-		if (getLastGlobalID() == id) {
+		if (getLastGlobalID() == getID()) {
 			return;
 		}
 		bindInternal();
-		setLastGlobalID(id);
+		setLastGlobalID(getID());
 	}
 
 	public void bindWithForce() {
@@ -99,7 +105,7 @@ public abstract class Texture<T> extends GLBindableObject<T> {
 		}
 		GL.setActiveTextureUnitTexture(this);
 		bindInternal();
-		setLastGlobalID(id);
+		setLastGlobalID(getID());
 	}
 
 	public T setDefaultParams() {
@@ -126,11 +132,11 @@ public abstract class Texture<T> extends GLBindableObject<T> {
 	@Override
 	protected void deleteInternal() {
 		GL.onTextureDeleted(this);
-		glDeleteTextures(id);
+		glDeleteTextures(getID());
 	}
 
 	@Override
 	protected void bindInternal() {
-		glBindTexture(type, id);
+		glBindTexture(type, getID());
 	}
 }

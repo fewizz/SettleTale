@@ -2,6 +2,7 @@ package ru.settletale.client.resource.loader;
 
 import java.nio.FloatBuffer;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -40,7 +41,7 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 	public void loadResource(ResourceFile resourceFile) {
 		System.out.println("Loading objModel: " + resourceFile.key);
 
-		String[] strings = FileUtils.readLines(resourceFile.path.toFile());
+		List<String> strings = FileUtils.readLines(resourceFile.path.toFile());
 		float[] back = new float[9];
 		int[][] backIndex = new int[6][4];
 		float[][] backPos = new float[4][4];
@@ -67,8 +68,8 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 		}
 		Material materialWhite = new Material(Color.WHITE);
 
-		for (int i = 0; i < strings.length; i++) {
-			String str = strings[i];
+		for (int i = 0; i < strings.size(); i++) {
+			String str = strings.get(i);
 
 			if (str.length() < 2)
 				continue;
@@ -296,7 +297,7 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 		return str.split(" ")[1];
 	}
 
-	public static int[] getCountOfElements(String[] strings, String... elementNames) {
+	public static int[] getCountOfElements(List<String> strings, String... elementNames) {
 		int counts[] = new int[elementNames.length];
 
 		for (String str : strings) {

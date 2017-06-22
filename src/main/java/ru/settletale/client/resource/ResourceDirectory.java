@@ -51,7 +51,7 @@ public class ResourceDirectory {
 
 		if (path.contains("/")) {
 			dir = findResourceDirectory(path);
-			return dir.findResourceFileIncludingSubdirectories(path.substring(dir.name.length() + 1));
+			path = path.substring(dir.key.length());
 		}
 		else
 			dir = this;

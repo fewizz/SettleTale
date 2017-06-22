@@ -5,10 +5,10 @@ import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL32;
 
 public class Shader extends GLObject<Shader> {
-	Type type;
+	ShaderType type;
 	String source;
 
-	public Shader gen(Type type) {
+	public Shader gen(ShaderType type) {
 		this.type = type;
 		super.gen();
 		return this;
@@ -22,7 +22,7 @@ public class Shader extends GLObject<Shader> {
 	
 	@Override
 	public void deleteInternal() {
-		GL20.glDeleteShader(id);
+		GL20.glDeleteShader(getID());
 	}
 
 	@Override
@@ -32,7 +32,7 @@ public class Shader extends GLObject<Shader> {
 
 	public Shader source(String source) {
 		this.source = source;
-		GL20.glShaderSource(id, source);
+		GL20.glShaderSource(getID(), source);
 		return this;
 	}
 
@@ -42,15 +42,15 @@ public class Shader extends GLObject<Shader> {
 	}
 
 	public Shader compile() {
-		GL20.glCompileShader(id);
-		if (GL20.glGetShaderi(id, GL20.GL_COMPILE_STATUS) == GL11.GL_FALSE) {
+		GL20.glCompileShader(getID());
+		if (GL20.glGetShaderi(getID(), GL20.GL_COMPILE_STATUS) == GL11.GL_FALSE) {
 			System.err.println(source + " \n" + type.name + " not compiled!");
-			System.err.println(GL20.glGetShaderInfoLog(id));
+			System.err.println(GL20.glGetShaderInfoLog(getID()));
 		}
 		return this;
 	}
 
-	public enum Type {
+	public enum ShaderType {
 		VERTEX("VERTEX_SHADER", GL20.GL_VERTEX_SHADER),
 		FRAGMENT("FRAGMENT_SHADER", GL20.GL_FRAGMENT_SHADER),
 		GEOMETRY("GEOMETRY_SHADER", GL32.GL_GEOMETRY_SHADER);
@@ -58,7 +58,7 @@ public class Shader extends GLObject<Shader> {
 		String name;
 		int glCode;
 
-		Type(String name, int intGL) {
+		ShaderType(String name, int intGL) {
 			this.name = name;
 			this.glCode = intGL;
 		}

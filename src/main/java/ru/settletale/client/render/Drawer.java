@@ -3,16 +3,22 @@ package ru.settletale.client.render;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
+import ru.settletale.client.gl.GL;
 import ru.settletale.client.gl.Shader;
 import ru.settletale.client.gl.ShaderProgram;
 import ru.settletale.client.gl.Texture2D;
-import ru.settletale.client.gl.Shader.Type;
+import ru.settletale.client.gl.Shader.ShaderType;
+import ru.settletale.client.render.RenderLayer.ITextureBinder;
+import ru.settletale.client.render.vertex.VertexArrayDataBaker;
 import ru.settletale.client.render.vertex.VertexAttribType;
 import ru.settletale.client.resource.loader.ShaderSourceLoader;
+import ru.settletale.memory.MemoryBlock;
+import ru.settletale.util.AdvancedArrayList;
+import ru.settletale.util.AdvancedList;
 
 public class Drawer {
-	public static final RenderLayer LAYER = new RenderLayer(VertexAttribType.FLOAT_3, VertexAttribType.UBYTE_4_FLOAT_4_NORMALISED, VertexAttribType.FLOAT_2, VertexAttribType.UBYTE_1_INT_1);
-	public static final TextureBinder TEXTURE_BINDER = new TextureBinder();
+	public static final RenderLayer LAYER = new RenderLayer(new VertexArrayDataBaker(1024,  true, VertexAttribType.FLOAT_3, VertexAttribType.UBYTE_4_FLOAT_4_NORMALISED, VertexAttribType.FLOAT_2, VertexAttribType.UBYTE_1_INT_1));
+	static final AdvancedList<Texture2D> TEXTURES = new AdvancedArrayList<>();
 	public static final Vector2f UV = new Vector2f();
 	public static final Color COLOR = new Color(Color.WHITE);
 	public static final Vector3f SCALE = new Vector3f(1F);
@@ -28,20 +34,39 @@ public class Drawer {
 	static final int UV_ID = 2;
 	static final int TEX_ID = 3;
 
+	static final ITextureBinder TEX_BINDER_MUTLI = layer -> {
+		TEXTURES.forEachIndexed((int index, Texture2D tex) -> {
+			GL.bindTextureUnit(index, tex);
+		});
+
+		MemoryBlock mb = new MemoryBlock().allocate(TEXTURES.size() * Integer.BYTES);
+
+		TEXTURES.forEachIndexed((int index, Texture2D tex) -> {
+			mb.putIntI(index, index);
+		});
+		layer.program.setUniformIntArray(0, mb);
+
+		mb.free();
+	};
+
+	static final ITextureBinder TEX_BINDER = layer -> {
+		GL.bindTextureUnit(0, TEXTURES.get(0));
+	};
+
 	public static void init() {
 		PROGRAM.gen();
-		PROGRAM.attachShader(new Shader().gen(Type.VERTEX).source(ShaderSourceLoader.SHADER_SOURCES.get("shaders/drawer.vs")));
-		PROGRAM.attachShader(new Shader().gen(Type.FRAGMENT).source(ShaderSourceLoader.SHADER_SOURCES.get("shaders/drawer.fs")));
+		PROGRAM.attachShader(new Shader().gen(ShaderType.VERTEX).source(ShaderSourceLoader.SHADER_SOURCES.get("shaders/drawer.vs")));
+		PROGRAM.attachShader(new Shader().gen(ShaderType.FRAGMENT).source(ShaderSourceLoader.SHADER_SOURCES.get("shaders/drawer.fs")));
 		PROGRAM.link();
 
 		PROGRAM_TEX.gen();
-		PROGRAM_TEX.attachShader(new Shader().gen(Type.VERTEX).source(ShaderSourceLoader.SHADER_SOURCES.get("shaders/drawer_tex.vs")));
-		PROGRAM_TEX.attachShader(new Shader().gen(Type.FRAGMENT).source(ShaderSourceLoader.SHADER_SOURCES.get("shaders/drawer_tex.fs")));
+		PROGRAM_TEX.attachShader(new Shader().gen(ShaderType.VERTEX).source(ShaderSourceLoader.SHADER_SOURCES.get("shaders/drawer_tex.vs")));
+		PROGRAM_TEX.attachShader(new Shader().gen(ShaderType.FRAGMENT).source(ShaderSourceLoader.SHADER_SOURCES.get("shaders/drawer_tex.fs")));
 		PROGRAM_TEX.link();
 
 		PROGRAM_MULTITEX.gen();
-		PROGRAM_MULTITEX.attachShader(new Shader().gen(Type.VERTEX).source(ShaderSourceLoader.SHADER_SOURCES.get("shaders/drawer_multitex.vs")));
-		PROGRAM_MULTITEX.attachShader(new Shader().gen(Type.FRAGMENT).source(ShaderSourceLoader.SHADER_SOURCES.get("shaders/drawer_multitex.fs")));
+		PROGRAM_MULTITEX.attachShader(new Shader().gen(ShaderType.VERTEX).source(ShaderSourceLoader.SHADER_SOURCES.get("shaders/drawer_multitex.vs")));
+		PROGRAM_MULTITEX.attachShader(new Shader().gen(ShaderType.FRAGMENT).source(ShaderSourceLoader.SHADER_SOURCES.get("shaders/drawer_multitex.fs")));
 		PROGRAM_MULTITEX.link();
 
 		LAYER.setAllowSubDataWhenPossible(true);
@@ -51,40 +76,37 @@ public class Drawer {
 		drawingMode = mode;
 
 		LAYER.clearVertexArrayDataBakerIfExists();
-		TEXTURE_BINDER.clear();
+		TEXTURES.clear();
 	}
 
 	public static void draw() {
-		ShaderProgram program;
-		int textureCount = TEXTURE_BINDER.getUsedTextureUnitCount();
+		int textureCount = TEXTURES.size();
 
 		if (textureCount == 0) {
-			program = PROGRAM;
+			draw(PROGRAM, null);
 		} else if (textureCount == 1) {
-			program = PROGRAM_TEX;
+			draw(PROGRAM_TEX, TEX_BINDER);
 		} else {
-			program = PROGRAM_MULTITEX;
+			draw(PROGRAM_MULTITEX, TEX_BINDER_MUTLI);
 		}
-
-		draw(program);
 	}
 
-	public static void draw(ShaderProgram program) {
+	public static void draw(ShaderProgram program, ITextureBinder texBinder) {
 		Renderer.debugGL("Drawer start", true);
 
 		LAYER.compile();
 
 		Renderer.debugGL("Drawer pre vao bind");
-		TEXTURE_BINDER.updateUniforms(program);
-		TEXTURE_BINDER.bindTextures();
+
 		LAYER.setShaderProgram(program);
+		LAYER.setTextureBinder(texBinder);
 		LAYER.render(drawingMode);
 		Renderer.debugGL("Draw drawArrays");
 	}
 
 	public static void texture(Texture2D tex) {
-		TEXTURE_BINDER.setCurrentUniformLocation(0);
-		byte arrayIndex = (byte) TEXTURE_BINDER.register(tex);
+		TEXTURES.addIfAbsent(tex);
+		byte arrayIndex = (byte) TEXTURES.indexOf(tex);
 		LAYER.getVertexArrayDataBaker().putByte(TEX_ID, arrayIndex);
 	}
 

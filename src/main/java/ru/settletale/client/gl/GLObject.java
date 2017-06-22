@@ -3,7 +3,7 @@ package ru.settletale.client.gl;
 public abstract class GLObject<T> {
 	public static final int ID_NOT_GENERATED = -1;
 	public static final int ID_DEFAULT = 0;
-	protected int id = ID_NOT_GENERATED;
+	private int id = ID_NOT_GENERATED;
 
 	public T gen() {
 		id = genInternal();
@@ -17,6 +17,10 @@ public abstract class GLObject<T> {
 
 	public int getID() {
 		return id;
+	}
+	
+	protected void setID(int id) {
+		this.id = id;
 	}
 
 	@SuppressWarnings("unchecked")

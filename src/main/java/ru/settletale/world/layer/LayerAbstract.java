@@ -5,9 +5,9 @@ import ru.settletale.util.MathUtils;
 
 public abstract class LayerAbstract {
 	private byte[] values;
-	private static final long RANDOM_NUMBER_CONST = 6546213132131313131L;
+	private static final long RANDOM_NUMBER_CONST = 6557954324650566504L;
 	public static long seed;
-	public static OpenSimplexNoise noise = new OpenSimplexNoise(1337);
+	public static final OpenSimplexNoise SIMPLEX_NOISE = new OpenSimplexNoise(1337);
 	LayerAbstract parent;
 	
 	public LayerAbstract(LayerAbstract parent) {

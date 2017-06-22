@@ -4,8 +4,8 @@ import org.w3c.dom.Element;
 
 public class Accessor {
 	ColladaArray source;
-	final int count;
-	final int stride;
+	public final int count;
+	public final int stride;
 
 	public Accessor(Source parentSource, Element accessorElement) {
 		source = parentSource.array;

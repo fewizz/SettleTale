@@ -18,13 +18,13 @@ public final class MemoryBlock {
 	}
 
 	public MemoryBlock allocate(int bytes) {
+		if(address != MemoryUtil.NULL) {
+			throw new RuntimeException();
+		}
+		
 		address = MemoryUtil.nmemAlloc(bytes);
 		setBytes(bytes);
 		return this;
-	}
-
-	public MemoryBlock allocateF(int floats) {
-		return allocate(floats * Float.BYTES);
 	}
 
 	public void reallocate(int bytes) {
@@ -33,7 +33,15 @@ public final class MemoryBlock {
 	}
 
 	public void set(int value) {
-		MemoryUtil.memSet(address, value, bytes);
+		set(value, 0, bytes);
+	}
+	
+	public void set(int value, int from, int bytes) {
+		MemoryUtil.memSet(address + from, value, bytes);
+	}
+	
+	public long getAddress() {
+		return address;
 	}
 
 	// Byte
@@ -83,6 +91,19 @@ public final class MemoryBlock {
 	public void putIntI(int pos, int value) {
 		MemoryUtil.memPutInt(address + pos * Integer.BYTES, value);
 	}
+	
+	// Double
+	public double getDouble(int pos) {
+		return MemoryUtil.memGetInt(address + pos);
+	}
+
+	public double getDoubleD(int pos) {
+		return MemoryUtil.memGetInt(address + pos * Double.BYTES);
+	}
+
+	public void putDoubleD(int pos, double value) {
+		MemoryUtil.memPutDouble(address + pos * Double.BYTES, value);
+	}
 
 	// Long
 	public long getLong(int pos) {
@@ -102,17 +123,25 @@ public final class MemoryBlock {
 	}
 
 	public void free() {
+		if(address == MemoryUtil.NULL) {
+			throw new RuntimeException();
+		}
+		
 		MemoryUtil.nmemFree(address);
 		address = MemoryUtil.NULL;
 		setBytes(0);
 	}
 
-	public void copy(MemoryBlock destMemoryBlock, int src, int dest, int bytes) {
-		MemoryUtil.memCopy(address + src, destMemoryBlock.address + dest, bytes);
+	public void copyTo(long adrressDest, int src, int bytes) {
+		MemoryUtil.memCopy(address + src, adrressDest, bytes);
+	}
+	
+	public void copyTo(MemoryBlock destMemoryBlock, int src, int dest, int bytes) {
+		copyTo(destMemoryBlock.address + dest, src, bytes);
 	}
 
-	public void copy(int src, int dest, int bytes) {
-		copy(this, src, dest, bytes);
+	public void copyTo(int src, int dest, int bytes) {
+		copyTo(this, src, dest, bytes);
 	}
 
 	private void setBytes(int bytes) {
@@ -123,6 +152,10 @@ public final class MemoryBlock {
 
 	public int bytes() {
 		return bytes;
+	}
+	
+	public int ints() {
+		return bytes / Integer.BYTES;
 	}
 
 	public ByteBuffer getAsByteBuffer(int capacity) {

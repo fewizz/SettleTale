@@ -2,6 +2,8 @@ package ru.settletale.util;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ReaderUtils {
 	static final char[] BUFFER = new char[16384];
@@ -38,18 +40,19 @@ public class ReaderUtils {
 		return -1;
 	}
 
-	public static String[] readLines(Reader reader, int lineCount) {
+	public static List<String> readLines(Reader reader) {
 		try {
-			String[] strings = new String[lineCount];
+			List<String> strings = new ArrayList<>();
 
-			int idx = 0;
 			StringBuilder builder = new StringBuilder();
 
 			for (;;) {
 				int count = reader.read(BUFFER);
 
 				if (count == -1) {
-					strings[idx++] = builder.toString();
+					if(!strings.isEmpty())
+						strings.add(builder.toString());
+					
 					return strings;
 				}
 
@@ -61,7 +64,8 @@ public class ReaderUtils {
 					if (skip > 0) { // If new line
 						index += skip;
 
-						strings[idx++] = builder.toString();
+						strings.add(builder.toString());
+						
 						builder.setLength(0);
 					}
 					else {
@@ -78,7 +82,7 @@ public class ReaderUtils {
 		return null;
 	}
 
-	public static String readWholeLines(Reader reader) {
+	public static String readAsOneString(Reader reader) {
 		try {
 			StringBuilder builder = new StringBuilder();
 

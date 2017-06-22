@@ -36,7 +36,7 @@ public class GL {
 	}
 
 	public static void bindBufferBase(GLBuffer<?> buffer, int index) {
-		GL30.glBindBufferBase(buffer.type, index, buffer.id);
+		GL30.glBindBufferBase(buffer.type, index, buffer.getID());
 	}
 
 	public static void bindTextureUnit(int index, Texture<?> texture) {
@@ -60,7 +60,7 @@ public class GL {
 	}
 
 	public static boolean setActiveTextureUnitTexture(Texture<?> tex) {
-		if (activeTextures[activeTextureUnitIndex] != null && activeTextures[activeTextureUnitIndex].id == tex.id) {
+		if (activeTextures[activeTextureUnitIndex] == tex) {
 			return false;
 		}
 

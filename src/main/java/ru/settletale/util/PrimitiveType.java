@@ -11,18 +11,10 @@ public enum PrimitiveType {
 	LONG(Long.BYTES, true);
 	
 	private PrimitiveType(int sizeInBytes, boolean isIntegral) {
-		this.sizeInBytes = sizeInBytes;
+		this.bytes = sizeInBytes;
 		this.isIntegral = isIntegral;
 	}
 	
-	public boolean isIntegral() {
-		return isIntegral;
-	}
-	
-	public int getSizeInBytes() {
-		return sizeInBytes;
-	}
-	
-	boolean isIntegral;
-	int sizeInBytes;
+	public final boolean isIntegral;
+	public final int bytes;
 }

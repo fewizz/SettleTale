@@ -7,7 +7,6 @@ import org.lwjgl.system.MemoryUtil;
 
 import ru.settletale.client.gl.ElementArrayBuffer;
 import ru.settletale.client.render.vertex.VertexArrayDataBakerIndexed;
-import ru.settletale.client.render.vertex.VertexAttribType;
 
 public class RenderLayerIndexed extends RenderLayer {
 	int indexCount;
@@ -15,11 +14,6 @@ public class RenderLayerIndexed extends RenderLayer {
 
 	public RenderLayerIndexed() {
 		super();
-		initIndexBuffer();
-	}
-
-	public RenderLayerIndexed(VertexAttribType... storages) {
-		super(storages);
 		initIndexBuffer();
 	}
 

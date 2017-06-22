@@ -8,6 +8,8 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.system.MemoryStack;
 
+import ru.settletale.memory.MemoryBlock;
+
 public class ShaderProgram extends GLBindableObject<ShaderProgram> {
 
 	@Override
@@ -21,20 +23,20 @@ public class ShaderProgram extends GLBindableObject<ShaderProgram> {
 	}
 
 	public void attachShader(Shader shader) {
-		GL20.glAttachShader(id, shader.id);
+		GL20.glAttachShader(getID(), shader.getID());
 	}
 
 	public void attachShaders(Shader... shaders) {
 		for (Shader sh : shaders)
-			GL20.glAttachShader(id, sh.id);
+			GL20.glAttachShader(getID(), sh.getID());
 	}
 
 	public void link() {
-		GL20.glLinkProgram(id);
+		GL20.glLinkProgram(getID());
 
-		if (GL20.glGetProgrami(id, GL20.GL_LINK_STATUS) == GL11.GL_FALSE) {
+		if (GL20.glGetProgrami(getID(), GL20.GL_LINK_STATUS) == GL11.GL_FALSE) {
 			System.err.println("Program is not compiled! Error message:");
-			System.err.println(GL20.glGetProgramInfoLog(id));
+			System.err.println(GL20.glGetProgramInfoLog(getID()));
 		}
 	}
 	
@@ -44,20 +46,20 @@ public class ShaderProgram extends GLBindableObject<ShaderProgram> {
 
 	@Override
 	public void bindInternal() {
-		GL20.glUseProgram(id);
+		GL20.glUseProgram(getID());
 	}
 
 	@Override
 	public void deleteInternal() {
-		GL20.glDeleteProgram(id);
+		GL20.glDeleteProgram(getID());
 	}
 
 	public int getAttributeLocation(String name) {
-		return GL20.glGetAttribLocation(id, name);
+		return GL20.glGetAttribLocation(getID(), name);
 	}
 
 	public int getUniformLocation(String name) {
-		return GL20.glGetUniformLocation(id, name);
+		return GL20.glGetUniformLocation(getID(), name);
 	}
 
 	public void setUniformInt(int location, int value) {
@@ -76,5 +78,10 @@ public class ShaderProgram extends GLBindableObject<ShaderProgram> {
 	public void setUniformIntArray(int location, IntBuffer value) {
 		bind();
 		GL20.glUniform1iv(location, value);
+	}
+	
+	public void setUniformIntArray(int location, MemoryBlock value) {
+		bind();
+		GL20.nglUniform1iv(location, value.ints(), value.getAddress());
 	}
 }

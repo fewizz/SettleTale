@@ -25,11 +25,11 @@ public class VertexArrayDataBaker {
 		this(expectedVertexCount, dynamic);
 
 		for (int attribIndex = 0; attribIndex < attribTypes.length; attribIndex++) {
-			addStorage(attribTypes[attribIndex], attribIndex);
+			addAttrib(attribTypes[attribIndex], attribIndex);
 		}
 	}
 
-	public VertexArrayDataBaker addStorage(VertexAttribType at, int index) {
+	public VertexArrayDataBaker addAttrib(VertexAttribType at, int index) {
 		attributes.put(index, new AttribArrayData(at, maxVertexCount));
 		return this;
 	}
@@ -82,7 +82,7 @@ public class VertexArrayDataBaker {
 	}
 
 	public void putFloats(int index, float f1, float f2, float f3, float f4) {
-		attributes.get(index).data(f1, f2, f3, f4);
+		getAttribArrayData(index).data(f1, f2, f3, f4);
 	}
 
 	public void putFloat(int index, float f1) {
@@ -98,7 +98,7 @@ public class VertexArrayDataBaker {
 	}
 
 	public void putInts(int index, int i1, int i2, int i3, int i4) {
-		attributes.get(index).data(i1, i2, i3, i4);
+		getAttribArrayData(index).data(i1, i2, i3, i4);
 	}
 
 	public void putInt(int index, int i1) {
@@ -110,11 +110,11 @@ public class VertexArrayDataBaker {
 	}
 
 	public void putShorts(int index, short s1, short s2, short s3, short s4) {
-		attributes.get(index).data(s1, s2, s3, s4);
+		getAttribArrayData(index).data(s1, s2, s3, s4);
 	}
 
 	public void putBytes(int index, byte b1, byte b2, byte b3, byte b4) {
-		attributes.get(index).data(b1, b2, b3, b4);
+		getAttribArrayData(index).data(b1, b2, b3, b4);
 	}
 
 	public void putByte(int index, byte b1) {
@@ -122,7 +122,7 @@ public class VertexArrayDataBaker {
 	}
 
 	public VertexAttribType getAttribType(int index) {
-		return attributes.get(index).attribType;
+		return getAttribArrayData(index).attribType;
 	}
 
 	public int getAttributeCount() {
@@ -130,7 +130,11 @@ public class VertexArrayDataBaker {
 	}
 
 	public ByteBuffer getBuffer(int attributeLocation) {
-		return attributes.get(attributeLocation).getBuffer(vertexCount);
+		return getAttribArrayData(attributeLocation).getBuffer(vertexCount);
+	}
+	
+	public AttribArrayData getAttribArrayData(int attributeLocation) {
+		return attributes.get(attributeLocation);
 	}
 
 	public void forEachAttribDataArray(IAttrIterFunc func) {

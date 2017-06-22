@@ -14,7 +14,7 @@ public class LayerClimate extends LayerAbstract {
 			for (int z2 = 0; z2 < length; z2++) {
 				int i = Math.abs((x + x2) - (z + z2));
 
-				i += noise.eval((float) (x + x2) / 2.5F, (float) (z + z2) / 2.5F) * 2.5F;
+				i += SIMPLEX_NOISE.eval((float) (x + x2) / 2.5F, (float) (z + z2) / 2.5F) * 2.5F;
 				
 				i += 1;
 

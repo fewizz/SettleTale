@@ -12,26 +12,15 @@ import ru.settletale.client.gl.VertexArray;
 import ru.settletale.client.gl.VertexBuffer;
 import ru.settletale.client.render.vertex.AttribArrayData;
 import ru.settletale.client.render.vertex.VertexArrayDataBaker;
-import ru.settletale.client.render.vertex.VertexAttribType;
 
 public class RenderLayer {
 	protected VertexArrayDataBaker attribs;
 	protected final VertexArray vao;
-	protected ShaderProgram program;
+	public ShaderProgram program;
 	protected final IntObjMap<VertexBuffer> vbos;
 	protected boolean allowSubData = false;
 	protected int vertexCount;
-
-	public RenderLayer(int vertexCount, VertexAttribType... storages) {
-		this();
-		this.vertexCount = vertexCount;
-		setVertexArrayDataBaker(new VertexArrayDataBaker(vertexCount, false, storages));
-	}
-	
-	public RenderLayer(VertexAttribType... storages) {
-		this();
-		setVertexArrayDataBaker(new VertexArrayDataBaker(1024, true, storages));
-	}
+	protected ITextureBinder textureBinder;
 
 	public RenderLayer(VertexArrayDataBaker va) {
 		this();
@@ -72,7 +61,12 @@ public class RenderLayer {
 	}
 
 	public void render(int mode) {
-		program.bind();
+		if(program != null)
+			program.bind();
+		
+		if(textureBinder != null)
+			textureBinder.bind(this);
+		
 		vao.bind();
 		GL11.glDrawArrays(mode, 0, vertexCount);
 	}
@@ -96,6 +90,10 @@ public class RenderLayer {
 	public void setShaderProgram(ShaderProgram program) {
 		this.program = program;
 	}
+	
+	public void setTextureBinder(ITextureBinder textureBinder) {
+		this.textureBinder = textureBinder;
+	}
 
 	public void clearVertexArrayDataBakerIfExists() {
 		if (hasVertexAttribArray())
@@ -109,5 +107,10 @@ public class RenderLayer {
 	public void delete() {
 		deleteVertexBuffers();
 		vao.delete();
+	}
+	
+	@FunctionalInterface
+	public static interface ITextureBinder {
+		public void bind(RenderLayer program);
 	}
 }

@@ -3,7 +3,7 @@
 #extension GL_ARB_explicit_uniform_location : enable
 
 //layout(binding = 0) uniform sampler2D tex;
-layout (location = 0) uniform sampler2D textures[16];
+layout (location = 0) uniform sampler2D textures[32];
 
 out vec4 color_out;
 in vec4 color_vs;

@@ -12,11 +12,12 @@ import ru.settletale.client.gl.GL;
 import ru.settletale.client.gl.Shader;
 import ru.settletale.client.gl.ShaderProgram;
 import ru.settletale.client.gl.VertexArray;
-import ru.settletale.client.gl.Shader.Type;
+import ru.settletale.client.gl.Shader.ShaderType;
 import ru.settletale.client.render.Color;
 import ru.settletale.client.render.Drawer;
 import ru.settletale.client.render.FontRenderer;
 import ru.settletale.client.render.Renderer;
+import ru.settletale.client.resource.loader.ColladaLoader;
 import ru.settletale.client.resource.loader.ShaderSourceLoader;
 import ru.settletale.client.resource.loader.TextureLoader;
 import ru.settletale.world.region.IRegionManagerListener;
@@ -36,8 +37,8 @@ public class WorldRenderer implements IRegionManagerListener {
 		glEnable(GL_ALPHA_TEST);
 		glCullFace(GL_BACK);
 		PROGRAM_SKY.gen();
-		PROGRAM_SKY.attachShader(new Shader().gen(Type.VERTEX).source(ShaderSourceLoader.SHADER_SOURCES.get("shaders/sky.vs")));
-		PROGRAM_SKY.attachShader(new Shader().gen(Type.FRAGMENT).source(ShaderSourceLoader.SHADER_SOURCES.get("shaders/sky.fs")));
+		PROGRAM_SKY.attachShader(new Shader().gen(ShaderType.VERTEX).source(ShaderSourceLoader.SHADER_SOURCES.get("shaders/sky.vs")));
+		PROGRAM_SKY.attachShader(new Shader().gen(ShaderType.FRAGMENT).source(ShaderSourceLoader.SHADER_SOURCES.get("shaders/sky.fs")));
 		PROGRAM_SKY.link();
 	}
 
@@ -98,10 +99,11 @@ public class WorldRenderer implements IRegionManagerListener {
 		//GL.updateMatriciesUniformBlock();
 		Renderer.updateCombinedMatrixUniformBlock();
 		//ObjModelLoader.MODELS.get("models/dabrovic/sponza.obj").render();
-		//ColladaLoader.MODELS.get("models/DAE/Glock 3d.dae").render();
-		
-		
+		//ColladaLoader.MODELS.get("models/collada/Glock_3d.dae").render();
+		ColladaLoader.MODELS.get("models/collada/green.dae").render();
 		GL.VIEW_MATRIX.pop();
+		
+		
 		Renderer.updateCombinedMatrixUniformBlock();
 		
 		glLineWidth(10);

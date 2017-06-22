@@ -3,6 +3,7 @@ package ru.settletale.util;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.util.List;
 
 import ru.settletale.memory.MemoryBlock;
 
@@ -160,11 +161,11 @@ public class StringUtils {
 	}
 	
 	public static int readFloats(String str, FloatBuffer fb) {
-		return forEachFloatValue(str, (index, val) -> fb.put(index, val));
+		return forEachFloatValue(str, (index, val) -> fb.put(fb.position() + index, val));
 	}
 	
 	public static int readFloats(String str, ByteBuffer fb) {
-		return forEachFloatValue(str, (index, val) -> fb.putFloat(index * Float.BYTES, val));
+		return forEachFloatValue(str, (index, val) -> fb.putFloat(fb.position() + index * Float.BYTES, val));
 	}
 	
 	public static int readFloats(String str, MemoryBlock mb) {
@@ -264,4 +265,13 @@ public class StringUtils {
 
 		return count;
 	}
+	
+	public static String concatAll(List<String> strings) {
+		StringBuilder sb = new StringBuilder();
+		
+		strings.forEach(str -> sb.append(str).append("\r\n"));
+		
+		return sb.toString();
+	}
+	
 }

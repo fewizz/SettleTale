@@ -7,22 +7,17 @@ in vec2 uv_vs;
 flat in int flags_vs;
 out vec4 color_out;
 
-layout (location = 0) uniform sampler2D diffTextures[32];
-layout (location = 32) uniform sampler2D bumpTextures[32];
-
-struct MaterialStruct {
-	vec4 diffuseColor;
-};
+#include shaders/lib/structMaterial.glsl
 
 layout (binding = 4, std140) uniform Material {
-	MaterialStruct materials[32];
+	StructMaterial material;
 };
 
 void main(void) {
-	int matID = flags_vs & 0xFF;
-	int hasUV = (flags_vs >> 8) & 0x1;
+	//int matID = flags_vs & 0xFF;
+	//int hasUV = (flags_vs >> 8) & 0x1;
 	
-	if(hasUV == 1) {
+	/*if(hasUV == 1) {
 		vec4 tex = texture(diffTextures[matID], uv_vs);
 		
 		//float dotBump = texture(bumpTextures[matID], uv_vs).y;
@@ -48,6 +43,9 @@ void main(void) {
 		//}
 	}
 	
-	if(color_out.a == 0) discard;
+	if(color_out.a == 0) discard;*/
 	//color_out = vec4(1);
+	
+	color_out = material.diffuseColor * vec4(normal_vs.y);
+	color_out.a = 1;
 }

@@ -12,9 +12,7 @@ out vec4 color_vs;
 out vec2 uv_vs;
 flat out int texID_vs;
 
-layout (binding = 2, std140) uniform Transform {
-	mat4 combinedMat;
-};
+#include shaders/lib/uniformTransformCombined.glsl
 
 void main(void) {
 	color_vs = color;

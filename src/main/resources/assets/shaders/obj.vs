@@ -12,10 +12,7 @@ out vec3 normal_vs;
 out vec2 uv_vs;
 flat out int flags_vs;
 
-layout (binding = 0, std140) uniform Transform {
-	mat4 projMat;
-	mat4 viewMat;
-};
+#include shaders/lib/uniformTransform.glsl
 
 void main(void) {
 	normal_vs = normal;

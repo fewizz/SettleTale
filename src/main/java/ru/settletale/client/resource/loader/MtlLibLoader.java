@@ -1,6 +1,7 @@
 package ru.settletale.client.resource.loader;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.lwjgl.opengl.GL11;
@@ -25,7 +26,7 @@ public class MtlLibLoader extends ResourceLoaderAbstract {
 	public void loadResource(ResourceFile resourceFile) {
 		System.out.println("Loading objMaterial: " + resourceFile.key);
 
-		String[] strings = FileUtils.readLines(resourceFile.path.toFile());
+		List<String> strings = FileUtils.readLines(resourceFile.path.toFile());
 
 		MTLLib matLib = new MTLLib();
 

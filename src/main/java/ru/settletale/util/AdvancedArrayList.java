@@ -8,7 +8,7 @@ import java.util.Objects;
 public class AdvancedArrayList<T> extends ArrayList<T> implements AdvancedList<T> {
 	static Field fieldElementData;
 	private static final long serialVersionUID = 3488756748637486542L;
-	
+
 	static {
 		try {
 			fieldElementData = ArrayList.class.getDeclaredField("elementData");
@@ -17,39 +17,41 @@ public class AdvancedArrayList<T> extends ArrayList<T> implements AdvancedList<T
 			e.printStackTrace();
 		}
 	}
-	
+
 	@Override
-	public void addIfAbsent(T o) {
-		if(!contains(o)) {
-			add(o);
+	public boolean addIfAbsent(T o) {
+		if (!contains(o)) {
+			return add(o);
 		}
+
+		return false;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public void forEachIndexed(Consumer<T> c) {
 		Objects.requireNonNull(c);
-        final int modCount = this.modCount;
-        final Object[] array = getElementData();
-        
-        for (int size = this.size(), n = 0; this.modCount == modCount && n < size; ++n) {
-            c.accept(n, (T) array[n]);
-        }
-        if (this.modCount != modCount) {
-            throw new ConcurrentModificationException();
-        }
+		final int modCount = this.modCount;
+		final Object[] array = getElementData();
+
+		for (int size = this.size(), n = 0; this.modCount == modCount && n < size; ++n) {
+			c.accept(n, (T) array[n]);
+		}
+		if (this.modCount != modCount) {
+			throw new ConcurrentModificationException();
+		}
 	}
-	
+
 	private Object[] getElementData() {
 		try {
 			return (Object[]) fieldElementData.get(this);
 		} catch (IllegalArgumentException | IllegalAccessException e) {
 			e.printStackTrace();
 		}
-		
+
 		return null;
 	}
-	
+
 	@FunctionalInterface
 	public static interface Consumer<T> {
 		public void accept(int index, T t);

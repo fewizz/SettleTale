@@ -13,43 +13,39 @@ public enum VertexAttribType {
 	FLOAT_2(2, PrimitiveType.FLOAT),
 	FLOAT_1(1, PrimitiveType.FLOAT);
 
-	final PrimitiveType clientDataType;
-	final PrimitiveType serverDataType;
-	final int componentCount;
-	final boolean normalised;
+	public final PrimitiveType clientDataType;
+	public final PrimitiveType serverDataType;
+	public final int componentCount;
+	public final boolean isNormalised;
 
-	private VertexAttribType(int size, PrimitiveType dataType) {
-		this(size, dataType, dataType, false);
+	VertexAttribType(int components, PrimitiveType dataType) {
+		this(components, dataType, dataType, false);
 	}
 	
-	private VertexAttribType(int size, PrimitiveType dataType, boolean normalised) {
-		this(size, dataType, dataType, normalised);
+	VertexAttribType(int components, PrimitiveType dataType, boolean isNormalised) {
+		this(components, dataType, dataType, isNormalised);
 	}
 	
-	private VertexAttribType(int size, PrimitiveType dataType, PrimitiveType attributeType) {
-		this(size, dataType, dataType, false);
+	VertexAttribType(int components, PrimitiveType clientDataType, PrimitiveType serverDataType) {
+		this(components, clientDataType, serverDataType, false);
 	}
 	
-	private VertexAttribType(int size, PrimitiveType dataType, PrimitiveType attributeType, boolean normalised) {
-		this.componentCount = size;
-		this.clientDataType = dataType;
-		this.serverDataType = attributeType;
-		this.normalised = normalised;
-	}
-
-	public int getPerVertexElementCount() {
-		return componentCount;
-	}
-
-	public PrimitiveType getClientDataType() {
-		return clientDataType;
+	VertexAttribType(int components, PrimitiveType clientDataType, PrimitiveType serverDataType, boolean isNormalised) {
+		this.componentCount = components;
+		this.clientDataType = clientDataType;
+		this.serverDataType = serverDataType;
+		this.isNormalised = isNormalised;
 	}
 	
-	public PrimitiveType getServerDataType() {
-		return serverDataType;
-	}
-
-	public boolean isNormalised() {
-		return normalised;
+	static final VertexAttribType[] VALUES = values();
+	
+	public static VertexAttribType get(int components, PrimitiveType clientDataType, PrimitiveType attributeType, boolean isNormalised) {
+		for(VertexAttribType attr : VALUES) {
+			if(attr.isNormalised == isNormalised && attr.componentCount == components && attr.clientDataType == clientDataType && attr.serverDataType == attributeType) {
+				return attr;
+			}
+		}
+		
+		return null;
 	}
 }

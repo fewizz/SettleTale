@@ -19,7 +19,7 @@ public class ColladaArray extends ObjectWithIDAndName {
 		
 		if(element.getNodeName().equals("float_array")) {
 			primitiveType = PrimitiveType.FLOAT;
-			memoryBlock = new MemoryBlock().allocateF(count);
+			memoryBlock = new MemoryBlock().allocate(count * Float.BYTES);
 			StringUtils.readFloats(text, memoryBlock);
 		}
 		else {

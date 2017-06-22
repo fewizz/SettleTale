@@ -7,7 +7,7 @@ import org.lwjgl.opengl.GL33;
 import ru.settletale.client.gl.Query;
 import ru.settletale.client.gl.Shader;
 import ru.settletale.client.gl.ShaderProgram;
-import ru.settletale.client.gl.Shader.Type;
+import ru.settletale.client.gl.Shader.ShaderType;
 import ru.settletale.client.render.vertex.VertexArrayDataBaker;
 import ru.settletale.client.resource.loader.ShaderSourceLoader;
 
@@ -23,8 +23,8 @@ public class ObjModelRenderer {
 		
 		if(!PROGRAM.isGenerated()) {
 			PROGRAM.gen();
-			PROGRAM.attachShader(new Shader().gen(Type.VERTEX).source(ShaderSourceLoader.SHADER_SOURCES.get("shaders/obj.vs")));
-			PROGRAM.attachShader(new Shader().gen(Type.FRAGMENT).source(ShaderSourceLoader.SHADER_SOURCES.get("shaders/obj.fs")));
+			PROGRAM.attachShader(new Shader().gen(ShaderType.VERTEX).source(ShaderSourceLoader.SHADER_SOURCES.get("shaders/obj.vs")));
+			PROGRAM.attachShader(new Shader().gen(ShaderType.FRAGMENT).source(ShaderSourceLoader.SHADER_SOURCES.get("shaders/obj.fs")));
 			PROGRAM.link();
 		}
 		

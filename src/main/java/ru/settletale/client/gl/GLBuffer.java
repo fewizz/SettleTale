@@ -6,8 +6,7 @@ import java.nio.FloatBuffer;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL44;
 import org.lwjgl.opengl.GL45;
-
-import ru.settletale.util.DirectBufferUtils;
+import org.lwjgl.system.MemoryUtil;
 
 public class GLBuffer<T> extends GLBindableObject<T> {
 	protected final int type;
@@ -43,7 +42,7 @@ public class GLBuffer<T> extends GLBindableObject<T> {
 
 	@Override
 	public void bindInternal() {
-		GL15.glBindBuffer(type, id);
+		GL15.glBindBuffer(type, getID());
 	}
 	
 	public void storageFlags(int flags) {
@@ -54,7 +53,7 @@ public class GLBuffer<T> extends GLBindableObject<T> {
 		loadedSize = buffer.remaining();
 		
 		if(GL.version >= 45) {
-			GL45.glNamedBufferStorage(id, buffer, storageFlags);
+			GL45.glNamedBufferStorage(getID(), buffer, storageFlags);
 		}
 		else {
 			bind();
@@ -62,34 +61,40 @@ public class GLBuffer<T> extends GLBindableObject<T> {
 		}
 	}
 	
-	public void data(ByteBuffer buffer) {
-		loadedSize = buffer.remaining();
-		
+	public void data(long address, int size) {
 		if(GL.version >= 45) {
-			GL45.glNamedBufferData(id, buffer, usage.glCode);
+			GL45.nglNamedBufferData(getID(), size, address, usage.glCode);
 		}
 		else {
 			bind();
-			GL15.glBufferData(type, buffer, usage.glCode);
+			GL15.nglBufferData(type, size, address, usage.glCode);
 		}
+	}
+	
+	public void data(ByteBuffer buffer) {
+		data(MemoryUtil.memAddress(buffer), buffer.remaining());
 	}
 	
 	public void data(FloatBuffer buffer) {
-		this.data(DirectBufferUtils.getByteBufferView(buffer));
+		this.data(MemoryUtil.memAddress(buffer), buffer.remaining() * Float.BYTES);
 	}
-
-	public void subData(ByteBuffer buffer) {
+	
+	public void subData(long address, int size) {
 		if(GL.version >= 45) {
-			GL45.glNamedBufferSubData(id, offset, buffer);
+			GL45.nglNamedBufferSubData(getID(), offset, size, address);
 		}
 		else {
 			bind();
-			GL15.glBufferSubData(type, offset, buffer);
+			GL15.nglBufferSubData(type, offset, size, address);
 		}
 	}
 	
+	public void subData(ByteBuffer buffer) {
+		this.subData(MemoryUtil.memAddress(buffer), buffer.remaining());
+	}
+	
 	public void subData(FloatBuffer buffer) {
-		this.subData(DirectBufferUtils.getByteBufferView(buffer));
+		this.subData(MemoryUtil.memAddress(buffer), buffer.remaining() * Float.BYTES);
 	}
 	
 	public T loadDataOrSubData(ByteBuffer buffer) {
@@ -113,7 +118,7 @@ public class GLBuffer<T> extends GLBindableObject<T> {
 	
 	@Override
 	public void deleteInternal() {
-		GL15.glDeleteBuffers(id);
+		GL15.glDeleteBuffers(getID());
 	}
 	
 	public enum Usage {

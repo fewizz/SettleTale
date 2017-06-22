@@ -12,13 +12,24 @@ public class VertexArray extends GLBindableObject<VertexArray> {
 	public static final VertexArray DEFAULT = new VertexArray() {
 		@Override
 		public VertexArray gen() {
-			id = 0;
-			return this;
+			throw new Error();
+		}
+		
+		@Override
+		public void delete() {
+			throw new Error();
+		}
+		
+		@Override
+		public int getID() {
+			return 0;
+		}
+		
+		@Override
+		public boolean isGenerated() {
+			return true;
 		}
 	};
-	static {
-		DEFAULT.gen();
-	}
 	
 	@Override
 	public int genInternal() {
@@ -57,10 +68,10 @@ public class VertexArray extends GLBindableObject<VertexArray> {
 	}
 	
 	public void bindAttribPointer(GLBuffer<?> buffer, int index, VertexAttribType type) {
-		if (type.getServerDataType().isIntegral())
-			vertexAttribIntPointer(buffer, index, type.getPerVertexElementCount(), GL.getGLPrimitiveType(type.getClientDataType()));
+		if (type.serverDataType.isIntegral)
+			vertexAttribIntPointer(buffer, index, type.componentCount, GL.getGLPrimitiveType(type.clientDataType));
 		else
-			vertexAttribPointer(buffer, index, type.getPerVertexElementCount(), GL.getGLPrimitiveType(type.getClientDataType()), type.isNormalised());
+			vertexAttribPointer(buffer, index, type.componentCount, GL.getGLPrimitiveType(type.clientDataType), type.isNormalised);
 		
 		enableVertexAttribArray(index);
 	}
@@ -73,7 +84,7 @@ public class VertexArray extends GLBindableObject<VertexArray> {
 	
 	public void enableVertexAttribArray(int index) {
 		if(GL.version >= 45) {
-			GL45.glEnableVertexArrayAttrib(id, index);
+			GL45.glEnableVertexArrayAttrib(getID(), index);
 			return;
 		}
 		bind();
@@ -82,7 +93,7 @@ public class VertexArray extends GLBindableObject<VertexArray> {
 	
 	public void disableVertexAttribArray(int index) {
 		if(GL.version >= 45) {
-			GL45.glDisableVertexArrayAttrib(id, index);
+			GL45.glDisableVertexArrayAttrib(getID(), index);
 			return;
 		}
 		bind();
@@ -91,11 +102,11 @@ public class VertexArray extends GLBindableObject<VertexArray> {
 	
 	@Override
 	public void deleteInternal() {
-		GL30.glDeleteVertexArrays(id);
+		GL30.glDeleteVertexArrays(getID());
 	}
 
 	@Override
 	public void bindInternal() {
-		GL30.glBindVertexArray(id);
+		GL30.glBindVertexArray(getID());
 	}
 }

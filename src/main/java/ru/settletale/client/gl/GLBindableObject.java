@@ -83,18 +83,18 @@ public abstract class GLBindableObject<T> extends GLObject<T> {
 	}
 	
 	public boolean isBound() {
-		return id == getLastGlobalID();
+		return getID() == getLastGlobalID();
 	}
 	
 	public void bind() {
 		if (!isGenerated()) {
 			throw new Error("Object is not generated!");
 		}
-		if (getLastGlobalID() == id) {
+		if (getLastGlobalID() == getID()) {
 			return;
 		}
 		bindInternal();
-		setLastGlobalID(id);
+		setLastGlobalID(getID());
 	}
 
 	@Override
@@ -102,10 +102,10 @@ public abstract class GLBindableObject<T> extends GLObject<T> {
 		bind();
 		deleteInternal();
 
-		if (getLastGlobalID() == id) {
+		if (getLastGlobalID() == getID()) {
 			setLastGlobalID(ID_DEFAULT);
 		}
-		id = ID_NOT_GENERATED;
+		setID(ID_NOT_GENERATED);
 	}
 
 	protected abstract void bindInternal();

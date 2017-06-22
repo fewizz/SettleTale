@@ -9,9 +9,7 @@ layout (location = 1) in float normal;
 out float normal_vs;
 out vec3 pos_vs;
 
-layout (binding = 2, std140) uniform Transform {
-	mat4 combinedMat;
-};
+#include shaders/lib/uniformTransformCombined.glsl
 
 void main(void) {
 	normal_vs = normal;

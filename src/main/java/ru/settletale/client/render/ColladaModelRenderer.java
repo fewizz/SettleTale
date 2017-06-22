@@ -8,7 +8,7 @@ import org.lwjgl.opengl.GL11;
 
 import ru.settletale.client.gl.Shader;
 import ru.settletale.client.gl.ShaderProgram;
-import ru.settletale.client.gl.Shader.Type;
+import ru.settletale.client.gl.Shader.ShaderType;
 import ru.settletale.client.resource.collada.Asset.UpAxis;
 import ru.settletale.client.resource.loader.ShaderSourceLoader;
 
@@ -24,16 +24,16 @@ public class ColladaModelRenderer {
 	public void compile() {
 		if(!PROGRAM.isGenerated()) {
 			PROGRAM.gen();
-			PROGRAM.attachShader(new Shader().gen(Type.VERTEX).source(ShaderSourceLoader.SHADER_SOURCES.get("shaders/collada/collada.vs")));
-			PROGRAM.attachShader(new Shader().gen(Type.FRAGMENT).source(ShaderSourceLoader.SHADER_SOURCES.get("shaders/collada/collada.fs")));
+			PROGRAM.attachShader(new Shader().gen(ShaderType.VERTEX).source(ShaderSourceLoader.SHADER_SOURCES.get("shaders/collada/collada.vs")));
+			PROGRAM.attachShader(new Shader().gen(ShaderType.FRAGMENT).source(ShaderSourceLoader.SHADER_SOURCES.get("shaders/collada/collada.fs")));
 			PROGRAM.link();
 		}
 		
 		for(ColladaGeometryRenderer g : geometries) {
-			for(RenderLayer l : g.layers) {
-				l.setShaderProgram(PROGRAM);
-				l.compile();
-				l.getVertexArrayDataBaker().delete();
+			for(RenderLayer layer : g.layers) {
+				layer.setShaderProgram(PROGRAM);
+				layer.compile();
+				layer.getVertexArrayDataBaker().delete();
 			}
 		}
 	}
@@ -41,6 +41,7 @@ public class ColladaModelRenderer {
 	public void render() {
 		for(ColladaGeometryRenderer g : geometries) {
 			for(RenderLayer l : g.layers) {
+				l.program.setUniformMatrix4f(0, g.matrix);
 				l.render(GL11.GL_TRIANGLES);
 			}
 		}
