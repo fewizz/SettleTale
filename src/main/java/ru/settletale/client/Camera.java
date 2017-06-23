@@ -17,7 +17,7 @@ public class Camera {
 		EntityPlayer player = GameClient.player;
 		
 		TickTimer t = SettleTale.getWorld().updateThread.timer;
-		double d = (Renderer.TIMER.startTimeNano - t.startTimeNano) / (float)(t.waitTimeNano);
+		double d = (Renderer.FRAMERATE_TICKER.startTimeNano - t.startTimeNano) / (float)(t.waitTimeNano);
 		
 		d = Math.min(d, 1);
 		

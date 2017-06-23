@@ -62,6 +62,8 @@ public class GLBuffer<T> extends GLBindableObject<T> {
 	}
 	
 	public void data(long address, int size) {
+		loadedSize = size;
+		
 		if(GL.version >= 45) {
 			GL45.nglNamedBufferData(getID(), size, address, usage.glCode);
 		}
@@ -97,17 +99,19 @@ public class GLBuffer<T> extends GLBindableObject<T> {
 		this.subData(MemoryUtil.memAddress(buffer), buffer.remaining() * Float.BYTES);
 	}
 	
-	public T loadDataOrSubData(ByteBuffer buffer) {
-		int size = buffer.remaining();
-		
+	public T dataOrSubData(long address, int size) {
 		if(size <= loadedSize) {
-			subData(buffer);
+			subData(address, size);
 		}
 		else {
-			data(buffer);
+			data(address, size);
 		}
 		
 		return getThis();
+	}
+	
+	public T dataOrSubData(ByteBuffer buffer) {
+		return dataOrSubData(MemoryUtil.memAddress(buffer), buffer.remaining());
 	}
 	
 	@Override

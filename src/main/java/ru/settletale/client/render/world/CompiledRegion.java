@@ -14,9 +14,9 @@ import ru.settletale.client.gl.ShaderProgram;
 import ru.settletale.client.gl.Texture1D;
 import ru.settletale.client.gl.Texture2D;
 import ru.settletale.client.gl.Shader.ShaderType;
-import ru.settletale.client.render.RenderLayer;
-import ru.settletale.client.render.RenderLayerIndexed;
 import ru.settletale.client.render.Renderer;
+import ru.settletale.client.render.vertex.VertexArrayRendererIndexed;
+import ru.settletale.client.render.vertex.VertexArrayRendererIndexed.GLDrawIndexedFunc;
 import ru.settletale.client.render.vertex.VertexArrayDataBakerIndexed;
 import ru.settletale.client.render.vertex.VertexAttribType;
 import ru.settletale.client.resource.loader.ShaderSourceLoader;
@@ -36,7 +36,7 @@ public class CompiledRegion {
 	
 	public boolean compiled = false;
 	final Region region;
-	RenderLayer layer;
+	VertexArrayRendererIndexed layer;
 	Texture2D textureIDs;
 
 	public CompiledRegion(Region region) {
@@ -80,10 +80,8 @@ public class CompiledRegion {
 
 		Renderer.debugGL("CR compile start");
 
-		this.layer = new RenderLayerIndexed();
-		this.layer.setVertexArrayDataBaker(SHARED_VERTEX_ARRAY);
-		this.layer.compile();
-		this.layer.setVertexArrayDataBaker(null);
+		this.layer = new VertexArrayRendererIndexed();
+		this.layer.compile(SHARED_VERTEX_ARRAY);
 		SHARED_VERTEX_ARRAY.clear();
 		this.layer.setShaderProgram(PROGRAM);
 
@@ -113,7 +111,7 @@ public class CompiledRegion {
 
 		Renderer.debugGL("CR bind texture units end");
 
-		this.layer.render(GL_QUADS);
+		this.layer.renderIndexed(GLDrawIndexedFunc.DRAW_ELEMENTS, GL_QUADS);
 		Renderer.debugGL("CR rend end");
 	}
 
@@ -128,12 +126,12 @@ public class CompiledRegion {
 		int rendWidth = Region.WIDTH + 1;
 
 		for (int x = 0; x < Region.WIDTH; x++) {
+			int i1 = x * rendWidth + 0;
+			int i2 = i1 + 1;
+			int i3 = i2 + rendWidth;
+			int i4 = i1 + rendWidth;
+			
 			for (int z = 0; z < Region.WIDTH; z++) {
-
-				int i1 = x * rendWidth + z;
-				int i2 = i1 + 1;
-				int i3 = i2 + rendWidth;
-				int i4 = i1 + rendWidth;
 				SHARED_VERTEX_ARRAY.index(i1++);
 				SHARED_VERTEX_ARRAY.index(i2++);
 				SHARED_VERTEX_ARRAY.index(i3++);

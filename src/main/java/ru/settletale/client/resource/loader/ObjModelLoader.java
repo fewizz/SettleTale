@@ -128,7 +128,7 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 		model.setTextureAndMaterialBinder(tmb);
 
 		ResourceManager.runAfterResourcesLoaded(() -> {
-			GameClient.GL_THREAD.addRunnableTask(() -> {
+			GameClient.GL_THREAD.execute(() -> {
 				model.compile(dataBaker);
 				MemoryUtil.memFree(positions);
 				MemoryUtil.memFree(normals);

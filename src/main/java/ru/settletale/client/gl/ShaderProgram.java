@@ -82,6 +82,6 @@ public class ShaderProgram extends GLBindableObject<ShaderProgram> {
 	
 	public void setUniformIntArray(int location, MemoryBlock value) {
 		bind();
-		GL20.nglUniform1iv(location, value.ints(), value.getAddress());
+		GL20.nglUniform1iv(location, value.ints(), value.address());
 	}
 }

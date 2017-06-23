@@ -86,7 +86,7 @@ public class MtlLibLoader extends ResourceLoaderAbstract {
 				matLib.addBumpTextureToMaterial(mat, tex);
 
 				if (tex != null) {
-					GameClient.GL_THREAD.addRunnableTask(() -> {
+					GameClient.GL_THREAD.execute(() -> {
 						tex.parameter(GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
 						tex.parameter(GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
 					});

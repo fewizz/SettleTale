@@ -1,7 +1,5 @@
 package ru.settletale.client.render.vertex;
 
-import java.nio.ByteBuffer;
-
 import ru.settletale.memory.MemoryBlock;
 
 public class VertexArrayDataBakerIndexed extends VertexArrayDataBaker {
@@ -45,8 +43,12 @@ public class VertexArrayDataBakerIndexed extends VertexArrayDataBaker {
 		indexMB.putShorS(indexCount++, (short) vertexIndex);
 	}
 
-	public ByteBuffer getIndexBuffer() {
-		return indexMB.getAsByteBuffer(indexCount * Short.BYTES);
+	public MemoryBlock getIndexMemoryBlock() {
+		return indexMB;
+	}
+	
+	public int getIndexBufferSizeInBytes() {
+		return indexCount * Short.BYTES;
 	}
 
 	@Override

@@ -37,7 +37,7 @@ public class ThreadWithTasks extends Thread {
 		}
 	}
 
-	public ThreadTask addRunnableTask(Runnable runnable) {
+	public ThreadTask execute(Runnable runnable) {
 		Objects.requireNonNull(runnable, "Runnable is null");
 		ThreadTask task = new ThreadTask(runnable);
 		taskQueue.add(task);

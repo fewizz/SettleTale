@@ -2,9 +2,7 @@ package ru.settletale.client.resource.loader;
 
 import java.io.IOException;
 import java.nio.FloatBuffer;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -20,10 +18,10 @@ import ru.settletale.client.GameClient;
 import ru.settletale.client.gl.GL;
 import ru.settletale.client.gl.UniformBuffer;
 import ru.settletale.client.render.ColladaModelRenderer;
-import ru.settletale.client.render.RenderLayer;
 import ru.settletale.client.render.ColladaModelRenderer.ColladaGeometryRenderer;
 import ru.settletale.client.render.GlobalUniforms;
 import ru.settletale.client.render.vertex.VertexArrayDataBaker;
+import ru.settletale.client.render.vertex.VertexArrayRenderer;
 import ru.settletale.client.render.vertex.VertexAttribType;
 import ru.settletale.client.resource.ResourceFile;
 import ru.settletale.client.resource.ResourceManager;
@@ -59,11 +57,11 @@ public class ColladaLoader extends ResourceLoaderAbstract {
 			ColladaModelRenderer model = new ColladaModelRenderer(collada.asset.upAxis);
 
 			collada.visualScenesList.forEach(vs -> vs.nodes.forEach(node -> {
-				List<RenderLayer> layers = new ArrayList<>();
+				Map<VertexArrayRenderer, VertexArrayDataBaker> layers = new HashMap<>();
 
 				node.geometyInstances.forEach(gi -> {
 					gi.geometry.mesh.polylists.forEach(pl -> {
-						layers.add(generateLayerFromPolylist(pl, gi.material));
+						generateLayerFromPolylist(pl, layers, gi.material);
 					});
 				});
 				
@@ -78,7 +76,7 @@ public class ColladaLoader extends ResourceLoaderAbstract {
 				model.geometries.add(new ColladaGeometryRenderer(vs.name, layers, mat));
 			}));
 
-			ResourceManager.runAfterResourcesLoaded(() -> GameClient.GL_THREAD.addRunnableTask(() -> model.compile()));
+			ResourceManager.runAfterResourcesLoaded(() -> GameClient.GL_THREAD.execute(() -> model.compile()));
 
 			MODELS.put(resourceFile.key, model);
 		} catch (ParserConfigurationException | SAXException | IOException e) {
@@ -86,9 +84,10 @@ public class ColladaLoader extends ResourceLoaderAbstract {
 		}
 	}
 
-	private RenderLayer generateLayerFromPolylist(Polylist polylist, Material m) {
+	private VertexArrayRenderer generateLayerFromPolylist(Polylist polylist, Map<VertexArrayRenderer, VertexArrayDataBaker> layers, Material m) {
 		VertexArrayDataBaker baker = new VertexArrayDataBaker(polylist.getTotalUsedVertexCount(), false);
-		RenderLayer layer = new RenderLayer(baker);
+		VertexArrayRenderer layer = new VertexArrayRenderer();//.setVertexArrayDataBaker(baker);
+		layers.put(layer, baker);
 		
 		FloatBuffer matMemoryBlock = MemoryUtil.memAllocFloat(4);
 		matMemoryBlock.put(0, m.effect.phong.diffuse.x);
@@ -97,12 +96,12 @@ public class ColladaLoader extends ResourceLoaderAbstract {
 		matMemoryBlock.put(3, m.effect.phong.diffuse.w);
 		UniformBuffer ubo = new UniformBuffer();
 		
-		GameClient.GL_THREAD.addRunnableTask(() -> {
+		GameClient.GL_THREAD.execute(() -> {
 			ubo.gen();
 			ubo.data(matMemoryBlock);
 		});
 		
-		layer.setTextureBinder(renderLayer -> {
+		layer.onPreRender(() -> {
 			GL.bindBufferBase(ubo, GlobalUniforms.MATERIALS);
 		});
 		
@@ -113,7 +112,6 @@ public class ColladaLoader extends ResourceLoaderAbstract {
 		baker.addAttrib(VertexAttribType.INT_1, FLAGS);
 		//baker.addAttrib(VertexAttribType.FLOAT_2, UV);
 		baker.addAttrib(VertexAttribType.FLOAT_3, NORM);
-		layer.setVertexArrayDataBaker(baker);
 		
 		int posOffset = polylist.getInput(Semantic.VERTEX).offset;
 		int normOffset = polylist.usesNormal() ? polylist.getInput(Semantic.NORMAL).offset : -1;

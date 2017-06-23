@@ -11,10 +11,6 @@ public abstract class Gui {
 	}
 	
 	public void init() {
-		initChilds();
-	}
-	
-	public void initChilds() {
 		
 	}
 	

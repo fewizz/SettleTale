@@ -1,15 +1,12 @@
 package ru.settletale.client.render;
 
-import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.glGetError;
 
 import org.lwjgl.system.MemoryStack;
 
-import ru.settletale.client.Window;
 import ru.settletale.client.gl.GL;
 import ru.settletale.client.gl.UniformBuffer;
-import ru.settletale.client.Camera;
-import ru.settletale.client.KeyListener;
+import ru.settletale.client.GameClient;
 import ru.settletale.client.render.world.WorldRenderer;
 import ru.settletale.util.Matrix4fs;
 import ru.settletale.util.TickTimer;
@@ -27,7 +24,7 @@ public class Renderer {
 	private static final UniformBuffer UBO_DISPLAY_SIZE = new UniformBuffer();
 	private static String previousGLDebugMessage = "";
 	
-	public static final TickTimer TIMER = new TickTimer(Window.frameRate);
+	public static final TickTimer FRAMERATE_TICKER = new TickTimer(100F);
 	static int frames = 0;
 	static long start = System.nanoTime();
 	public static int lastFPS;
@@ -47,17 +44,11 @@ public class Renderer {
 	}
 
 	public static void render() {
-		TIMER.start();
-
-		glfwPollEvents();
-		glfwSetCursorPos(Window.id, Window.width / 2, Window.height / 2);
-
-		KeyListener.updateForCurrentThread();
-		Camera.update();
+		FRAMERATE_TICKER.start();
 
 		WorldRenderer.render();
 
-		glfwSwapBuffers(Window.id);
+		GameClient.WINDOW.swapBuffers();
 
 		frames++;
 
@@ -73,7 +64,7 @@ public class Renderer {
 			frames = 0;
 		}
 
-		TIMER.waitAndEndTimer();
+		FRAMERATE_TICKER.waitAndEndTimer();
 	}
 	
 	public static void updateMatriciesUniformBlock() {
@@ -108,7 +99,7 @@ public class Renderer {
 		debugGL("UpdateDisplaySizeUniformBlock start");
 
 		try (MemoryStack ms = MemoryStack.stackPush()) {
-			UBO_DISPLAY_SIZE.subData(ms.floats(Window.width, Window.height));
+			UBO_DISPLAY_SIZE.subData(ms.floats(GameClient.WINDOW.getWidth(), GameClient.WINDOW.getHeight()));
 		}
 
 		debugGL("UpdateDisplaySizeUniformBlock end");

@@ -40,7 +40,7 @@ public final class MemoryBlock {
 		MemoryUtil.memSet(address + from, value, bytes);
 	}
 	
-	public long getAddress() {
+	public long address() {
 		return address;
 	}
 

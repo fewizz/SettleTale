@@ -52,7 +52,7 @@ public class TextureLoader extends ResourceLoaderAbstract {
 
 		Texture2D tex = new Texture2D(width, height);
 
-		GameClient.GL_THREAD.addRunnableTask(() -> {
+		GameClient.GL_THREAD.execute(() -> {
 			tex.gen().setDefaultParams().bufferDataFormat(GL11.GL_RGBA).bufferDataType(GL11.GL_UNSIGNED_BYTE).data(buffer);
 			Renderer.debugGL("Load texture: " + resourceFile.key);
 			MemoryUtil.memFree(buffer);

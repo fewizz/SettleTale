@@ -9,11 +9,13 @@ import ru.settletale.client.gl.Shader;
 import ru.settletale.client.gl.ShaderProgram;
 import ru.settletale.client.gl.Shader.ShaderType;
 import ru.settletale.client.render.vertex.VertexArrayDataBaker;
+import ru.settletale.client.render.vertex.VertexArrayRenderer;
+import ru.settletale.client.render.vertex.VertexArrayRenderer.GLDrawFunc;
 import ru.settletale.client.resource.loader.ShaderSourceLoader;
 
 public class ObjModelRenderer {
 	TexturedMaterialBinder tb;
-	RenderLayer layer;
+	VertexArrayRenderer layer;
 	
 	static final Query q = new Query(GL33.GL_TIME_ELAPSED);
 	static final ShaderProgram PROGRAM = new ShaderProgram();
@@ -28,10 +30,9 @@ public class ObjModelRenderer {
 			PROGRAM.link();
 		}
 		
-		layer = new RenderLayer();
-		layer.setVertexArrayDataBaker(baker);
+		layer = new VertexArrayRenderer();
 		layer.setShaderProgram(PROGRAM);
-		layer.compile();
+		layer.compile(baker);
 		baker.delete();
 		
 		Renderer.debugGL("ModelObj compile end");
@@ -49,7 +50,7 @@ public class ObjModelRenderer {
 		tb.updateUniforms(PROGRAM);
 		
 		q.begin();
-		layer.render(GL11.GL_TRIANGLES);
+		layer.render(GLDrawFunc.DRAW_ARRAYS, GL11.GL_TRIANGLES);
 		q.end();
 		System.out.println(q.getResult(GL15.GL_QUERY_RESULT) / 1000000F);
 		

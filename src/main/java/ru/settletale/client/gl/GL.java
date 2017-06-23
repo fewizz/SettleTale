@@ -22,6 +22,8 @@ public class GL {
 	public static final Matrix4fs VIEW_MATRIX = new Matrix4fs();
 
 	public static void init() {
+		org.lwjgl.opengl.GL.createCapabilities();
+		
 		vendor = glGetString(GL_VENDOR);
 		versionMajor = getInteger(GL30.GL_MAJOR_VERSION);
 		versionMinor = getInteger(GL30.GL_MINOR_VERSION);

@@ -83,11 +83,19 @@ public class AttribArrayData {
 	}
 
 	public ByteBuffer getBuffer(int vertexCount) {
-		return mb.getAsByteBuffer(vertexCount * growBytes);
+		return mb.getAsByteBuffer(getSizeInBytes(growBytes));
+	}
+	
+	public int getSizeInBytes(int vertexCount) {
+		return vertexCount * growBytes;
 	}
 	
 	public MemoryBlock getCurrentAttribMemoryBlock() {
 		return this.mbCurrentAttrib;
+	}
+	
+	public MemoryBlock getMemoryBlock() {
+		return this.mb;
 	}
 
 	public void growIfNeed(int vertexCount) {

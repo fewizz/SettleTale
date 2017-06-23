@@ -7,7 +7,6 @@ import com.koloboke.collect.map.hash.HashLongObjMaps;
 
 import ru.settletale.client.Camera;
 import ru.settletale.client.GameClient;
-import ru.settletale.client.Window;
 import ru.settletale.client.gl.GL;
 import ru.settletale.client.gl.Shader;
 import ru.settletale.client.gl.ShaderProgram;
@@ -17,7 +16,6 @@ import ru.settletale.client.render.Color;
 import ru.settletale.client.render.Drawer;
 import ru.settletale.client.render.FontRenderer;
 import ru.settletale.client.render.Renderer;
-import ru.settletale.client.resource.loader.ColladaLoader;
 import ru.settletale.client.resource.loader.ShaderSourceLoader;
 import ru.settletale.client.resource.loader.TextureLoader;
 import ru.settletale.world.region.IRegionManagerListener;
@@ -48,7 +46,7 @@ public class WorldRenderer implements IRegionManagerListener {
 
 		GL.PROJ_MATRIX.identity();
 		GL.VIEW_MATRIX.identity();
-		GL.PROJ_MATRIX.perspectiveDeg(95F, (float) Window.width / (float) Window.height, 0.1F, 1000F);
+		GL.PROJ_MATRIX.perspectiveDeg(95F, (float) GameClient.WINDOW.getWidth() / (float) GameClient.WINDOW.getHeight(), 0.1F, 1000F);
 		GL.VIEW_MATRIX.rotateDeg(Camera.rotationX, 1, 0, 0);
 		GL.VIEW_MATRIX.rotateDeg(Camera.rotationY, 0, 1, 0);
 		GL.VIEW_MATRIX.translate((float) -Camera.position.x, (float) -Camera.position.y, (float) -Camera.position.z);
@@ -100,7 +98,7 @@ public class WorldRenderer implements IRegionManagerListener {
 		Renderer.updateCombinedMatrixUniformBlock();
 		//ObjModelLoader.MODELS.get("models/dabrovic/sponza.obj").render();
 		//ColladaLoader.MODELS.get("models/collada/Glock_3d.dae").render();
-		ColladaLoader.MODELS.get("models/collada/green.dae").render();
+		//ColladaLoader.MODELS.get("models/collada/green.dae").render();
 		GL.VIEW_MATRIX.pop();
 		
 		
@@ -149,13 +147,13 @@ public class WorldRenderer implements IRegionManagerListener {
 		Drawer.draw();
 
 		GL.PROJ_MATRIX.identity();
-		GL.PROJ_MATRIX.ortho2D(0, Window.width, 0, Window.height);
+		GL.PROJ_MATRIX.ortho2D(0, GameClient.WINDOW.getWidth(), 0, GameClient.WINDOW.getHeight());
 		GL.VIEW_MATRIX.identity();
 		Renderer.updateCombinedMatrixUniformBlock();
 
 		FontRenderer.setSize(25);
 		FontRenderer.setColor(Color.WHITE);
-		FontRenderer.getPosition().set(10, Window.height - 30, 0);
+		FontRenderer.getPosition().set(10, GameClient.WINDOW.getHeight() - 30, 0);
 		FontRenderer.setText("FPS: " + Renderer.lastFPS);
 		FontRenderer.render();
 
@@ -165,14 +163,14 @@ public class WorldRenderer implements IRegionManagerListener {
 	@Override
 	public void onRegionAdded(Region r) {
 		r.increaseThreadUsage();
-		GameClient.GL_THREAD.addRunnableTask(() -> {
+		GameClient.GL_THREAD.execute(() -> {
 			REGIONS_TO_RENDER.put(r.coordClamped, new CompiledRegion(r));
 		});
 	}
 
 	@Override
 	public void onRegionRemoved(Region r) {
-		GameClient.GL_THREAD.addRunnableTask(() -> {
+		GameClient.GL_THREAD.execute(() -> {
 			if (REGIONS_TO_RENDER.containsKey(r.coordClamped)) {
 				CompiledRegion cr = REGIONS_TO_RENDER.get(r.coordClamped);
 				if(cr.compiled)

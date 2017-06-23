@@ -6,7 +6,7 @@ public class CursorListener extends GLFWCursorPosCallback {
 	
 	@Override
 	public void invoke(long window, double xpos, double ypos) {
-		Cursor.POSITION.x = (float) (xpos - (Window.width / 2));
-		Cursor.POSITION.y = (float) ((Window.height - ypos) - (Window.height / 2));
+		Cursor.POSITION.x = (float) (xpos - (GameClient.WINDOW.getWidth() / 2));
+		Cursor.POSITION.y = (float) ((GameClient.WINDOW.getHeight() - ypos) - (GameClient.WINDOW.getHeight() / 2));
 	}
 }
