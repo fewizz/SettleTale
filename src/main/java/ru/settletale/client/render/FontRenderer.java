@@ -3,12 +3,12 @@ package ru.settletale.client.render;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
 
-import ru.settletale.client.gl.Shader;
-import ru.settletale.client.gl.ShaderProgram;
-import ru.settletale.client.gl.Texture2D;
-import ru.settletale.client.gl.Shader.ShaderType;
 import ru.settletale.client.resource.loader.FontLoader;
 import ru.settletale.client.resource.loader.ShaderSourceLoader;
+import wrap.gl.Shader;
+import wrap.gl.ShaderProgram;
+import wrap.gl.Texture2D;
+import wrap.gl.Shader.ShaderType;
 
 public class FontRenderer {
 	static final Vector3f POSITION = new Vector3f(0);

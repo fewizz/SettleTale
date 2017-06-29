@@ -18,16 +18,16 @@ float rand(vec2 p) {
 
 void main(void) {
 	vec2 pos = fract(pos_vs.xz / 32.) * 32.;
-	vec3 color = iqnoise(pos); //zdes'
+	vec3 color = iqnoise(pos);
  	color_out = vec4(color, 1);
 
-	float h = (((pos_vs.y / 2.) * (pos_vs.y / 2.)) / 150.) - 1;
-	
-	color_out *= texture(texTerr, pos / 2);
-	
-	if(h < 0.8) {
-		color_out.b += (h / 2) + 0.5;
-	}
+	//float h = (((pos_vs.y / 2.) * (pos_vs.y / 2.)) / 150.) - 1;
+	//
+	//color_out *= texture(texTerr, pos / 2);
+	//
+	//if(h < 0.8) {
+	//	color_out.b += (h / 2) + 0.5;
+	//}
 		
 	color_out *= normal_vs;
 	color_out.a = 1;

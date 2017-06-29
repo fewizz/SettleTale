@@ -11,10 +11,10 @@ import javax.imageio.ImageIO;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.system.MemoryUtil;
 
-import ru.settletale.client.GameClient;
-import ru.settletale.client.gl.Texture2D;
+import ru.settletale.client.Client;
 import ru.settletale.client.render.Renderer;
 import ru.settletale.client.resource.ResourceFile;
+import wrap.gl.Texture2D;
 
 public class TextureLoader extends ResourceLoaderAbstract {
 	public static final Map<String, Texture2D> TEXTURES = new HashMap<>();
@@ -52,7 +52,7 @@ public class TextureLoader extends ResourceLoaderAbstract {
 
 		Texture2D tex = new Texture2D(width, height);
 
-		GameClient.GL_THREAD.execute(() -> {
+		Client.GL_THREAD.execute(() -> {
 			tex.gen().setDefaultParams().bufferDataFormat(GL11.GL_RGBA).bufferDataType(GL11.GL_UNSIGNED_BYTE).data(buffer);
 			Renderer.debugGL("Load texture: " + resourceFile.key);
 			MemoryUtil.memFree(buffer);

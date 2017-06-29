@@ -89,4 +89,12 @@ public class MathUtils {
 
 		return dest;
 	}
+	
+	public static int sign(double num) {
+		return num >= 0 ? 1 : -1;
+	}
+	
+	public static double sinDeg(double angle) {
+		return Math.sin(Math.toRadians(angle));
+	}
 }

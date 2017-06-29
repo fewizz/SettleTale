@@ -94,11 +94,11 @@ public final class MemoryBlock {
 	
 	// Double
 	public double getDouble(int pos) {
-		return MemoryUtil.memGetInt(address + pos);
+		return MemoryUtil.memGetDouble(address + pos);
 	}
 
 	public double getDoubleD(int pos) {
-		return MemoryUtil.memGetInt(address + pos * Double.BYTES);
+		return MemoryUtil.memGetDouble(address + pos * Double.BYTES);
 	}
 
 	public void putDoubleD(int pos, double value) {

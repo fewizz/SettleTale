@@ -8,9 +8,12 @@ import org.joml.Vector4f;
 
 import com.koloboke.collect.map.IntObjMap;
 import com.koloboke.collect.map.hash.HashIntObjMaps;
+import com.koloboke.function.IntObjConsumer;
+
+import ru.settletale.memory.MemoryBlock;
 
 public class VertexArrayDataBaker {
-	private final IntObjMap<AttribArrayData> attributes = HashIntObjMaps.newMutableMap(0);
+	private final IntObjMap<AttribArrayData> attributes = HashIntObjMaps.newMutableMap(2);
 	int vertexCount = 0;
 	int maxVertexCount;
 	float growFactor = 1.5F;
@@ -35,13 +38,13 @@ public class VertexArrayDataBaker {
 	}
 
 	public void endVertex() {
-		growIfNeed();
+		checkAndGrowIfNeed();
 
-		attributes.forEach((int index, AttribArrayData data) -> data.endVertex(vertexCount));
+		attributes.forEach((int index, AttribArrayData data) -> data.endAttrib());
 		vertexCount++;
 	}
 
-	private void growIfNeed() {
+	private void checkAndGrowIfNeed() {
 		if (vertexCount + (dynamic ? 1 : 0) >= maxVertexCount) {
 			if (!dynamic) {
 				throw new IndexOutOfBoundsException();
@@ -52,8 +55,13 @@ public class VertexArrayDataBaker {
 	}
 
 	public void clear() {
-		attributes.forEach((int index, AttribArrayData data) -> data.clear());
+		attributes.forEach((int index, AttribArrayData data) -> data.reset());
+		reset();
+	}
+	
+	public void reset() {
 		vertexCount = 0;
+		attributes.forEach((int index, AttribArrayData data) -> data.reset());
 	}
 
 	public void delete() {
@@ -82,7 +90,11 @@ public class VertexArrayDataBaker {
 	}
 
 	public void putFloats(int index, float f1, float f2, float f3, float f4) {
-		getAttribArrayData(index).data(f1, f2, f3, f4);
+		MemoryBlock mb = getAttribArrayData(index).getCurrentAttribMemoryBlock();
+		mb.putFloatF(0, f1);
+		mb.putFloatF(1, f2);
+		mb.putFloatF(2, f3);
+		mb.putFloatF(3, 14);
 	}
 
 	public void putFloat(int index, float f1) {
@@ -90,7 +102,7 @@ public class VertexArrayDataBaker {
 	}
 
 	public void putFloats(int index, float f1, float f2, float f3) {
-		this.putFloats(index, f1, f2, f3, 1F);
+		putFloats(index, f1, f2, f3, 1F);
 	}
 
 	public void putFloats(int index, float f1, float f2) {
@@ -114,7 +126,11 @@ public class VertexArrayDataBaker {
 	}
 
 	public void putBytes(int index, byte b1, byte b2, byte b3, byte b4) {
-		getAttribArrayData(index).data(b1, b2, b3, b4);
+		MemoryBlock mb = getAttribArrayData(index).getCurrentAttribMemoryBlock();
+		mb.putByte(0, b1);
+		mb.putByte(1, b2);
+		mb.putByte(2, b3);
+		mb.putByte(3, b4);
 	}
 
 	public void putByte(int index, byte b1) {
@@ -130,21 +146,14 @@ public class VertexArrayDataBaker {
 	}
 
 	public ByteBuffer getBuffer(int attributeLocation) {
-		return getAttribArrayData(attributeLocation).getBuffer(vertexCount);
+		return getAttribArrayData(attributeLocation).getBuffer();
 	}
 	
 	public AttribArrayData getAttribArrayData(int attributeLocation) {
 		return attributes.get(attributeLocation);
 	}
 
-	public void forEachAttribDataArray(IAttrIterFunc func) {
-		attributes.forEach((int index, AttribArrayData data) -> {
-			func.iter(index, data);
-		});
-	}
-
-	@FunctionalInterface
-	public static interface IAttrIterFunc {
-		public void iter(int index, AttribArrayData data);
+	public void forEachAttribDataArray(IntObjConsumer<AttribArrayData> func) {
+		attributes.forEach(func);
 	}
 }

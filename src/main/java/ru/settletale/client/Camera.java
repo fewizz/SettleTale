@@ -1,31 +1,34 @@
 package ru.settletale.client;
 
-import org.joml.Vector3d;
+import org.joml.Vector3f;
 
 import ru.settletale.SettleTale;
-import ru.settletale.client.render.Renderer;
 import ru.settletale.entity.EntityPlayer;
 import ru.settletale.util.MathUtils;
 import ru.settletale.util.TickTimer;
 
 public class Camera {
-	public static Vector3d position = new Vector3d();
-	public static float rotationX = 90;
-	public static float rotationY;
+	public static final Vector3f POSITION = new Vector3f();
+	static final Vector3f TEMP = new Vector3f();
+	public static float rotationX = 0;
+	public static float rotationY = 0;
 
 	public static void update() {
-		EntityPlayer player = GameClient.player;
+		EntityPlayer player = Client.player;
 		
 		TickTimer t = SettleTale.getWorld().updateThread.timer;
-		double d = (Renderer.FRAMERATE_TICKER.startTimeNano - t.startTimeNano) / (float)(t.waitTimeNano);
+		long timeNano = System.nanoTime();
 		
-		d = Math.min(d, 1);
+		float d = (float)(timeNano - t.startTimeNano) / (float)(t.lastSpendTimeNano);
 		
-		MathUtils.interpolate(player.position.previous, player.position, position, d);
+		d = Math.min(d, 1F);
 		
-		rotationX += -Cursor.POSITION.y / 3F;
-		rotationY += Cursor.POSITION.x / 3F;
+		POSITION.set(player.position.previous);
+		TEMP.set(player.position);
+		POSITION.lerp(TEMP, (float) d);
 		
+		rotationX -= (Client.WINDOW.getCursorY() - Client.WINDOW.getHeight() / 2D) / 3F;
+		rotationY -= (Client.WINDOW.getCursorX() - Client.WINDOW.getWidth() / 2D) / 3F;
 		rotationX = MathUtils.clamp(90, -90, rotationX);
 	}
 }

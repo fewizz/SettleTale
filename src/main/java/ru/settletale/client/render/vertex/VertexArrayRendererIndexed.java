@@ -3,7 +3,8 @@ package ru.settletale.client.render.vertex;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.system.MemoryUtil;
 
-import ru.settletale.client.gl.ElementArrayBuffer;
+import wrap.gl.ElementArrayBuffer;
+import wrap.gl.GLBuffer.BufferUsage;
 
 public class VertexArrayRendererIndexed extends VertexArrayRenderer {
 	int indexCount;
@@ -19,8 +20,8 @@ public class VertexArrayRendererIndexed extends VertexArrayRenderer {
 	}
 
 	@Override
-	public void compile(VertexArrayDataBaker baker) {
-		super.compile(baker);
+	public void compile(VertexArrayDataBaker baker, BufferUsage usage) {
+		super.compile(baker, usage);
 		VertexArrayDataBakerIndexed ibaker = (VertexArrayDataBakerIndexed) baker;
 
 		this.indexCount = ibaker.getIndexCount();

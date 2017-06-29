@@ -1,4 +1,4 @@
-package ru.settletale.client.glfw;
+package wrap.glfw;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -8,9 +8,10 @@ import org.lwjgl.glfw.GLFWKeyCallbackI;
 import org.lwjgl.glfw.GLFWMouseButtonCallbackI;
 import org.lwjgl.system.MemoryUtil;
 
+import ru.settletale.memory.MemoryBlock;
+
 public class Window {
-	int width;
-	int height;
+	private final MemoryBlock tempMemoryBlock = new MemoryBlock().allocate(Integer.BYTES * 4 + Double.BYTES * 2);
 	long id;
 	
 	public Window() {
@@ -22,13 +23,7 @@ public class Window {
 		if (id == MemoryUtil.NULL)
 			throw new RuntimeException("Failed to create the GLFW window");
 		
-		GLFW.WINDOWS.put(id, this);
-		resize(w, h);
-	}
-
-	void resize(int w, int h) {
-		width = w;
-		height = h;
+		GLFW.onWindowCreated(this);
 	}
 	
 	public void show() {
@@ -51,16 +46,38 @@ public class Window {
 		glfwSetWindowPos(id, x, y);
 	}
 	
+	public int getWidth() {
+		nglfwGetWindowSize(id, tempMemoryBlock.address(), MemoryUtil.NULL);
+		return tempMemoryBlock.getIntI(0);
+	}
+	
+	public int getHeight() {
+		nglfwGetWindowSize(id, MemoryUtil.NULL, tempMemoryBlock.address() + Integer.BYTES);
+		return tempMemoryBlock.getIntI(1);
+	}
+	
+	public int getX() {
+		nglfwGetWindowPos(id, tempMemoryBlock.address() + 2 * Integer.BYTES, MemoryUtil.NULL);
+		return tempMemoryBlock.getIntI(2);
+	}
+	
+	public int getY() {
+		nglfwGetWindowPos(id, MemoryUtil.NULL, tempMemoryBlock.address() + 3 * Integer.BYTES);
+		return tempMemoryBlock.getIntI(3);
+	}
+	
 	public void setCursorPos(double x, double y) {
 		glfwSetCursorPos(id, x, y);
 	}
 	
-	public int getWidth() {
-		return width;
+	public double getCursorX() {
+		nglfwGetCursorPos(id, tempMemoryBlock.address() + Integer.BYTES * 4, MemoryUtil.NULL);
+		return tempMemoryBlock.getDouble(Integer.BYTES * 4);
 	}
 	
-	public int getHeight() {
-		return height;
+	public double getCursorY() {
+		nglfwGetCursorPos(id, MemoryUtil.NULL, tempMemoryBlock.address() + Integer.BYTES * 4 + Double.BYTES);
+		return tempMemoryBlock.getDouble(Integer.BYTES * 4 + Double.BYTES);
 	}
 	
 	public void setKeyCallback(GLFWKeyCallbackI c) {
@@ -73,26 +90,9 @@ public class Window {
 	
 	public void setFramebufferSizeCallback(GLFWFramebufferSizeCallbackI c) {
 		glfwSetFramebufferSizeCallback(id, c);
-		c.invoke(id, width, height);
 	}
 	
 	public void setCursorPosCallback(GLFWCursorPosCallbackI c) {
 		glfwSetCursorPosCallback(id, c);
-	}
-	
-	static class FrameBufferSizeCallbackWrapper implements GLFWFramebufferSizeCallbackI {
-		final GLFWFramebufferSizeCallbackI main;
-		Window window;
-		
-		public FrameBufferSizeCallbackWrapper(Window window, GLFWFramebufferSizeCallbackI main) {
-			this.window = window;
-			this.main = main;
-		}
-
-		@Override
-		public void invoke(long window, int width, int height) {
-			main.invoke(window, width, height);
-			this.window.resize(width, height);
-		}
 	}
 }

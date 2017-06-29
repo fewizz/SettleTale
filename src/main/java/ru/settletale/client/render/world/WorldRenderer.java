@@ -6,20 +6,16 @@ import com.koloboke.collect.map.hash.HashLongObjMap;
 import com.koloboke.collect.map.hash.HashLongObjMaps;
 
 import ru.settletale.client.Camera;
-import ru.settletale.client.GameClient;
-import ru.settletale.client.gl.GL;
-import ru.settletale.client.gl.Shader;
-import ru.settletale.client.gl.ShaderProgram;
-import ru.settletale.client.gl.VertexArray;
-import ru.settletale.client.gl.Shader.ShaderType;
+import ru.settletale.client.Client;
 import ru.settletale.client.render.Color;
 import ru.settletale.client.render.Drawer;
 import ru.settletale.client.render.FontRenderer;
 import ru.settletale.client.render.Renderer;
-import ru.settletale.client.resource.loader.ShaderSourceLoader;
 import ru.settletale.client.resource.loader.TextureLoader;
 import ru.settletale.world.region.IRegionManagerListener;
 import ru.settletale.world.region.Region;
+import wrap.gl.ShaderProgram;
+import wrap.gl.VertexArray;
 
 public class WorldRenderer implements IRegionManagerListener {
 	public static final WorldRenderer INSTANCE = new WorldRenderer();
@@ -34,22 +30,19 @@ public class WorldRenderer implements IRegionManagerListener {
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glEnable(GL_ALPHA_TEST);
 		glCullFace(GL_BACK);
-		PROGRAM_SKY.gen();
-		PROGRAM_SKY.attachShader(new Shader().gen(ShaderType.VERTEX).source(ShaderSourceLoader.SHADER_SOURCES.get("shaders/sky.vs")));
-		PROGRAM_SKY.attachShader(new Shader().gen(ShaderType.FRAGMENT).source(ShaderSourceLoader.SHADER_SOURCES.get("shaders/sky.fs")));
-		PROGRAM_SKY.link();
+		Renderer.genAndLinkShadersToProgram(PROGRAM_SKY, "shaders/sky.vs", "shaders/sky.fs");
 	}
 
 	public static void render() {
 		Renderer.debugGL("World rend start");
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		GL.PROJ_MATRIX.identity();
-		GL.VIEW_MATRIX.identity();
-		GL.PROJ_MATRIX.perspectiveDeg(95F, (float) GameClient.WINDOW.getWidth() / (float) GameClient.WINDOW.getHeight(), 0.1F, 1000F);
-		GL.VIEW_MATRIX.rotateDeg(Camera.rotationX, 1, 0, 0);
-		GL.VIEW_MATRIX.rotateDeg(Camera.rotationY, 0, 1, 0);
-		GL.VIEW_MATRIX.translate((float) -Camera.position.x, (float) -Camera.position.y, (float) -Camera.position.z);
+		
+		Renderer.PROJ_MATRIX.setPerspective((float) Math.toRadians(95F), (float) Client.WINDOW.getWidth() / (float) Client.WINDOW.getHeight(), 0.1F, 1000F);
+		
+		Renderer.VIEW_MATRIX.identity();
+		Renderer.VIEW_MATRIX.rotateDeg(-Camera.rotationX, 1F, 0, 0);
+		Renderer.VIEW_MATRIX.rotateDeg(-Camera.rotationY, 0, 1F, 0);
+		Renderer.VIEW_MATRIX.translate(-Camera.POSITION.x, -Camera.POSITION.y, -Camera.POSITION.z);
+		
 		Renderer.debugGL("First translates");
 
 		Renderer.updateCombinedMatrixUniformBlock();
@@ -76,31 +69,15 @@ public class WorldRenderer implements IRegionManagerListener {
 		glDrawArrays(GL_QUADS, 0, 4);
 		Renderer.debugGL("Render sky end");
 
-		/*if (PlatformClient.player.camInter != null) {
-			glPointSize(15);
-			Drawer.begin(GL_POINTS);
-			Drawer.color(Color.WHITE);
-			Drawer.vertex((float) PlatformClient.player.camInter.x, (float) PlatformClient.player.camInter.y, (float) PlatformClient.player.camInter.z);
-			Drawer.draw();
-			
-			Drawer.begin(GL_POINTS);
-			Drawer.color(Color.RED);
-			Vector3d v = new Vector3d(PlatformClient.player.camInter);
-			v.add(PlatformClient.player.camInter.normal);
-			Drawer.vertex((float) v.x, (float)v.y, (float) v.z);
-			Drawer.draw();
-		}*/
-
-		GL.VIEW_MATRIX.push();
-		GL.VIEW_MATRIX.translate(0, 100, 0);
-		GL.VIEW_MATRIX.scale(5F);
+		Renderer.VIEW_MATRIX.push();
+		Renderer.VIEW_MATRIX.translate(0, 100, 0);
+		Renderer.VIEW_MATRIX.scale(5F);
 		//GL.updateMatriciesUniformBlock();
 		Renderer.updateCombinedMatrixUniformBlock();
 		//ObjModelLoader.MODELS.get("models/dabrovic/sponza.obj").render();
 		//ColladaLoader.MODELS.get("models/collada/Glock_3d.dae").render();
 		//ColladaLoader.MODELS.get("models/collada/green.dae").render();
-		GL.VIEW_MATRIX.pop();
-		
+		Renderer.VIEW_MATRIX.pop();
 		
 		Renderer.updateCombinedMatrixUniformBlock();
 		
@@ -146,14 +123,14 @@ public class WorldRenderer implements IRegionManagerListener {
 		Drawer.vertex(-70, 25, 20);
 		Drawer.draw();
 
-		GL.PROJ_MATRIX.identity();
-		GL.PROJ_MATRIX.ortho2D(0, GameClient.WINDOW.getWidth(), 0, GameClient.WINDOW.getHeight());
-		GL.VIEW_MATRIX.identity();
+		Renderer.PROJ_MATRIX.identity();
+		Renderer.PROJ_MATRIX.ortho2D(0, Client.WINDOW.getWidth(), 0, Client.WINDOW.getHeight());
+		Renderer.VIEW_MATRIX.identity();
 		Renderer.updateCombinedMatrixUniformBlock();
 
 		FontRenderer.setSize(25);
 		FontRenderer.setColor(Color.WHITE);
-		FontRenderer.getPosition().set(10, GameClient.WINDOW.getHeight() - 30, 0);
+		FontRenderer.getPosition().set(10, Client.WINDOW.getHeight() - 30, 0);
 		FontRenderer.setText("FPS: " + Renderer.lastFPS);
 		FontRenderer.render();
 
@@ -163,14 +140,14 @@ public class WorldRenderer implements IRegionManagerListener {
 	@Override
 	public void onRegionAdded(Region r) {
 		r.increaseThreadUsage();
-		GameClient.GL_THREAD.execute(() -> {
+		Client.GL_THREAD.execute(() -> {
 			REGIONS_TO_RENDER.put(r.coordClamped, new CompiledRegion(r));
 		});
 	}
 
 	@Override
 	public void onRegionRemoved(Region r) {
-		GameClient.GL_THREAD.execute(() -> {
+		Client.GL_THREAD.execute(() -> {
 			if (REGIONS_TO_RENDER.containsKey(r.coordClamped)) {
 				CompiledRegion cr = REGIONS_TO_RENDER.get(r.coordClamped);
 				if(cr.compiled)

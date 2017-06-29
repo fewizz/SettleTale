@@ -1,4 +1,4 @@
-package ru.settletale.client.gl;
+package wrap.gl;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;

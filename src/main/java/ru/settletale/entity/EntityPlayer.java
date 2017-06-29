@@ -2,6 +2,7 @@ package ru.settletale.entity;
 
 import static org.lwjgl.glfw.GLFW.*;
 
+import org.joml.Vector2d;
 import org.joml.Vector2i;
 import org.joml.Vector3d;
 import org.joml.Vector3f;
@@ -33,18 +34,18 @@ public class EntityPlayer extends Entity {
 
 		if (KeyListener.isKeyPressed(GLFW_KEY_W)) {
 			keyborardSpeed.z += (float) -Math.cos(Math.toRadians(rotationY));
-			keyborardSpeed.x += (float) Math.sin(Math.toRadians(rotationY));
+			keyborardSpeed.x += (float) -Math.sin(Math.toRadians(rotationY));
 		}
 		if (KeyListener.isKeyPressed(GLFW_KEY_S)) {
 			keyborardSpeed.z += (float) Math.cos(Math.toRadians(rotationY));
-			keyborardSpeed.x += (float) -Math.sin(Math.toRadians(rotationY));
+			keyborardSpeed.x += (float) Math.sin(Math.toRadians(rotationY));
 		}
 		if (KeyListener.isKeyPressed(GLFW_KEY_D)) {
-			keyborardSpeed.z += (float) Math.sin(Math.toRadians(rotationY));
+			keyborardSpeed.z += (float) -Math.sin(Math.toRadians(rotationY));
 			keyborardSpeed.x += (float) Math.cos(Math.toRadians(rotationY));
 		}
 		if (KeyListener.isKeyPressed(GLFW_KEY_A)) {
-			keyborardSpeed.z += (float) -Math.sin(Math.toRadians(rotationY));
+			keyborardSpeed.z += (float) Math.sin(Math.toRadians(rotationY));
 			keyborardSpeed.x += (float) -Math.cos(Math.toRadians(rotationY));
 		}
 		if (KeyListener.isKeyPressed(GLFW_KEY_SPACE)) {
@@ -72,11 +73,11 @@ public class EntityPlayer extends Entity {
 			coll = checkCollision(newPos);
 			V.set(0);
 		}*/
-		/*if(coll != null) {
-			newPos.set(coll);
-			newPos.add(coll.normal.mul(0.1F));
-			V.set(0);
-		}*/
+		//if(coll != null) {
+		//	newPos.set(coll);
+		//	newPos.add(coll.normal.mul(0.1F));
+		//	V.set(0);
+		//}
 		//else {
 		//	System.out.println("NULL");
 		//}

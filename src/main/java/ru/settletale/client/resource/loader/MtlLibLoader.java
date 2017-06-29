@@ -9,10 +9,10 @@ import org.lwjgl.opengl.GL11;
 import ru.settletale.client.render.Material;
 import ru.settletale.client.resource.ResourceFile;
 import ru.settletale.client.resource.ResourceManager;
-import ru.settletale.client.GameClient;
-import ru.settletale.client.gl.Texture;
+import ru.settletale.client.Client;
 import ru.settletale.client.render.MTLLib;
 import ru.settletale.util.FileUtils;
+import wrap.gl.Texture;
 
 public class MtlLibLoader extends ResourceLoaderAbstract {
 	public static final Map<String, MTLLib> MTLS = new HashMap<>();
@@ -86,7 +86,7 @@ public class MtlLibLoader extends ResourceLoaderAbstract {
 				matLib.addBumpTextureToMaterial(mat, tex);
 
 				if (tex != null) {
-					GameClient.GL_THREAD.execute(() -> {
+					Client.GL_THREAD.execute(() -> {
 						tex.parameter(GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
 						tex.parameter(GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
 					});

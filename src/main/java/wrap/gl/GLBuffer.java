@@ -1,4 +1,4 @@
-package ru.settletale.client.gl;
+package wrap.gl;
 
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
@@ -11,13 +11,13 @@ import org.lwjgl.system.MemoryUtil;
 public class GLBuffer<T> extends GLBindableObject<T> {
 	protected final int type;
 	private int loadedSize = 0;
-	private Usage usage;
+	private BufferUsage usage;
 	private int offset = 0;
 	private int storageFlags = GL44.GL_DYNAMIC_STORAGE_BIT;
 	
 	public GLBuffer(int type) {
 		this.type = type;
-		usage = Usage.STATIC_DRAW;
+		usage = BufferUsage.STATIC_DRAW;
 	}
 	
 	@Override
@@ -30,7 +30,7 @@ public class GLBuffer<T> extends GLBindableObject<T> {
 		return GL.version >= 45 ? GL45.glCreateBuffers() : GL15.glGenBuffers();
 	}
 	
-	public T usage(Usage usage) {
+	public T usage(BufferUsage usage) {
 		this.usage = usage;
 		return getThis();
 	}
@@ -125,13 +125,13 @@ public class GLBuffer<T> extends GLBindableObject<T> {
 		GL15.glDeleteBuffers(getID());
 	}
 	
-	public enum Usage {
+	public enum BufferUsage {
 		STATIC_DRAW(GL15.GL_STATIC_DRAW),
 		DYNAMIC_DRAW(GL15.GL_DYNAMIC_DRAW);
 		
 		final int glCode;
 		
-		Usage(int glCode) {
+		BufferUsage(int glCode) {
 			this.glCode = glCode;
 		}
 	}

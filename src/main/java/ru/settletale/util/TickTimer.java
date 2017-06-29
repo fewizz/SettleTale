@@ -7,7 +7,7 @@ public class TickTimer {
 	public long startTimeNano;
 	public long endTimeNano;
 	public long prevStartTimeNano;
-	public long lastTimeNano;
+	public long lastSpendTimeNano;
 
 	public TickTimer(double countOfTicksPerSecond) {
 		this.waitTimeNano = (long) ((1D / countOfTicksPerSecond) * 1_000_000_000D);
@@ -39,6 +39,6 @@ public class TickTimer {
 	
 	public void end() {
 		endTimeNano = System.nanoTime();
-		lastTimeNano = endTimeNano - startTimeNano;
+		lastSpendTimeNano = endTimeNano - startTimeNano;
 	}
 }

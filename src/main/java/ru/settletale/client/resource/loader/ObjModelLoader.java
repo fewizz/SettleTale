@@ -10,8 +10,7 @@ import org.joml.GeometryUtils;
 import org.joml.Vector3f;
 import org.lwjgl.system.MemoryUtil;
 
-import ru.settletale.client.GameClient;
-import ru.settletale.client.gl.Texture;
+import ru.settletale.client.Client;
 import ru.settletale.client.render.Color;
 import ru.settletale.client.render.MTLLib;
 import ru.settletale.client.render.Material;
@@ -23,6 +22,7 @@ import ru.settletale.client.resource.ResourceFile;
 import ru.settletale.client.resource.ResourceManager;
 import ru.settletale.util.FileUtils;
 import ru.settletale.util.StringUtils;
+import wrap.gl.Texture;
 
 public class ObjModelLoader extends ResourceLoaderAbstract {
 	static final int POS = 0;
@@ -128,7 +128,7 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 		model.setTextureAndMaterialBinder(tmb);
 
 		ResourceManager.runAfterResourcesLoaded(() -> {
-			GameClient.GL_THREAD.execute(() -> {
+			Client.GL_THREAD.execute(() -> {
 				model.compile(dataBaker);
 				MemoryUtil.memFree(positions);
 				MemoryUtil.memFree(normals);

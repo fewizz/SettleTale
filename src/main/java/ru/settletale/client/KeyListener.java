@@ -17,7 +17,7 @@ public class KeyListener extends GLFWKeyCallback {
 	private static final ThreadLocal<HashIntObjMap<KeyState>> KEY_STATES = new ThreadLocal<HashIntObjMap<KeyState>>() {
 		@Override
 		protected HashIntObjMap<KeyState> initialValue() {
-			return HashIntObjMaps.newMutableMap();
+			return HashIntObjMaps.newMutableMap(60);
 		}
 	};
 
@@ -33,7 +33,7 @@ public class KeyListener extends GLFWKeyCallback {
 	public static boolean isKeyPressed(int key) {
 		KeyState state = KEY_STATES.get().get(key);
 		
-		if (state == KeyState.PRESSED || state == KeyState.PRESSED_FIRST) {
+		if (state == KeyState.PRESS || state == KeyState.PRESS_FIRSTLY) {
 			return true;
 		}
 
@@ -43,7 +43,7 @@ public class KeyListener extends GLFWKeyCallback {
 	public static boolean isKeyPressedFirstly(int key) {
 		KeyState state = KEY_STATES.get().get(key);
 
-		if (state == KeyState.PRESSED_FIRST) {
+		if (state == KeyState.PRESS_FIRSTLY) {
 			return true;
 		}
 
@@ -53,7 +53,7 @@ public class KeyListener extends GLFWKeyCallback {
 	public static boolean isKeyPressedLastly(int key) {
 		KeyState state = KEY_STATES.get().get(key);
 
-		if (state == KeyState.PRESSED_LAST) {
+		if (state == KeyState.PRESS_END) {
 			return true;
 		}
 
@@ -67,10 +67,10 @@ public class KeyListener extends GLFWKeyCallback {
 		HashIntObjMap<KeyState> updates = KEY_UPDATES.get(t);
 		
 		states.forEach((int key, KeyState state) -> {
-			if(state == KeyState.PRESSED_FIRST) {
-				states.put(key, KeyState.PRESSED);
+			if(state == KeyState.PRESS_FIRSTLY) {
+				states.put(key, KeyState.PRESS);
 			}
-			if(state == KeyState.PRESSED_LAST) {
+			if(state == KeyState.PRESS_END) {
 				states.put(key, KeyState.UNPRESSED);
 			}
 		});
@@ -85,11 +85,11 @@ public class KeyListener extends GLFWKeyCallback {
 				currentState = KeyState.UNPRESSED;
 			}
 			
-			if (currentState == KeyState.UNPRESSED && updatedState == KeyState.PRESSED) {
-				states.put(key, KeyState.PRESSED_FIRST);
+			if (currentState == KeyState.UNPRESSED && updatedState == KeyState.PRESS) {
+				states.put(key, KeyState.PRESS_FIRSTLY);
 			}
-			if ((currentState == KeyState.PRESSED || currentState == KeyState.PRESSED_FIRST) && updatedState == KeyState.UNPRESSED) {
-				states.put(key, KeyState.PRESSED_LAST);
+			if ((currentState == KeyState.PRESS || currentState == KeyState.PRESS_FIRSTLY) && updatedState == KeyState.UNPRESSED) {
+				states.put(key, KeyState.PRESS_END);
 			}
 		});
 		updates.clear();
@@ -97,15 +97,15 @@ public class KeyListener extends GLFWKeyCallback {
 
 	public enum KeyState {
 		UNPRESSED,
-		PRESSED_FIRST,
-		PRESSED,
-		PRESSED_LAST;
+		PRESS_FIRSTLY,
+		PRESS,
+		PRESS_END;
 
 		public static KeyState getStateFromAction(int action) {
 			if (action == GLFW_RELEASE) {
 				return UNPRESSED;
 			}
-			return KeyState.PRESSED;
+			return KeyState.PRESS;
 		}
 	}
 }

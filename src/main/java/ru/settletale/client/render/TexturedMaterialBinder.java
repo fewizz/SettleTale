@@ -7,12 +7,12 @@ import java.util.Map;
 
 import org.lwjgl.system.MemoryStack;
 
-import ru.settletale.client.gl.GL;
-import ru.settletale.client.gl.ShaderProgram;
-import ru.settletale.client.gl.Texture;
-import ru.settletale.client.gl.UniformBuffer;
 import ru.settletale.util.AdvancedArrayList;
 import ru.settletale.util.AdvancedList;
+import wrap.gl.GL;
+import wrap.gl.ShaderProgram;
+import wrap.gl.Texture;
+import wrap.gl.UniformBuffer;
 
 public class TexturedMaterialBinder {
 	final AdvancedList<Material> materials = new AdvancedArrayList<>();

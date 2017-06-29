@@ -1,4 +1,4 @@
-package ru.settletale.client.gl;
+package wrap.gl;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -83,18 +83,18 @@ public abstract class GLBindableObject<T> extends GLObject<T> {
 	}
 	
 	public boolean isBound() {
-		return getID() == getLastGlobalID();
+		return getID() == globalID.id;
 	}
 	
 	public void bind() {
 		if (!isGenerated()) {
 			throw new Error("Object is not generated!");
 		}
-		if (getLastGlobalID() == getID()) {
+		if (isBound()) {
 			return;
 		}
 		bindInternal();
-		setLastGlobalID(getID());
+		globalID.set(getID());
 	}
 
 	@Override

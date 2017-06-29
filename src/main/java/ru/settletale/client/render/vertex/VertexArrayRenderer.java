@@ -8,10 +8,11 @@ import org.lwjgl.opengl.GL11;
 import com.koloboke.collect.map.IntObjMap;
 import com.koloboke.collect.map.hash.HashIntObjMaps;
 
-import ru.settletale.client.gl.ShaderProgram;
-import ru.settletale.client.gl.VertexArray;
-import ru.settletale.client.gl.VertexBuffer;
 import ru.settletale.client.render.Renderer;
+import wrap.gl.ShaderProgram;
+import wrap.gl.VertexArray;
+import wrap.gl.VertexBuffer;
+import wrap.gl.GLBuffer.BufferUsage;
 
 public class VertexArrayRenderer {
 	protected final VertexArray vao;
@@ -26,7 +27,11 @@ public class VertexArrayRenderer {
 		vao = new VertexArray();
 	}
 
-	public void compile(VertexArrayDataBaker baker) {
+	public final void compile(VertexArrayDataBaker baker) {
+		this.compile(baker, BufferUsage.STATIC_DRAW);
+	}
+	
+	public void compile(VertexArrayDataBaker baker, BufferUsage usage) {
 		if (!vao.isGenerated())
 			vao.gen();
 
@@ -40,7 +45,9 @@ public class VertexArrayRenderer {
 			vbos.computeIfAbsent(attribIndex, index -> new VertexBuffer().gen());
 			VertexBuffer vbo = vbos.get(attribIndex);
 			
-			vbo.dataOrSubData(data.getMemoryBlock().address(), data.getSizeInBytes(vertexCount));
+			vbo.usage(usage);
+			
+			vbo.dataOrSubData(data.getMemoryBlock().address(), data.getSizeInBytes());
 
 			Renderer.debugGL("RenderLayer loadData");
 

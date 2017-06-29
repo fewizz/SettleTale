@@ -5,15 +5,16 @@ import java.nio.ByteBuffer;
 import ru.settletale.memory.MemoryBlock;
 
 public class AttribArrayData {
+	int attrib;
 	final VertexAttribType attribType;
-	final int growBytes;
+	final int bytes;
 	final MemoryBlock mb;
 	final MemoryBlock mbCurrentAttrib;
 
-	public AttribArrayData(VertexAttribType attribType, int vertexCount) {
+	public AttribArrayData(VertexAttribType attribType, int size) {
 		this.attribType = attribType;
-		this.growBytes = attribType.componentCount * attribType.clientDataType.bytes;
-		mb = new MemoryBlock().allocate(vertexCount * growBytes);
+		this.bytes = attribType.componentCount * attribType.clientDataType.bytes;
+		mb = new MemoryBlock().allocate(size * bytes);
 		mbCurrentAttrib = new MemoryBlock().allocate(4 * Long.BYTES);
 		init();
 	}
@@ -21,9 +22,10 @@ public class AttribArrayData {
 	private void init() {
 		mbCurrentAttrib.set(0);
 		mb.set(0);
+		attrib = 0;
 	}
 
-	public void clear() {
+	public void reset() {
 		init();
 	}
 
@@ -37,19 +39,10 @@ public class AttribArrayData {
 			throw new UnsupportedOperationException();
 		}
 
-		switch (attribType.componentCount) {
-		case 4:
-			mbCurrentAttrib.putByte(3, b4);
-		case 3:
-			mbCurrentAttrib.putByte(2, b3);
-		case 2:
-			mbCurrentAttrib.putByte(1, b2);
-		case 1:
-			mbCurrentAttrib.putByte(0, b1);
-
-		default:
-			break;
-		}
+		mbCurrentAttrib.putByte(3, b4);
+		mbCurrentAttrib.putByte(2, b3);
+		mbCurrentAttrib.putByte(1, b2);
+		mbCurrentAttrib.putByte(0, b1);
 	}
 
 	public void data(short s1, short s2, short s3, short s4) {
@@ -78,29 +71,30 @@ public class AttribArrayData {
 		mbCurrentAttrib.putIntI(0, i1);
 	}
 
-	public void endVertex(int vertexIndex) {
-		mbCurrentAttrib.copyTo(mb, 0, vertexIndex * growBytes, growBytes);
+	public void endAttrib() {
+		mbCurrentAttrib.copyTo(mb, 0, attrib * bytes, bytes);
+		attrib++;
 	}
 
-	public ByteBuffer getBuffer(int vertexCount) {
-		return mb.getAsByteBuffer(getSizeInBytes(growBytes));
+	public ByteBuffer getBuffer() {
+		return mb.getAsByteBuffer(getSizeInBytes());
 	}
-	
-	public int getSizeInBytes(int vertexCount) {
-		return vertexCount * growBytes;
+
+	public int getSizeInBytes() {
+		return attrib * bytes;
 	}
-	
+
 	public MemoryBlock getCurrentAttribMemoryBlock() {
 		return this.mbCurrentAttrib;
 	}
-	
+
 	public MemoryBlock getMemoryBlock() {
 		return this.mb;
 	}
 
 	public void growIfNeed(int vertexCount) {
-		if (mb.bytes() < vertexCount * growBytes) {
-			mb.reallocate(vertexCount * growBytes);
+		if (mb.bytes() < vertexCount * bytes) {
+			mb.reallocate(vertexCount * bytes);
 		}
 	}
 

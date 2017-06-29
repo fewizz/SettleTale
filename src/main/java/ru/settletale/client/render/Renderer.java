@@ -1,15 +1,23 @@
 package ru.settletale.client.render;
 
+import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
+import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
+import static org.lwjgl.opengl.GL11.glClear;
 import static org.lwjgl.opengl.GL11.glGetError;
 
 import org.lwjgl.system.MemoryStack;
 
-import ru.settletale.client.gl.GL;
-import ru.settletale.client.gl.UniformBuffer;
-import ru.settletale.client.GameClient;
+import ru.settletale.client.Client;
 import ru.settletale.client.render.world.WorldRenderer;
+import ru.settletale.client.resource.loader.ShaderSourceLoader;
 import ru.settletale.util.Matrix4fs;
 import ru.settletale.util.TickTimer;
+import wrap.gl.GL;
+import wrap.gl.Shader;
+import wrap.gl.ShaderProgram;
+import wrap.gl.UniformBuffer;
+import wrap.gl.GLBuffer.BufferUsage;
+import wrap.gl.Shader.ShaderType;
 
 public class Renderer {
 	public static final boolean DEBUG = true;
@@ -18,10 +26,12 @@ public class Renderer {
 	private static final Matrix4fs VIEW_MATRIX_INVERSED = new Matrix4fs();
 	private static final Matrix4fs MATRIX_COMBINED = new Matrix4fs();
 	private static final Matrix4fs PROJ_MATRIX_INVERSED = new Matrix4fs();
-	private static final UniformBuffer UBO_MATRICES = new UniformBuffer();
-	private static final UniformBuffer UBO_MATRICES_INVERSED = new UniformBuffer();
-	private static final UniformBuffer UBO_MATRIX_COMBINED = new UniformBuffer();
-	private static final UniformBuffer UBO_DISPLAY_SIZE = new UniformBuffer();
+	private static final UniformBuffer UBO_MATRICES = new UniformBuffer().usage(BufferUsage.DYNAMIC_DRAW);
+	private static final UniformBuffer UBO_MATRICES_INVERSED = new UniformBuffer().usage(BufferUsage.DYNAMIC_DRAW);
+	private static final UniformBuffer UBO_MATRIX_COMBINED = new UniformBuffer().usage(BufferUsage.DYNAMIC_DRAW);
+	private static final UniformBuffer UBO_DISPLAY_SIZE = new UniformBuffer().usage(BufferUsage.DYNAMIC_DRAW);
+	public static final Matrix4fs PROJ_MATRIX = new Matrix4fs();
+	public static final Matrix4fs VIEW_MATRIX = new Matrix4fs();
 	private static String previousGLDebugMessage = "";
 	
 	public static final TickTimer FRAMERATE_TICKER = new TickTimer(100F);
@@ -48,7 +58,9 @@ public class Renderer {
 
 		WorldRenderer.render();
 
-		GameClient.WINDOW.swapBuffers();
+		Client.WINDOW.swapBuffers();
+		
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		frames++;
 
@@ -70,17 +82,17 @@ public class Renderer {
 	public static void updateMatriciesUniformBlock() {
 		debugGL("UpdateTransformUniformBlock start");
 
-		GL.PROJ_MATRIX.updateBackedBuffer();
-		GL.VIEW_MATRIX.updateBackedBuffer();
-		UBO_MATRICES.offset(0).subData(GL.PROJ_MATRIX.buffer);
-		UBO_MATRICES.offset(16 * Float.BYTES).subData(GL.VIEW_MATRIX.buffer);
+		PROJ_MATRIX.updateBackedBuffer();
+		VIEW_MATRIX.updateBackedBuffer();
+		UBO_MATRICES.offset(0).subData(PROJ_MATRIX.buffer);
+		UBO_MATRICES.offset(16 * Float.BYTES).subData(VIEW_MATRIX.buffer);
 
 		debugGL("UpdateTransformUniformBlock end");
 	}
 
 	public static void updateInversedMatricesUniformBlock() {
-		GL.PROJ_MATRIX.invert(PROJ_MATRIX_INVERSED);
-		GL.VIEW_MATRIX.invert(VIEW_MATRIX_INVERSED);
+		PROJ_MATRIX.invert(PROJ_MATRIX_INVERSED);
+		VIEW_MATRIX.invert(VIEW_MATRIX_INVERSED);
 
 		PROJ_MATRIX_INVERSED.updateBackedBuffer();
 		VIEW_MATRIX_INVERSED.updateBackedBuffer();
@@ -89,7 +101,7 @@ public class Renderer {
 	}
 
 	public static void updateCombinedMatrixUniformBlock() {
-		GL.PROJ_MATRIX.mul(GL.VIEW_MATRIX, MATRIX_COMBINED);
+		PROJ_MATRIX.mul(VIEW_MATRIX, MATRIX_COMBINED);
 
 		MATRIX_COMBINED.updateBackedBuffer();
 		UBO_MATRIX_COMBINED.subData(MATRIX_COMBINED.buffer);
@@ -99,7 +111,7 @@ public class Renderer {
 		debugGL("UpdateDisplaySizeUniformBlock start");
 
 		try (MemoryStack ms = MemoryStack.stackPush()) {
-			UBO_DISPLAY_SIZE.subData(ms.floats(GameClient.WINDOW.getWidth(), GameClient.WINDOW.getHeight()));
+			UBO_DISPLAY_SIZE.subData(ms.floats(Client.WINDOW.getWidth(), Client.WINDOW.getHeight()));
 		}
 
 		debugGL("UpdateDisplaySizeUniformBlock end");
@@ -124,5 +136,12 @@ public class Renderer {
 
 			previousGLDebugMessage = s;
 		}
+	}
+	
+	public static void genAndLinkShadersToProgram(ShaderProgram program, String vsLocation, String fsLocation) {
+		program.gen();
+		program.attachShader(new Shader().gen(ShaderType.VERTEX).source(ShaderSourceLoader.SHADER_SOURCES.get(vsLocation)));
+		program.attachShader(new Shader().gen(ShaderType.FRAGMENT).source(ShaderSourceLoader.SHADER_SOURCES.get(fsLocation)));
+		program.link();
 	}
 }

@@ -1,4 +1,4 @@
-package ru.settletale.client.gl;
+package wrap.gl;
 
 public class GlobalID {
 	public int id = -1;

@@ -14,9 +14,7 @@ import org.lwjgl.system.MemoryUtil;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-import ru.settletale.client.GameClient;
-import ru.settletale.client.gl.GL;
-import ru.settletale.client.gl.UniformBuffer;
+import ru.settletale.client.Client;
 import ru.settletale.client.render.ColladaModelRenderer;
 import ru.settletale.client.render.ColladaModelRenderer.ColladaGeometryRenderer;
 import ru.settletale.client.render.GlobalUniforms;
@@ -30,6 +28,8 @@ import ru.settletale.client.resource.collada.Polylist;
 import ru.settletale.client.resource.collada.Source;
 import ru.settletale.client.resource.collada.TransformationElement;
 import ru.settletale.memory.MemoryBlock;
+import wrap.gl.GL;
+import wrap.gl.UniformBuffer;
 import ru.settletale.client.resource.collada.Input.Semantic;
 import ru.settletale.client.resource.collada.Material;
 import ru.settletale.client.resource.collada.Matrix;
@@ -76,7 +76,7 @@ public class ColladaLoader extends ResourceLoaderAbstract {
 				model.geometries.add(new ColladaGeometryRenderer(vs.name, layers, mat));
 			}));
 
-			ResourceManager.runAfterResourcesLoaded(() -> GameClient.GL_THREAD.execute(() -> model.compile()));
+			ResourceManager.runAfterResourcesLoaded(() -> Client.GL_THREAD.execute(() -> model.compile()));
 
 			MODELS.put(resourceFile.key, model);
 		} catch (ParserConfigurationException | SAXException | IOException e) {
@@ -96,7 +96,7 @@ public class ColladaLoader extends ResourceLoaderAbstract {
 		matMemoryBlock.put(3, m.effect.phong.diffuse.w);
 		UniformBuffer ubo = new UniformBuffer();
 		
-		GameClient.GL_THREAD.execute(() -> {
+		Client.GL_THREAD.execute(() -> {
 			ubo.gen();
 			ubo.data(matMemoryBlock);
 		});

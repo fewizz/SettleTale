@@ -1,6 +1,6 @@
 package ru.settletale;
 
-import ru.settletale.client.GameClient;
+import ru.settletale.client.Client;
 import ru.settletale.registry.Registry;
 import ru.settletale.server.GameServer;
 import ru.settletale.util.Side;
@@ -14,7 +14,7 @@ public class SettleTale {
 			platform = new GameServer();
 		}
 		else {
-			platform = new GameClient();
+			platform = new Client();
 		}
 		Registry.init();
 		

@@ -3,7 +3,7 @@ package ru.settletale.world.region;
 import java.util.Iterator;
 
 import ru.settletale.SettleTale;
-import ru.settletale.client.GameClient;
+import ru.settletale.client.Client;
 import ru.settletale.util.MathUtils;
 import ru.settletale.util.TickTimer;
 
@@ -23,8 +23,8 @@ public class RegionManagerOnePlayer extends RegionManagerAbstract {
 
 	@Override
 	public void update() {
-		int regX = MathUtils.floor(GameClient.player.position.x / Region.WIDTH_F);
-		int regZ = MathUtils.floor(GameClient.player.position.z / Region.WIDTH_F);
+		int regX = MathUtils.floor(Client.player.position.x / Region.WIDTH_F);
+		int regZ = MathUtils.floor(Client.player.position.z / Region.WIDTH_F);
 
 		regions.forEach((long key, Region obj) -> obj.active = false);
 

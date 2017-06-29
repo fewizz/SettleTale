@@ -5,9 +5,6 @@ import static org.lwjgl.glfw.GLFW.*;
 import org.lwjgl.glfw.GLFWVidMode;
 
 import ru.settletale.GameAbstract;
-import ru.settletale.client.gl.GL;
-import ru.settletale.client.glfw.GLFW;
-import ru.settletale.client.glfw.Window;
 import ru.settletale.client.render.Drawer;
 import ru.settletale.client.render.Renderer;
 import ru.settletale.client.render.world.WorldRenderer;
@@ -17,8 +14,11 @@ import ru.settletale.util.Side;
 import ru.settletale.util.ThreadWithTasks;
 import ru.settletale.world.World;
 import ru.settletale.world.region.RegionManagerOnePlayer;
+import wrap.gl.GL;
+import wrap.glfw.GLFW;
+import wrap.glfw.Window;
 
-public class GameClient extends GameAbstract {
+public class Client extends GameAbstract {
 	public static final Window WINDOW = new Window();
 	public static final ThreadWithTasks GL_THREAD = new ThreadWithTasks("OpengGL");
 	public static EntityPlayer player;
@@ -41,7 +41,6 @@ public class GameClient extends GameAbstract {
 			
 			WINDOW.setKeyCallback(KeyListener.INSTANCE);
 			WINDOW.setMouseButtonCallback(new MouseButtonListener());
-			WINDOW.setCursorPosCallback(new CursorListener());
 			GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 			WINDOW.setPos((vidmode.width() - WINDOW.getWidth()) / 2, (vidmode.height() - WINDOW.getHeight()) / 2);
 			WINDOW.makeContextCurrent();
@@ -74,10 +73,10 @@ public class GameClient extends GameAbstract {
 				GL_THREAD.doAvailableTasks();
 				
 				GLFW.pollEvents();
-				GameClient.WINDOW.setCursorPos(GameClient.WINDOW.getWidth() / 2, GameClient.WINDOW.getHeight() / 2);
 
 				KeyListener.updateForCurrentThread();
 				Camera.update();
+				WINDOW.setCursorPos(Client.WINDOW.getWidth() / 2D, Client.WINDOW.getHeight() / 2D);
 				
 				Renderer.render();
 			}

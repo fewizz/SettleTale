@@ -8,21 +8,19 @@ import static org.lwjgl.opengl.GL11.*;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.system.MemoryUtil;
 
-import ru.settletale.client.gl.GL;
-import ru.settletale.client.gl.Shader;
-import ru.settletale.client.gl.ShaderProgram;
-import ru.settletale.client.gl.Texture1D;
-import ru.settletale.client.gl.Texture2D;
-import ru.settletale.client.gl.Shader.ShaderType;
 import ru.settletale.client.render.Renderer;
 import ru.settletale.client.render.vertex.VertexArrayRendererIndexed;
 import ru.settletale.client.render.vertex.VertexArrayRendererIndexed.GLDrawIndexedFunc;
 import ru.settletale.client.render.vertex.VertexArrayDataBakerIndexed;
 import ru.settletale.client.render.vertex.VertexAttribType;
-import ru.settletale.client.resource.loader.ShaderSourceLoader;
 import ru.settletale.client.resource.loader.TextureLoader;
 import ru.settletale.world.biome.BiomeAbstract;
 import ru.settletale.world.region.Region;
+import wrap.gl.GL;
+import wrap.gl.ShaderProgram;
+import wrap.gl.Texture1D;
+import wrap.gl.Texture2D;
+import wrap.gl.GLBuffer.BufferUsage;
 import ru.settletale.registry.Biomes;
 
 public class CompiledRegion {
@@ -48,10 +46,9 @@ public class CompiledRegion {
 
 		if (!PROGRAM.isGenerated()) {
 			Renderer.debugGL("CR shader start");
-			PROGRAM.gen();
-			PROGRAM.attachShader(new Shader().gen(ShaderType.VERTEX).source(ShaderSourceLoader.SHADER_SOURCES.get("shaders/terrain.vs")));
-			PROGRAM.attachShader(new Shader().gen(ShaderType.FRAGMENT).source(ShaderSourceLoader.SHADER_SOURCES.get("shaders/terrain.fs")));
-			PROGRAM.link();
+			
+			Renderer.genAndLinkShadersToProgram(PROGRAM, "shaders/terrain.vs", "shaders/terrain.fs");
+			
 			Renderer.debugGL("CR shader end");
 		}
 		if (textureGrass == null) {
@@ -81,7 +78,7 @@ public class CompiledRegion {
 		Renderer.debugGL("CR compile start");
 
 		this.layer = new VertexArrayRendererIndexed();
-		this.layer.compile(SHARED_VERTEX_ARRAY);
+		this.layer.compile(SHARED_VERTEX_ARRAY, BufferUsage.STATIC_DRAW);
 		SHARED_VERTEX_ARRAY.clear();
 		this.layer.setShaderProgram(PROGRAM);
 
@@ -112,6 +109,16 @@ public class CompiledRegion {
 		Renderer.debugGL("CR bind texture units end");
 
 		this.layer.renderIndexed(GLDrawIndexedFunc.DRAW_ELEMENTS, GL_QUADS);
+		
+		/*Drawer.begin(GL_QUADS);
+		Drawer.COLOR.set(0F, 0F, 1F, 0.5F);
+		Drawer.vertex(region.x * Region.WIDTH, 35, region.z * Region.WIDTH);
+		Drawer.vertex(region.x * Region.WIDTH, 35, (region.z + 1) * Region.WIDTH);
+		Drawer.vertex((region.x + 1) * Region.WIDTH, 35, (region.z + 1) * Region.WIDTH);
+		Drawer.vertex((region.x + 1) * Region.WIDTH, 35, region.z * Region.WIDTH);
+		
+		Drawer.draw();*/
+		
 		Renderer.debugGL("CR rend end");
 	}
 

@@ -1,4 +1,4 @@
-package ru.settletale.client.gl;
+package wrap.gl;
 
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;

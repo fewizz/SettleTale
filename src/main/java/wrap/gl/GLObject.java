@@ -1,4 +1,4 @@
-package ru.settletale.client.gl;
+package wrap.gl;
 
 public abstract class GLObject<T> {
 	public static final int ID_NOT_GENERATED = -1;
@@ -6,6 +6,9 @@ public abstract class GLObject<T> {
 	private int id = ID_NOT_GENERATED;
 
 	public T gen() {
+		if(isGenerated()) {
+			throw new Error("Already generated");
+		}
 		id = genInternal();
 		return getThis();
 	}

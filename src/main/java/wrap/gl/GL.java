@@ -1,4 +1,4 @@
-package ru.settletale.client.gl;
+package wrap.gl;
 
 import static org.lwjgl.opengl.GL11.*;
 
@@ -7,7 +7,6 @@ import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL45;
 
-import ru.settletale.util.Matrix4fs;
 import ru.settletale.util.PrimitiveType;
 
 public class GL {
@@ -18,8 +17,6 @@ public class GL {
 	public static int versionMinor;
 	public static String vendor;
 	public static int maxTextureUnitsAmount;
-	public static final Matrix4fs PROJ_MATRIX = new Matrix4fs();
-	public static final Matrix4fs VIEW_MATRIX = new Matrix4fs();
 
 	public static void init() {
 		org.lwjgl.opengl.GL.createCapabilities();

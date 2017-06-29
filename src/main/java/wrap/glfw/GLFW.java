@@ -1,17 +1,8 @@
-package ru.settletale.client.glfw;
+package wrap.glfw;
 
-import static org.lwjgl.glfw.GLFW.GLFW_RESIZABLE;
-import static org.lwjgl.glfw.GLFW.GLFW_TRUE;
-import static org.lwjgl.glfw.GLFW.GLFW_VISIBLE;
-import static org.lwjgl.glfw.GLFW.glfwCreateWindow;
-import static org.lwjgl.glfw.GLFW.glfwDefaultWindowHints;
-import static org.lwjgl.glfw.GLFW.glfwInit;
-import static org.lwjgl.glfw.GLFW.glfwPollEvents;
-import static org.lwjgl.glfw.GLFW.glfwSetErrorCallback;
-import static org.lwjgl.glfw.GLFW.glfwWindowHint;
+import static org.lwjgl.glfw.GLFW.*;
 
 import org.lwjgl.glfw.GLFWErrorCallback;
-import org.lwjgl.system.MemoryUtil;
 
 import com.koloboke.collect.map.hash.HashLongObjMap;
 import com.koloboke.collect.map.hash.HashLongObjMaps;
@@ -31,6 +22,10 @@ public class GLFW {
 	
 	public static void pollEvents() {
 		glfwPollEvents();
+	}
+	
+	static void onWindowCreated(Window w) {
+		WINDOWS.put(w.id, w);
 	}
 	
 	public static Window getWindow(long id) {

@@ -3,11 +3,6 @@ package ru.settletale.client.render;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
-import ru.settletale.client.gl.GL;
-import ru.settletale.client.gl.Shader;
-import ru.settletale.client.gl.ShaderProgram;
-import ru.settletale.client.gl.Texture2D;
-import ru.settletale.client.gl.Shader.ShaderType;
 import ru.settletale.client.render.vertex.VertexArrayDataBaker;
 import ru.settletale.client.render.vertex.VertexArrayRenderer;
 import ru.settletale.client.render.vertex.VertexAttribType;
@@ -16,6 +11,12 @@ import ru.settletale.client.resource.loader.ShaderSourceLoader;
 import ru.settletale.memory.MemoryBlock;
 import ru.settletale.util.AdvancedArrayList;
 import ru.settletale.util.AdvancedList;
+import wrap.gl.GL;
+import wrap.gl.Shader;
+import wrap.gl.ShaderProgram;
+import wrap.gl.Texture2D;
+import wrap.gl.GLBuffer.BufferUsage;
+import wrap.gl.Shader.ShaderType;
 
 public class Drawer {
 	public static final VertexArrayRenderer VERTEX_ARRAY_RENDERER = new VertexArrayRenderer();
@@ -71,14 +72,12 @@ public class Drawer {
 		PROGRAM_MULTITEX.attachShader(new Shader().gen(ShaderType.VERTEX).source(ShaderSourceLoader.SHADER_SOURCES.get("shaders/drawer_multitex.vs")));
 		PROGRAM_MULTITEX.attachShader(new Shader().gen(ShaderType.FRAGMENT).source(ShaderSourceLoader.SHADER_SOURCES.get("shaders/drawer_multitex.fs")));
 		PROGRAM_MULTITEX.link();
-
-		//LAYER.setAllowSubDataWhenPossible(true);
 	}
 
 	public static void begin(int mode) {
 		drawingMode = mode;
 
-		VERTEX_ARRAY_DATA_BAKER.clear();
+		VERTEX_ARRAY_DATA_BAKER.reset();
 		TEXTURES.clear();
 	}
 
@@ -97,7 +96,7 @@ public class Drawer {
 	public static void draw(ShaderProgram program, Runnable runBindTextures) {
 		Renderer.debugGL("Drawer start", true);
 
-		VERTEX_ARRAY_RENDERER.compile(VERTEX_ARRAY_DATA_BAKER);
+		VERTEX_ARRAY_RENDERER.compile(VERTEX_ARRAY_DATA_BAKER, BufferUsage.DYNAMIC_DRAW);
 
 		Renderer.debugGL("Drawer pre vao bind");
 
