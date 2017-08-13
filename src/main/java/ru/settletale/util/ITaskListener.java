@@ -1,5 +1,6 @@
 package ru.settletale.util;
 
-public interface TaskListener {
+@FunctionalInterface
+public interface ITaskListener {
 	public void onCompleted();
 }

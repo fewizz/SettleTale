@@ -11,22 +11,23 @@ import ru.settletale.client.render.FontChar;
 import ru.settletale.client.render.FontPage;
 import ru.settletale.client.resource.ResourceFile;
 import ru.settletale.client.resource.ResourceManager;
+import ru.settletale.client.resource.Textures;
 
-public class FontLoader extends ResourceLoaderAbstract {
+public class FontLoader extends ResourceLoaderAbstract<Font> {
 	public static final Map<String, Font> FONTS = new HashMap<>();
 	
-	@Override
+	/*@Override
 	public String[] getRequiredExtensions() {
 		return new String[] {"fnt"};
-	}
+	}*/
 
 	@Override
-	public void loadResource(ResourceFile resourceFile) {
+	public Font loadResource(ResourceFile resourceFile) {
 		System.out.println("Loading font: " + resourceFile.key);
 		
 		Font font = new Font();
 
-		try (FileReader fr = new FileReader(resourceFile.path.toFile()); BufferedReader reader = new BufferedReader(fr)) {
+		try (FileReader fr = new FileReader(resourceFile.getLeadPath().toFile()); BufferedReader reader = new BufferedReader(fr)) {
 
 			for (;;) {
 				String line = reader.readLine();
@@ -62,12 +63,14 @@ public class FontLoader extends ResourceLoaderAbstract {
 		}
 		
 		for(FontPage page : font.pages) {
-			ResourceFile res = resourceFile.dir.findResourceFileIncludingSubdirectories(page.textureName);
-			ResourceManager.loadResource(res);
-			page.texture = TextureLoader.TEXTURES.get(res.key);
+			ResourceFile res = resourceFile.dir.findFileIncludingSubdirectories(page.textureName);
+			//ResourceManager.loadResource(res);
+			//ResourceManager.TEX_LOADER.loadResource(res);
+			page.texture = Textures.getOrLoad(res.key);
 		}
 		
 		FONTS.put(resourceFile.key, font);
+		return font;
 	}
 	
 	static String getValue(String str) {

@@ -3,111 +3,29 @@ package ru.settletale.client.resource;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
-import ru.settletale.client.resource.loader.ColladaLoader;
 import ru.settletale.client.resource.loader.FontLoader;
-import ru.settletale.client.resource.loader.MtlLibLoader;
-import ru.settletale.client.resource.loader.ObjModelLoader;
-import ru.settletale.client.resource.loader.ResourceLoaderAbstract;
 import ru.settletale.client.resource.loader.ShaderSourceLoader;
 import ru.settletale.client.resource.loader.TextureLoader;
 
 public class ResourceManager {
-	static final List<ResourceLoaderAbstract> RESOURCE_LOADERS = new ArrayList<>();
-	static final Map<String, ResourceFile> KEY_LOADED_RES_MAP = new HashMap<>();
-	static final List<ResourceDirectory> ROOTS = new ArrayList<>();
-	static final Queue<Runnable> TASKS = new ConcurrentLinkedQueue<>();
-
-	public static void loadResources() {
-		RESOURCE_LOADERS.add(new TextureLoader());
-		RESOURCE_LOADERS.add(new ShaderSourceLoader());
-		RESOURCE_LOADERS.add(new FontLoader());
-		RESOURCE_LOADERS.add(new ObjModelLoader());
-		RESOURCE_LOADERS.add(new MtlLibLoader());
-		RESOURCE_LOADERS.add(new ColladaLoader());
-
-		startResourceScanning();
-		
-		ROOTS.forEach(root -> {
-			root.loadResources();
-		});
-		
-		TASKS.forEach(Runnable::run);
-	}
+	public static final TextureLoader TEX_LOADER = new TextureLoader();
+	public static final ShaderSourceLoader SHADER_SOURCE_LOADER = new ShaderSourceLoader();
+	public static final FontLoader FONT_LOADER = new FontLoader();
 	
-	private static void startResourceScanning() {
-		scanFolder(Paths.get("assets/"));
-		scanFolder(Paths.get("src/main/resources/assets/"));
+	public static final ResourceDirectory ROOT = new ResourceDirectory(null, "assets");
+
+	public static void scanResourceFiles() {
+		addScanFolder(Paths.get("assets/"));
+		addScanFolder(Paths.get("src/main/resources/assets/"));
+		ROOT.scan();
 	}
 
-	public static boolean loadResource(String resPath) {
-		for(ResourceDirectory dir : ROOTS) {
-			ResourceFile file = dir.findResourceFileIncludingSubdirectories(resPath);
-			
-			if(file != null) {
-				loadResource(file);
-				return true;
-			}
-		}
-		
-		return false;
-	}
-	
-	public static void loadResource(ResourceFile res) {
-		if (res.isLoaded()) {
-			return;
-		}
-
-		ResourceManager.RESOURCE_LOADERS.forEach(loader -> {
-			for (String ext : loader.getRequiredExtensions()) {
-				if (!res.isExtensionEqual(ext))
-					continue;
-				
-				loader.loadResource(res);
-			}
-		});
-		
-		res.setLoaded(true);
-		KEY_LOADED_RES_MAP.put(res.key, res);
-	}
-
-	private static void scanFolder(Path path) {
-		if(!Files.exists(path) || !Files.isDirectory(path)) {
+	private static void addScanFolder(Path path) {
+		if(!Files.exists(path) || !Files.isDirectory(path) || ROOT.paths.contains(path)) {
 			return;
 		}
 		
-		ResourceDirectory root = new ResourceDirectory(null, path);
-		ROOTS.add(root);
-		root.scan();
-	}
-	
-	public static boolean isResourceLoaded(String resPath) {
-		return KEY_LOADED_RES_MAP.containsKey(resPath);
-	}
-	
-	public static boolean isResourceLoaded(ResourceFile res) {
-		return KEY_LOADED_RES_MAP.containsValue(res);
-	}
-	
-	public static void runAfterResourcesLoaded(Runnable run) {
-		TASKS.add(run);
-	}
-	
-	public static Path getPath(String res) {
-		for(ResourceDirectory rd : ROOTS) {
-			Path p = rd.path.resolve(res);
-			
-			if(p != null) {
-				return p;
-			}
-		}
-		
-		return null;
+		ROOT.addPath(path);
 	}
 }

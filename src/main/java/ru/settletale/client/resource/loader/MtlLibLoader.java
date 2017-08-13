@@ -69,7 +69,7 @@ public class MtlLibLoader extends ResourceLoaderAbstract {
 				String[] values = str.split(" ");
 
 				String textureDiffuse = values[values.length - 1];
-				ResourceFile res = resourceFile.dir.findResourceFileIncludingSubdirectories(textureDiffuse);
+				ResourceFile res = resourceFile.dir.findFileIncludingSubdirectories(textureDiffuse);
 				ResourceManager.loadResource(res);
 
 				matLib.addDiffuseTextureToMaterial(mat, TextureLoader.TEXTURES.get(res.key));
@@ -79,14 +79,14 @@ public class MtlLibLoader extends ResourceLoaderAbstract {
 				String[] values = str.split(" ");
 
 				String textureBump = values[values.length - 1];
-				ResourceFile res = resourceFile.dir.findResourceFileIncludingSubdirectories(textureBump);
+				ResourceFile res = resourceFile.dir.findFileIncludingSubdirectories(textureBump);
 				ResourceManager.loadResource(res);
 
 				Texture<?> tex = TextureLoader.TEXTURES.get(res.key);
 				matLib.addBumpTextureToMaterial(mat, tex);
 
 				if (tex != null) {
-					Client.GL_THREAD.execute(() -> {
+					Client.GL_THREAD.addTask(() -> {
 						tex.parameter(GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
 						tex.parameter(GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
 					});

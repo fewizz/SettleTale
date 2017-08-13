@@ -10,7 +10,7 @@ import ru.settletale.world.World;
 import ru.settletale.world.region.RegionManagerOnePlayer;
 
 public class GameServer extends GameAbstract {
-	ServerBootstrap boot;
+	ServerBootstrap bootstrap;
 
 	@Override
 	public Side getSide() {
@@ -19,15 +19,15 @@ public class GameServer extends GameAbstract {
 	
 	@Override
 	public void start() {
-		boot = new ServerBootstrap();
-		boot.group(new NioEventLoopGroup(1));
-		boot.channel(NioServerSocketChannel.class);
-		boot.childHandler(new NewChannelListener());
+		bootstrap = new ServerBootstrap();
+		bootstrap.group(new NioEventLoopGroup(1));
+		bootstrap.channel(NioServerSocketChannel.class);
+		bootstrap.childHandler(new NewChannelListener());
 		world = new World(new RegionManagerOnePlayer());
 		world.updateThread.start();
 		
 		try {
-			Channel ch = boot.bind(25575).sync().channel();
+			Channel ch = bootstrap.bind(25575).sync().channel();
 			System.out.println("Server started");
 			
 			
@@ -35,7 +35,7 @@ public class GameServer extends GameAbstract {
 			ch.closeFuture().sync();
 			
 			System.out.println("Server end");
-			boot.config().childGroup().shutdownGracefully();
+			bootstrap.config().childGroup().shutdownGracefully();
 		} catch (InterruptedException e) {e.printStackTrace();}
 	}
 

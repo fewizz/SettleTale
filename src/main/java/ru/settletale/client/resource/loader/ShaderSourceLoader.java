@@ -9,19 +9,19 @@ import ru.settletale.client.resource.ResourceManager;
 import ru.settletale.util.FileUtils;
 import ru.settletale.util.StringUtils;
 
-public class ShaderSourceLoader extends ResourceLoaderAbstract {
+public class ShaderSourceLoader extends ResourceLoaderAbstract<String> {
 	public static final Map<String, String> SHADER_SOURCES = new HashMap<>();
 
-	@Override
+	/*@Override
 	public String[] getRequiredExtensions() {
 		return new String[] { "vs", "fs", "glsl" };
-	}
+	}*/
 
 	@Override
-	public void loadResource(ResourceFile resourceFile) {
+	public String loadResource(ResourceFile resourceFile) {
 		System.out.println("Loading shader: " + resourceFile.key);
 
-		List<String> sourceLines = FileUtils.readLines(resourceFile.path.toFile());
+		List<String> sourceLines = FileUtils.readLines(resourceFile.getLeadPath().toFile());
 
 		for(int i = 0; i < sourceLines.size(); i++) {
 			String str = sourceLines.get(i);
@@ -36,7 +36,8 @@ public class ShaderSourceLoader extends ResourceLoaderAbstract {
 				String libPath = strs[1];
 				
 				if(!SHADER_SOURCES.containsKey(libPath)) {
-					ResourceManager.loadResource(libPath);
+					//ResourceManager.loadResource(libPath);
+					this.loadResource(ResourceManager.ROOT.findFileIncludingSubdirectories(libPath));
 				}
 				
 				String libSource = SHADER_SOURCES.get(libPath);
@@ -44,6 +45,8 @@ public class ShaderSourceLoader extends ResourceLoaderAbstract {
 			}
 		}
 		
-		SHADER_SOURCES.put(resourceFile.key, StringUtils.concatAll(sourceLines));
+		String source = StringUtils.concatAll(sourceLines);
+		SHADER_SOURCES.put(resourceFile.key, source);
+		return source;
 	}
 }

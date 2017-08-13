@@ -16,29 +16,17 @@ public class ThreadWithTasks extends Thread {
 	@Override
 	public final void run() {
 		for (;;) {
-			if (interrupted()) {
+			try {
+				semaphore.acquire();
+				taskQueue.poll().run();
+			} catch (InterruptedException e) {
 				break;
 			}
-			try {
-				waitAndDoAvailableTask();
-			} catch (InterruptedException e) {
-			}
 		}
 	}
 
-	private void waitAndDoAvailableTask() throws InterruptedException {
-		semaphore.acquire();
-		taskQueue.poll().run();
-	}
-
-	public void doAvailableTasks() {
-		while (semaphore.tryAcquire()) {
-			taskQueue.poll().run();
-		}
-	}
-
-	public ThreadTask execute(Runnable runnable) {
-		Objects.requireNonNull(runnable, "Runnable is null");
+	public ThreadTask addTask(Runnable runnable) {
+		Objects.requireNonNull(runnable);
 		ThreadTask task = new ThreadTask(runnable);
 		taskQueue.add(task);
 		semaphore.release();

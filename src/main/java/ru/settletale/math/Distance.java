@@ -28,10 +28,6 @@ public class Distance {
 		
 		return Math.sqrt(x * x + y * y + z * z);
 	}
-	
-	public static double segmentPoint(Segment segment, Point point) {
-		return segmentPoint(segment, point.origin);
-	}
 
 	public static double segmentPoint(Segment segment, Vector3d vector) {
 		return segmentPoint(segment, vector.x, vector.y, vector.z);

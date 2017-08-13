@@ -5,9 +5,6 @@ import static org.lwjgl.opengl.GL11.*;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
-import org.lwjgl.opengl.GL45;
-
-import ru.settletale.util.PrimitiveType;
 
 public class GL {
 	private static Texture<?>[] activeTextures;
@@ -16,7 +13,7 @@ public class GL {
 	public static int versionMajor;
 	public static int versionMinor;
 	public static String vendor;
-	public static int maxTextureUnitsAmount;
+	//public static int maxTextureUnitsAmount;
 
 	public static void init() {
 		org.lwjgl.opengl.GL.createCapabilities();
@@ -25,8 +22,9 @@ public class GL {
 		versionMajor = getInteger(GL30.GL_MAJOR_VERSION);
 		versionMinor = getInteger(GL30.GL_MINOR_VERSION);
 		version = versionMajor * 10 + versionMinor;
-		maxTextureUnitsAmount = getInteger(GL20.GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS);
+		int maxTextureUnitsAmount = getInteger(GL20.GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS);
 		activeTextures = new Texture<?>[maxTextureUnitsAmount];
+		
 		for(int i = 0; i < activeTextures.length; i++) {
 			activeTextures[i] = Texture.DEFAULT;
 		}
@@ -70,43 +68,5 @@ public class GL {
 
 	public static int getInteger(int pname) {
 		return glGetInteger(pname);
-	}
-
-	public static String getErrorNameFromHex(int hex) {
-		switch (hex) {
-			case GL_INVALID_ENUM:
-				return "GL_INVALID_ENUM";
-			case GL_INVALID_VALUE:
-				return "GL_INVALID_VALUE";
-			case GL_INVALID_OPERATION:
-				return "GL_INVALID_OPERATION";
-			case GL_STACK_OVERFLOW:
-				return "GL_STACK_OVERFLOW";
-			case GL_STACK_UNDERFLOW:
-				return "GL_STACK_UNDERFLOW";
-			case GL_OUT_OF_MEMORY:
-				return "GL_OUT_OF_MEMORY";
-			case GL30.GL_INVALID_FRAMEBUFFER_OPERATION:
-				return "GL_INVALID_FRAMEBUFFER_OPERATION";
-			case GL45.GL_CONTEXT_LOST:
-				return "GL_CONTEXT_LOST";
-			default:
-				return null;
-		}
-	}
-
-	public static int getGLPrimitiveType(PrimitiveType p) {
-		switch (p) {
-			case FLOAT:
-				return GL_FLOAT;
-			case BYTE:
-				return GL_BYTE;
-			case UBYTE:
-				return GL_UNSIGNED_BYTE;
-			case INT:
-				return GL_INT;
-			default:
-				throw new Error("Undefined type");
-		}
 	}
 }

@@ -9,7 +9,7 @@ public class WindowResizeListener extends GLFWFramebufferSizeCallback {
 
 	@Override
 	public void invoke(long window, int width, int height) {
-		Client.GL_THREAD.execute(() -> {
+		Client.GL_THREAD.addTask(() -> {
 			System.out.println(width + " " + height);
 			GL11.glViewport(0, 0, width, height);
 			Renderer.updateDisplaySizeUniformBlock();

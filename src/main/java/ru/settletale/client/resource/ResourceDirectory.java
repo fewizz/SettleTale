@@ -3,86 +3,145 @@ package ru.settletale.client.resource;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
+import java.util.ArrayDeque;
+import java.util.HashSet;
+import java.util.Queue;
+import java.util.Set;
+
+import org.apache.commons.io.FilenameUtils;
 
 public class ResourceDirectory {
 	final String key;
 	final String name;
-	final ResourceDirectory prevDir;
-	final ArrayList<ResourceFile> resources = new ArrayList<>();
-	final ArrayList<ResourceDirectory> directories = new ArrayList<>();
-	final Path path;
+	final ResourceDirectory parentDir;
+	final Set<ResourceFile> files = new HashSet<>();
+	final Set<ResourceDirectory> directories = new HashSet<>();
+	final Queue<Path> paths = new ArrayDeque<>();
 
-	public ResourceDirectory(ResourceDirectory prevDir, Path path) {
-		this.path = path;
-		this.prevDir = prevDir;
-		name = path.getFileName().toString();
-		key = isRoot() ? "" : prevDir.key + name + "/";
+	public ResourceDirectory(ResourceDirectory parentDir, String name) {
+		this.parentDir = parentDir;
+		this.name = FilenameUtils.normalizeNoEndSeparator(name);
+		key = isRoot() ? "" : (parentDir.isRoot() ? "" : parentDir.key + "/") + name;
+	}
+	
+	public void addPath(Path p) {
+		paths.add(p);
 	}
 
 	public void scan() {
-		System.out.println(path.toAbsolutePath());
-
 		try {
-			Files.list(path).forEach(otherPath -> {
-				if (Files.isRegularFile(otherPath))
-					resources.add(new ResourceFile(this, otherPath));
+			for(Path path : paths) {
+				Files.list(path).forEach(childPath -> {
+					
+					if (Files.isRegularFile(childPath)) {
+						String name = childPath.getFileName().toString();
+						ResourceFile file = getFile(name);
+						
+						if(file == null) {
+							file = new ResourceFile(this, name);
+							files.add(file);
+						}
+						
+						file.addPath(childPath);
+					}
 
-				if (Files.isDirectory(otherPath))
-					directories.add(new ResourceDirectory(this, otherPath));
-
-			});
+					if (Files.isDirectory(childPath)) {
+						String name = childPath.getFileName().toString();
+						ResourceDirectory dir = getDirectory(name);
+						
+						if(dir == null) {
+							dir = new ResourceDirectory(this, name);
+							directories.add(dir);
+						}
+						
+						dir.paths.add(childPath);
+					}
+				
+				});
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
 		directories.forEach(dir -> dir.scan());
 	}
-
-	public void loadResources() {
-		resources.forEach(res -> ResourceManager.loadResource(res));
-		directories.forEach(dir -> dir.loadResources());
+	
+	public void forEachFile(IResourceFileIter func, String... extensions) {
+		files.forEach(file ->  {
+			if(extensions.length == 0)
+				func.iter(file);
+			else {
+				for(String ext : extensions) {
+					if(file.getExtension().equals(ext)) {
+						func.iter(file);
+						break;
+					}
+				}
+			}
+		});
+	}
+	
+	public void forEachFileIncludingSubdirectories(IResourceFileIter func, String... extensions) {
+		forEachFile(func, extensions);
+		directories.forEach(dir -> dir.forEachFileIncludingSubdirectories(func, extensions));
+	}
+	
+	@FunctionalInterface
+	public interface IResourceFileIter {
+		public void iter(ResourceFile file);
+	}
+	
+	public ResourceFile getFile(String name) {
+		for(ResourceFile file : files) {
+			if(file.name.equals(name))
+				return file;
+		}
+		return null;
+	}
+	
+	public ResourceDirectory getDirectory(String name) {
+		for(ResourceDirectory dir : directories) {
+			if(dir.name.equals(name))
+				return dir;
+		}
+		return null;
 	}
 
-	public ResourceFile findResourceFileIncludingSubdirectories(String path) {
+	public ResourceFile findFileIncludingSubdirectories(String path) {
 		path = path.replace('\\', '/');
 
 		ResourceDirectory dir = null;
 
 		if (path.contains("/")) {
-			dir = findResourceDirectory(path);
-			path = path.substring(dir.key.length());
+			dir = findDirectoryIncludingSubdirectories(path);
 		}
 		else
 			dir = this;
 
-		for (ResourceFile res : dir.resources) {
-			if (res.name.equals(path))
-				return res;
-		}
-
-		throw new Error("File \"" + path + "\" not found in \"" + key + "\"");
+		return dir.getFile(FilenameUtils.getName(path));
 	}
 
-	public ResourceDirectory findResourceDirectory(String path) {
+	public ResourceDirectory findDirectoryIncludingSubdirectories(String path) {
 		path = path.replace('\\', '/');
-
-		for (ResourceDirectory dir : directories) {
-			if (path.startsWith(dir.name)) {
-				path = path.substring(dir.name.length() + 1);
-
-				if (path.contains("/"))
-					return dir.findResourceDirectory(path);
-				else
-					return dir;
-
-			}
+		
+		boolean isFile = !FilenameUtils.getExtension(path).equals("");
+		
+		if(isFile) {
+			path = path.substring(0, path.length() - FilenameUtils.getName(path).length() - 1);
 		}
-
-		throw new Error("Dir \"" + path + "\" not found in \"" + key + "\"");
+		System.out.println(path);
+		
+		int indexOfSlash = path.indexOf('/');
+		
+		if(indexOfSlash == -1) {
+			return getDirectory(path);
+		}
+		
+		String childPath = path.substring(0, indexOfSlash);
+		return getDirectory(childPath).findDirectoryIncludingSubdirectories(path.substring(indexOfSlash + 1, path.length()));
 	}
 
 	public boolean isRoot() {
-		return prevDir == null;
+		return parentDir == null;
 	}
 }

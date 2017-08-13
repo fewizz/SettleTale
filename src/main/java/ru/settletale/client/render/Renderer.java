@@ -1,23 +1,19 @@
 package ru.settletale.client.render;
 
-import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
+import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL11.glClear;
 import static org.lwjgl.opengl.GL11.glGetError;
 
 import org.lwjgl.system.MemoryStack;
 
 import ru.settletale.client.Client;
+import ru.settletale.client.render.util.GLUtils;
 import ru.settletale.client.render.world.WorldRenderer;
-import ru.settletale.client.resource.loader.ShaderSourceLoader;
 import ru.settletale.util.Matrix4fs;
 import ru.settletale.util.TickTimer;
 import wrap.gl.GL;
-import wrap.gl.Shader;
-import wrap.gl.ShaderProgram;
 import wrap.gl.UniformBuffer;
 import wrap.gl.GLBuffer.BufferUsage;
-import wrap.gl.Shader.ShaderType;
 
 public class Renderer {
 	public static final boolean DEBUG = true;
@@ -51,6 +47,8 @@ public class Renderer {
 		GL.bindBufferBase(UBO_MATRICES_INVERSED, GlobalUniforms.MATRICES_INVERSED);
 		GL.bindBufferBase(UBO_MATRIX_COMBINED, GlobalUniforms.MATRIX_COMBINED);
 		GL.bindBufferBase(UBO_DISPLAY_SIZE, GlobalUniforms.DISPLAY);
+		
+		updateDisplaySizeUniformBlock();
 	}
 
 	public static void render() {
@@ -59,14 +57,13 @@ public class Renderer {
 		WorldRenderer.render();
 
 		Client.WINDOW.swapBuffers();
-		
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		frames++;
 
 		long time = System.nanoTime();
 
-		if (time - start > 1_000_000_000L) {
+		if (time - start >= 1_000_000_000L) {
 			start = time;
 
 			if (DEBUG)
@@ -76,7 +73,11 @@ public class Renderer {
 			frames = 0;
 		}
 
-		FRAMERATE_TICKER.waitAndEndTimer();
+		//FRAMERATE_TICKER.waitAndEndTimer();
+	}
+	
+	public static void waitTicker() {
+		FRAMERATE_TICKER.waitAndRestart();
 	}
 	
 	public static void updateMatriciesUniformBlock() {
@@ -126,7 +127,7 @@ public class Renderer {
 			int errorHex = glGetError();
 
 			if (errorHex != 0) {
-				String errorName = GL.getErrorNameFromHex(errorHex);
+				String errorName = GLUtils.getErrorNameFromHex(errorHex);
 
 				throw new Error("OpenGL Error 0x" + Integer.toHexString(errorHex) + " \"" + errorName + "\"" + ": " + s + (printParent ? " | Previous: " + previousGLDebugMessage : ""));
 			}
@@ -136,12 +137,5 @@ public class Renderer {
 
 			previousGLDebugMessage = s;
 		}
-	}
-	
-	public static void genAndLinkShadersToProgram(ShaderProgram program, String vsLocation, String fsLocation) {
-		program.gen();
-		program.attachShader(new Shader().gen(ShaderType.VERTEX).source(ShaderSourceLoader.SHADER_SOURCES.get(vsLocation)));
-		program.attachShader(new Shader().gen(ShaderType.FRAGMENT).source(ShaderSourceLoader.SHADER_SOURCES.get(fsLocation)));
-		program.link();
 	}
 }

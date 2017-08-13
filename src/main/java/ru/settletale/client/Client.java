@@ -3,6 +3,7 @@ package ru.settletale.client;
 import static org.lwjgl.glfw.GLFW.*;
 
 import org.lwjgl.glfw.GLFWVidMode;
+import org.lwjgl.opengl.GL11;
 
 import ru.settletale.GameAbstract;
 import ru.settletale.client.render.Drawer;
@@ -34,7 +35,8 @@ public class Client extends GameAbstract {
 		
 		/** Starting rendering **/
 		GL_THREAD.start();
-		GL_THREAD.execute(() -> {
+		
+		GL_THREAD.addTask(() -> {
 			GLFW.init();
 			
 			WINDOW.create(1200, 600, "SettleTale");
@@ -46,17 +48,18 @@ public class Client extends GameAbstract {
 			WINDOW.makeContextCurrent();
 			WINDOW.swapInterval(0);
 			
+			GL.init();
+			
 			WINDOW.show();
 			
-			GL.init();
-			Renderer.init();
-			
 			WINDOW.setFramebufferSizeCallback(new WindowResizeListener());
+			GL11.glViewport(0, 0, WINDOW.getWidth(), WINDOW.getHeight());
 		});
 		
-		ResourceManager.loadResources();
+		ResourceManager.scanResourceFiles();
 		
-		GL_THREAD.execute(() -> {
+		GL_THREAD.addTask(() -> {
+			Renderer.init();
 			Drawer.init();
 			WorldRenderer.init();
 		});
@@ -68,18 +71,22 @@ public class Client extends GameAbstract {
 		world.updateThread.start();
 		/********************/
 		
-		GL_THREAD.execute(() -> {
-			for(;;) {
-				GL_THREAD.doAvailableTasks();
-				
+		for(;;) {
+			GL_THREAD.addTask(() -> {
 				GLFW.pollEvents();
 
 				KeyListener.updateForCurrentThread();
 				Camera.update();
 				WINDOW.setCursorPos(Client.WINDOW.getWidth() / 2D, Client.WINDOW.getHeight() / 2D);
-				
+					
 				Renderer.render();
+			}).await();
+			
+			if(!GL_THREAD.isAlive()) {
+				break;
 			}
-		});
+			
+			Renderer.waitTicker();
+		}
 	}
 }

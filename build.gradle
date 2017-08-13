@@ -67,7 +67,6 @@ jar.dependsOn copyLibs
 eclipse {
 	project {
 		name = 'SettleTale'
-
 	}
 	jdt {
 		sourceCompatibility = 1.8

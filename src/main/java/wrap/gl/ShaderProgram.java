@@ -43,6 +43,12 @@ public class ShaderProgram extends GLBindableObject<ShaderProgram> {
 	public void use() {
 		this.bind();
 	}
+	
+	@Deprecated
+	@Override
+	public void bind() {
+		super.bind();
+	}
 
 	@Override
 	public void bindInternal() {
@@ -63,12 +69,12 @@ public class ShaderProgram extends GLBindableObject<ShaderProgram> {
 	}
 
 	public void setUniformInt(int location, int value) {
-		bind();
+		use();
 		GL20.glUniform1i(location, value);
 	}
 
 	public void setUniformMatrix4f(int location, Matrix4f mat) {
-		bind();
+		use();
 		try (MemoryStack ms = MemoryStack.stackPush()) {
 			FloatBuffer buff = ms.mallocFloat(4 * 4);
 			GL20.glUniformMatrix4fv(location, false, mat.get(buff));
@@ -76,12 +82,12 @@ public class ShaderProgram extends GLBindableObject<ShaderProgram> {
 	}
 
 	public void setUniformIntArray(int location, IntBuffer value) {
-		bind();
+		use();
 		GL20.glUniform1iv(location, value);
 	}
 	
 	public void setUniformIntArray(int location, MemoryBlock value) {
-		bind();
+		use();
 		GL20.nglUniform1iv(location, value.ints(), value.address());
 	}
 }

@@ -3,8 +3,6 @@ package ru.settletale.client.resource.loader;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.imageio.ImageIO;
 
@@ -16,25 +14,19 @@ import ru.settletale.client.render.Renderer;
 import ru.settletale.client.resource.ResourceFile;
 import wrap.gl.Texture2D;
 
-public class TextureLoader extends ResourceLoaderAbstract {
-	public static final Map<String, Texture2D> TEXTURES = new HashMap<>();
+public class TextureLoader extends ResourceLoaderAbstract<Texture2D> {
 
 	@Override
-	public String[] getRequiredExtensions() {
-		return new String[] { "png", "jpg" };
-	}
-
-	@Override
-	public void loadResource(ResourceFile resourceFile) {
+	public Texture2D loadResource(ResourceFile resourceFile) {
 		System.out.println("Loading texture: " + resourceFile.key);
 
 		BufferedImage image = null;
 
 		try {
-			image = ImageIO.read(resourceFile.path.toFile());
+			image = ImageIO.read(resourceFile.getLeadPath().toFile());
 		} catch (IOException e) {
 			e.printStackTrace();
-			System.exit(1);
+			return null;
 		}
 
 		int width = image.getWidth();
@@ -44,7 +36,7 @@ public class TextureLoader extends ResourceLoaderAbstract {
 
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
-				int color = image.getRGB(x, height - y - 1);
+				int color = image.getRGB(x, y);
 				buffer.putInt((color & 0xFF000000) | ((color << 16) & 0x00FF0000) | (color & 0x0000FF00) | ((color >>> 16) & 0xFF));
 			}
 		}
@@ -52,12 +44,19 @@ public class TextureLoader extends ResourceLoaderAbstract {
 
 		Texture2D tex = new Texture2D(width, height);
 
-		Client.GL_THREAD.execute(() -> {
+		Runnable run = () -> {
 			tex.gen().setDefaultParams().bufferDataFormat(GL11.GL_RGBA).bufferDataType(GL11.GL_UNSIGNED_BYTE).data(buffer);
 			Renderer.debugGL("Load texture: " + resourceFile.key);
 			MemoryUtil.memFree(buffer);
-		});
-
-		TEXTURES.put(resourceFile.key, tex);
+		};
+		
+		if(Thread.currentThread() != Client.GL_THREAD) {
+			Client.GL_THREAD.addTask(run);
+		}
+		else {
+			run.run();
+		}
+		
+		return tex;
 	}
 }

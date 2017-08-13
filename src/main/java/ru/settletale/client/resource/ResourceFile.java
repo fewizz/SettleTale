@@ -1,36 +1,36 @@
 package ru.settletale.client.resource;
 
 import java.nio.file.Path;
+import java.util.ArrayDeque;
+import java.util.Queue;
 
 import org.apache.commons.io.FilenameUtils;
 
 public class ResourceFile {
-	boolean loaded = false;
 	public final String key;
 	public final String name;
-	public final Path path;
-	final public ResourceDirectory dir;
+	public final Queue<Path> paths = new ArrayDeque<>();
+	public final ResourceDirectory dir;
 
-	public ResourceFile(ResourceDirectory dir, Path path) {
-		this.path = path;
+	public ResourceFile(ResourceDirectory dir, String name) {
 		this.dir = dir;
-		name = path.getFileName().toString();
-		key = dir.key + name;
+		this.name = name;
+		key = dir.key + "/" + name;
 	}
 	
-	public boolean isLoaded() {
-		return loaded;
-	}
-	
-	public void setLoaded(boolean b) {
-		this.loaded = b;
+	public void addPath(Path p) {
+		this.paths.add(p);
 	}
 
 	public boolean isExtensionEqual(String extension) {
 		return getExtension().equals(extension);
 	}
+	
+	public Path getLeadPath() {
+		return paths.peek();
+	}
 
 	public String getExtension() {
-		return FilenameUtils.getExtension(path.toString());
+		return FilenameUtils.getExtension(name);
 	}
 }

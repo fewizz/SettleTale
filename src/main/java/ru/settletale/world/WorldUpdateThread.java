@@ -29,7 +29,7 @@ public class WorldUpdateThread extends Thread {
 			
 			world.update();
 			
-			timer.waitAndEndTimer();
+			timer.waitAndRestart();
 			
 			ticks++;
 		}

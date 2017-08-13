@@ -20,4 +20,12 @@ public interface AdvancedList<E> extends List<E> {
 
 		return false;
 	}
+	
+	default public E getLast() {
+		return get(size() - 1);
+	}
+	
+	default public int getLastIndex() {
+		return size() - 1;
+	}
 }

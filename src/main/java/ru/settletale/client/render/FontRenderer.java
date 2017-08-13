@@ -3,24 +3,23 @@ package ru.settletale.client.render;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
 
-import ru.settletale.client.resource.loader.FontLoader;
-import ru.settletale.client.resource.loader.ShaderSourceLoader;
-import wrap.gl.Shader;
+import ru.settletale.client.render.util.GLUtils;
+import ru.settletale.client.resource.ResourceManager;
 import wrap.gl.ShaderProgram;
 import wrap.gl.Texture2D;
-import wrap.gl.Shader.ShaderType;
 
 public class FontRenderer {
 	static final Vector3f POSITION = new Vector3f(0);
-	static Font font = getDefaultFont();
 	static float scale = 1F;
 	static final Color COLOR = new Color(1F, 1F, 1F, 1F);
 	static String text;
 	static final ShaderProgram DEFAULT_PROGRAM = new ShaderProgram();
 	static ShaderProgram program = DEFAULT_PROGRAM;
+	static Font defaultFont = ResourceManager.FONT_LOADER.loadResource("fonts/font.fnt");
+	static Font font = defaultFont;
 
 	public static Font getDefaultFont() {
-		return FontLoader.FONTS.get("fonts/font.fnt");
+		return defaultFont;
 	}
 
 	public static void setFont(Font f) {
@@ -66,7 +65,9 @@ public class FontRenderer {
 	}
 
 	public static void render(boolean centered) {
-		linkDefaultProgramIfNeed();
+		if(!DEFAULT_PROGRAM.isGenerated()) {
+			GLUtils.linkShadersToProgram(DEFAULT_PROGRAM, "shaders/font.vs", "shaders/font.fs");
+		}
 
 		float wTotal = POSITION.x + (centered ? -(font.getStringWidth(text) * scale) / 2F : 0);
 		float y = POSITION.y + (centered ? -(font.originalSize * scale) / 2F : 0);
@@ -82,7 +83,7 @@ public class FontRenderer {
 
 			float tu = fch.x / (float) fch.page.texture.width;
 			float tw = fch.width / (float) fch.page.texture.width;
-			float tv = 1F - (fch.y / (float) fch.page.texture.height);
+			float tv = fch.y / (float) fch.page.texture.height;
 			float th = fch.height / (float) fch.page.texture.height;
 			float xOffset = fch.xOffset * scale;
 			float yOffset = fch.yOffset * scale;
@@ -94,7 +95,7 @@ public class FontRenderer {
 			Drawer.texture(tex);
 			Drawer.COLOR.set(COLOR);
 
-			Drawer.UV.set(tu, tv - th);
+			Drawer.UV.set(tu, tv + th);
 			Drawer.vertex(wTotal + xOffset, (y + base - yOffset) - height, 0);
 
 			Drawer.UV.set(tu, tv);
@@ -103,21 +104,12 @@ public class FontRenderer {
 			Drawer.UV.set(tu + tw, tv);
 			Drawer.vertex(wTotal + xOffset + width, y + base - yOffset, 0);
 
-			Drawer.UV.set(tu + tw, tv - th);
+			Drawer.UV.set(tu + tw, tv + th);
 			Drawer.vertex(wTotal + xOffset + width, (y + base - yOffset) - height, 0);
 
 			wTotal += fch.xAdvance * scale;
 		}
 		
-		Drawer.draw(program, Drawer.TEX_BINDER_MUTLI);
-	}
-
-	static void linkDefaultProgramIfNeed() {
-		if (!DEFAULT_PROGRAM.isGenerated()) {
-			DEFAULT_PROGRAM.gen();
-			DEFAULT_PROGRAM.attachShader(new Shader().gen(ShaderType.VERTEX).source(ShaderSourceLoader.SHADER_SOURCES.get("shaders/font.vs")));
-			DEFAULT_PROGRAM.attachShader(new Shader().gen(ShaderType.FRAGMENT).source(ShaderSourceLoader.SHADER_SOURCES.get("shaders/font.fs")));
-			DEFAULT_PROGRAM.link();
-		}
+		Drawer.draw(program, Drawer.TEX_BINDER_MULTI);
 	}
 }

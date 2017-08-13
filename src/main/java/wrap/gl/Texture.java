@@ -10,7 +10,12 @@ public abstract class Texture<T> extends GLBindableObject<T> {
 		public Texture<?> gen() {
 			throw new Error();
 		}
-
+		
+		@Override
+		public int getID() {
+			return 0;
+		}
+		
 		@Override
 		public void delete() {
 			throw new Error();
@@ -24,16 +29,6 @@ public abstract class Texture<T> extends GLBindableObject<T> {
 		@Override
 		void subData(ByteBuffer buffer) {
 			throw new Error();
-		}
-		
-		@Override
-		public int getID() {
-			return 0;
-		}
-		
-		@Override
-		public boolean isGenerated() {
-			return true;
 		}
 	};
 

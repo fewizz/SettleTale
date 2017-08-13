@@ -18,9 +18,6 @@ import ru.settletale.client.Client;
 import ru.settletale.client.render.ColladaModelRenderer;
 import ru.settletale.client.render.ColladaModelRenderer.ColladaGeometryRenderer;
 import ru.settletale.client.render.GlobalUniforms;
-import ru.settletale.client.render.vertex.VertexArrayDataBaker;
-import ru.settletale.client.render.vertex.VertexArrayRenderer;
-import ru.settletale.client.render.vertex.VertexAttribType;
 import ru.settletale.client.resource.ResourceFile;
 import ru.settletale.client.resource.ResourceManager;
 import ru.settletale.client.resource.collada.Collada;
@@ -34,22 +31,20 @@ import ru.settletale.client.resource.collada.Input.Semantic;
 import ru.settletale.client.resource.collada.Material;
 import ru.settletale.client.resource.collada.Matrix;
 
-public class ColladaLoader extends ResourceLoaderAbstract {
-	public static final Map<String, ColladaModelRenderer> MODELS = new HashMap<>();
+public class ColladaLoader extends ResourceLoaderAbstract<ColladaModelRenderer> {
+	//public static final Map<String, ColladaModelRenderer> MODELS = new HashMap<>();
 
-	static final int POS = 0;
+	/*static final int POS = 0;
 	static final int NORM = 1;
 	static final int UV = 2;
-	static final int FLAGS = 3;
+	static final int FLAGS = 3;*/
 
 	@Override
-	public String[] getRequiredExtensions() {
-		return new String[] { "dae" };
-	}
-
-	@Override
-	public void loadResource(ResourceFile resourceFile) {
-		try {
+	public ColladaModelRenderer loadResource(ResourceFile resourceFile) {
+		
+		
+		
+		/*try {
 			DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 			Document doc = documentBuilder.parse(resourceFile.path.toFile());
 
@@ -81,10 +76,10 @@ public class ColladaLoader extends ResourceLoaderAbstract {
 			MODELS.put(resourceFile.key, model);
 		} catch (ParserConfigurationException | SAXException | IOException e) {
 			e.printStackTrace();
-		}
+		}*/
 	}
 
-	private VertexArrayRenderer generateLayerFromPolylist(Polylist polylist, Map<VertexArrayRenderer, VertexArrayDataBaker> layers, Material m) {
+	/*private VertexArrayRenderer generateLayerFromPolylist(Polylist polylist, Map<VertexArrayRenderer, VertexArrayDataBaker> layers, Material m) {
 		VertexArrayDataBaker baker = new VertexArrayDataBaker(polylist.getTotalUsedVertexCount(), false);
 		VertexArrayRenderer layer = new VertexArrayRenderer();//.setVertexArrayDataBaker(baker);
 		layers.put(layer, baker);
@@ -147,5 +142,5 @@ public class ColladaLoader extends ResourceLoaderAbstract {
 		}
 		
 		return layer;
-	}
+	}*/
 }

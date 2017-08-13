@@ -16,8 +16,6 @@ import ru.settletale.client.render.MTLLib;
 import ru.settletale.client.render.Material;
 import ru.settletale.client.render.ObjModelRenderer;
 import ru.settletale.client.render.TexturedMaterialBinder;
-import ru.settletale.client.render.vertex.VertexArrayDataBaker;
-import ru.settletale.client.render.vertex.VertexAttribType;
 import ru.settletale.client.resource.ResourceFile;
 import ru.settletale.client.resource.ResourceManager;
 import ru.settletale.util.FileUtils;
@@ -39,7 +37,7 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 
 	@Override
 	public void loadResource(ResourceFile resourceFile) {
-		System.out.println("Loading objModel: " + resourceFile.key);
+		/*System.out.println("Loading objModel: " + resourceFile.key);
 
 		List<String> strings = FileUtils.readLines(resourceFile.path.toFile());
 		float[] back = new float[9];
@@ -54,7 +52,7 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 		FloatBuffer uvs = MemoryUtil.memAllocFloat(counts[1] * 2);
 		FloatBuffer normals = MemoryUtil.memAllocFloat(counts[2] * 3);
 
-		VertexArrayDataBaker dataBaker = new VertexArrayDataBaker(50000, true, VertexAttribType.FLOAT_4, VertexAttribType.FLOAT_3, VertexAttribType.FLOAT_2, VertexAttribType.INT_1);
+		//VertexArrayDataBaker dataBaker = new VertexArrayDataBaker(50000, true, VertexAttribType.FLOAT_4, VertexAttribType.FLOAT_3, VertexAttribType.FLOAT_2, VertexAttribType.INT_1);
 		TexturedMaterialBinder tmb = new TexturedMaterialBinder();
 
 		int currentMatID = -1;
@@ -136,7 +134,7 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 			});
 		});
 
-		MODELS.put(resourceFile.key, model);
+		MODELS.put(resourceFile.key, model);*/
 	}
 
 	public static void readPosition(String str, FloatBuffer fb, float[] back) {
@@ -175,7 +173,7 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 		fb.put(v);
 	}
 
-	public static void readFace(String str, VertexArrayDataBaker pa, FloatBuffer positions, FloatBuffer normals, FloatBuffer uvs, int matID, int[][] back, float[][] backPos, float[][] backNorm, Vector3f backNormVec, float[][] backUV) {
+	/*public static void readFace(String str, VertexArrayDataBaker pa, FloatBuffer positions, FloatBuffer normals, FloatBuffer uvs, int matID, int[][] back, float[][] backPos, float[][] backNorm, Vector3f backNormVec, float[][] backUV) {
 		//Needs to know, if they uses
 		back[1][1] = -1; //For UV
 		back[1][2] = -1; //For Normal
@@ -280,7 +278,7 @@ public class ObjModelLoader extends ResourceLoaderAbstract {
 		if (backUV != null)
 			pa.putFloats(UV, backUV[indx][0], backUV[indx][1]);
 		pa.endVertex();
-	}
+	}*/
 
 	static void calculateNorm(int i1, int i2, int i3, float[][] backPos, float[][] backNorm, Vector3f backVec) {
 		GeometryUtils.normal(backPos[i1][0], backPos[i1][1], backPos[i1][2], backPos[i2][0], backPos[i2][1], backPos[i2][2], backPos[i3][0], backPos[i3][1], backPos[i3][2], backVec);

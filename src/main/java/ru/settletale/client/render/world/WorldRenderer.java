@@ -11,16 +11,20 @@ import ru.settletale.client.render.Color;
 import ru.settletale.client.render.Drawer;
 import ru.settletale.client.render.FontRenderer;
 import ru.settletale.client.render.Renderer;
-import ru.settletale.client.resource.loader.TextureLoader;
+import ru.settletale.client.render.util.GLUtils;
+import ru.settletale.client.resource.Textures;
 import ru.settletale.world.region.IRegionManagerListener;
 import ru.settletale.world.region.Region;
 import wrap.gl.ShaderProgram;
+import wrap.gl.Texture2D;
 import wrap.gl.VertexArray;
 
 public class WorldRenderer implements IRegionManagerListener {
 	public static final WorldRenderer INSTANCE = new WorldRenderer();
 	public static final HashLongObjMap<CompiledRegion> REGIONS_TO_RENDER = HashLongObjMaps.newMutableMap();
 	static final ShaderProgram PROGRAM_SKY = new ShaderProgram();
+	static Texture2D textureGrass;
+	static Texture2D textureTom;
 
 	public static void init() {
 		glColor4f(1, 1, 1, 1);
@@ -29,8 +33,10 @@ public class WorldRenderer implements IRegionManagerListener {
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glEnable(GL_ALPHA_TEST);
-		glCullFace(GL_BACK);
-		Renderer.genAndLinkShadersToProgram(PROGRAM_SKY, "shaders/sky.vs", "shaders/sky.fs");
+		GLUtils.linkShadersToProgram(PROGRAM_SKY, "shaders/sky.vs", "shaders/sky.fs");
+		
+		textureGrass = Textures.getOrLoad("textures/grass.png");
+		textureTom = Textures.getOrLoad("textures/tom.png");
 	}
 
 	public static void render() {
@@ -52,12 +58,6 @@ public class WorldRenderer implements IRegionManagerListener {
 		glEnable(GL_CULL_FACE);
 
 		REGIONS_TO_RENDER.forEach((long l, CompiledRegion r) -> {
-			if (!r.compiled) {
-				Renderer.debugGL("Fill buffers");
-				Renderer.debugGL("Fill VBOs");
-				r.compile();
-				Renderer.debugGL("Array clear");
-			}
 			r.render();
 		});
 
@@ -65,19 +65,19 @@ public class WorldRenderer implements IRegionManagerListener {
 
 		Renderer.updateInversedMatricesUniformBlock();
 		VertexArray.DEFAULT.bind();
-		PROGRAM_SKY.bind();
+		PROGRAM_SKY.use();
 		glDrawArrays(GL_QUADS, 0, 4);
 		Renderer.debugGL("Render sky end");
 
-		Renderer.VIEW_MATRIX.push();
-		Renderer.VIEW_MATRIX.translate(0, 100, 0);
-		Renderer.VIEW_MATRIX.scale(5F);
+		//Renderer.VIEW_MATRIX.push();
+		//Renderer.VIEW_MATRIX.translate(0, 100, 0);
+		//Renderer.VIEW_MATRIX.scale(5F);
 		//GL.updateMatriciesUniformBlock();
-		Renderer.updateCombinedMatrixUniformBlock();
+		//Renderer.updateCombinedMatrixUniformBlock();
 		//ObjModelLoader.MODELS.get("models/dabrovic/sponza.obj").render();
 		//ColladaLoader.MODELS.get("models/collada/Glock_3d.dae").render();
 		//ColladaLoader.MODELS.get("models/collada/green.dae").render();
-		Renderer.VIEW_MATRIX.pop();
+		//Renderer.VIEW_MATRIX.pop();
 		
 		Renderer.updateCombinedMatrixUniformBlock();
 		
@@ -90,7 +90,7 @@ public class WorldRenderer implements IRegionManagerListener {
 
 		Drawer.begin(GL_QUADS);
 		Drawer.COLOR.set(Color.WHITE);
-		Drawer.texture(TextureLoader.TEXTURES.get("textures/grass.png"));
+		Drawer.texture(textureGrass);
 		Drawer.UV.set(0, 0);
 		Drawer.vertex(0, 50, 0);
 		Drawer.UV.set(0, 1);
@@ -100,14 +100,14 @@ public class WorldRenderer implements IRegionManagerListener {
 		Drawer.UV.set(1, 0);
 		Drawer.vertex(50, 50, 0);
 
-		Drawer.texture(TextureLoader.TEXTURES.get("textures/tom.png"));
-		Drawer.UV.set(0, 0);
-		Drawer.vertex(50, 50, 0);
+		Drawer.texture(textureTom);
 		Drawer.UV.set(0, 1);
+		Drawer.vertex(50, 50, 0);
+		Drawer.UV.set(0, 0);
 		Drawer.vertex(50, 100, 0);
-		Drawer.UV.set(1, 1);
-		Drawer.vertex(150, 100, 0);
 		Drawer.UV.set(1, 0);
+		Drawer.vertex(150, 100, 0);
+		Drawer.UV.set(1, 1);
 		Drawer.vertex(150, 50, 0);
 		Drawer.draw();
 
@@ -133,25 +133,27 @@ public class WorldRenderer implements IRegionManagerListener {
 		FontRenderer.getPosition().set(10, Client.WINDOW.getHeight() - 30, 0);
 		FontRenderer.setText("FPS: " + Renderer.lastFPS);
 		FontRenderer.render();
-
-		Renderer.debugGL("World rend end");
 	}
 
 	@Override
 	public void onRegionAdded(Region r) {
 		r.increaseThreadUsage();
-		Client.GL_THREAD.execute(() -> {
-			REGIONS_TO_RENDER.put(r.coordClamped, new CompiledRegion(r));
+		
+		Client.GL_THREAD.addTask(() -> {
+			CompiledRegion cr = new CompiledRegion(r);
+			Renderer.debugGL("Fill buffers");
+			cr.compile();
+			Renderer.debugGL("Array clear");
+			
+			REGIONS_TO_RENDER.put(r.coordClamped, cr);
 		});
 	}
 
 	@Override
 	public void onRegionRemoved(Region r) {
-		Client.GL_THREAD.execute(() -> {
+		Client.GL_THREAD.addTask(() -> {
 			if (REGIONS_TO_RENDER.containsKey(r.coordClamped)) {
-				CompiledRegion cr = REGIONS_TO_RENDER.get(r.coordClamped);
-				if(cr.compiled)
-					cr.clear();
+				REGIONS_TO_RENDER.get(r.coordClamped).clear();
 				REGIONS_TO_RENDER.remove(r.coordClamped);
 				r.decreaseThreadUsage();
 			}

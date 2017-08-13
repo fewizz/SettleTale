@@ -5,10 +5,12 @@ import java.nio.FloatBuffer;
 
 import org.lwjgl.system.MemoryUtil;
 
-public final class MemoryBlock {
+public class MemoryBlock {
+	static final boolean DEBUG = true;
 	private static long allocatedTotal = 0;
-	private long address = MemoryUtil.NULL;
-	private int bytes = 0;
+	protected long address = MemoryUtil.NULL;
+	protected int bytes = 0;
+	protected int position = 0;
 
 	public MemoryBlock() {
 	}
@@ -25,6 +27,14 @@ public final class MemoryBlock {
 		address = MemoryUtil.nmemAlloc(bytes);
 		setBytes(bytes);
 		return this;
+	}
+	
+	public MemoryBlock allocateS(int shorts) {
+		return allocate(shorts * Short.BYTES);
+	}
+	
+	public MemoryBlock allocateI(int ints) {
+		return allocate(ints * Integer.BYTES);
 	}
 
 	public void reallocate(int bytes) {
@@ -49,8 +59,10 @@ public final class MemoryBlock {
 		return MemoryUtil.memGetByte(address + pos);
 	}
 
-	public void putByte(int pos, byte value) {
+	public MemoryBlock putByte(int pos, byte value) {
+		if(DEBUG) if(pos < 0 || pos >= address) throw new Error();
 		MemoryUtil.memPutByte(address + pos, value);
+		return this;
 	}
 	
 	// Short
@@ -62,8 +74,10 @@ public final class MemoryBlock {
 		return MemoryUtil.memGetShort(address + pos * Short.BYTES);
 	}
 
-	public void putShorS(int pos, short value) {
-		MemoryUtil.memPutShort(address + pos * Short.BYTES, value);
+	public void putShortS(int pos, short value) {
+		pos *= Short.BYTES;
+		if(DEBUG) if(pos  < 0 || pos  >= address) throw new Error();
+		MemoryUtil.memPutShort(address + pos, value);
 	}
 
 	// Float
@@ -75,8 +89,15 @@ public final class MemoryBlock {
 		return MemoryUtil.memGetFloat(address + pos * Float.BYTES);
 	}
 
-	public void putFloatF(int pos, float value) {
-		MemoryUtil.memPutFloat(address + pos * Float.BYTES, value);
+	public MemoryBlock putFloatF(int pos, float value) {
+		pos *= Float.BYTES;
+		if(DEBUG) if(pos < 0 || pos >= address) throw new Error();
+		MemoryUtil.memPutFloat(address + pos, value);
+		return this;
+	}
+	
+	public MemoryBlock putFloatF(float value) {
+		return putFloatF(position, value).position(position + Float.BYTES);
 	}
 	
 	// Int
@@ -89,7 +110,9 @@ public final class MemoryBlock {
 	}
 
 	public void putIntI(int pos, int value) {
-		MemoryUtil.memPutInt(address + pos * Integer.BYTES, value);
+		pos *= Integer.BYTES;
+		if(DEBUG) if(pos < 0 || pos >= address) throw new Error();
+		MemoryUtil.memPutInt(address + pos, value);
 	}
 	
 	// Double
@@ -102,7 +125,9 @@ public final class MemoryBlock {
 	}
 
 	public void putDoubleD(int pos, double value) {
-		MemoryUtil.memPutDouble(address + pos * Double.BYTES, value);
+		pos *= Double.BYTES;
+		if(DEBUG) if(pos < 0 || pos >= address) throw new Error();
+		MemoryUtil.memPutDouble(address + pos, value);
 	}
 
 	// Long
@@ -119,7 +144,9 @@ public final class MemoryBlock {
 	}
 
 	public void putLongL(int pos, long value) {
-		MemoryUtil.memPutLong(address + pos * Long.BYTES, value);
+		pos *= Long.BYTES;
+		if(DEBUG) if(pos < 0 || pos >= address) throw new Error();
+		MemoryUtil.memPutLong(address + pos, value);
 	}
 
 	public void free() {
@@ -156,6 +183,15 @@ public final class MemoryBlock {
 	
 	public int ints() {
 		return bytes / Integer.BYTES;
+	}
+	
+	public int position() {
+		return this.position;
+	}
+	
+	public MemoryBlock position(int pos) {
+		this.position = pos;
+		return this;
 	}
 
 	public ByteBuffer getAsByteBuffer(int capacity) {

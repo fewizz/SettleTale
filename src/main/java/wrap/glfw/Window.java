@@ -11,7 +11,7 @@ import org.lwjgl.system.MemoryUtil;
 import ru.settletale.memory.MemoryBlock;
 
 public class Window {
-	private final MemoryBlock tempMemoryBlock = new MemoryBlock().allocate(Integer.BYTES * 4 + Double.BYTES * 2);
+	private final MemoryBlock tempMemoryBlock = new MemoryBlock().allocate(8);//Integer.BYTES * 4 + Double.BYTES * 2);
 	long id;
 	
 	public Window() {
@@ -52,18 +52,18 @@ public class Window {
 	}
 	
 	public int getHeight() {
-		nglfwGetWindowSize(id, MemoryUtil.NULL, tempMemoryBlock.address() + Integer.BYTES);
-		return tempMemoryBlock.getIntI(1);
+		nglfwGetWindowSize(id, MemoryUtil.NULL, tempMemoryBlock.address()/* + Integer.BYTES*/);
+		return tempMemoryBlock.getIntI(0);
 	}
 	
 	public int getX() {
-		nglfwGetWindowPos(id, tempMemoryBlock.address() + 2 * Integer.BYTES, MemoryUtil.NULL);
-		return tempMemoryBlock.getIntI(2);
+		nglfwGetWindowPos(id, tempMemoryBlock.address()/* + 2 * Integer.BYTES*/, MemoryUtil.NULL);
+		return tempMemoryBlock.getIntI(0);
 	}
 	
 	public int getY() {
-		nglfwGetWindowPos(id, MemoryUtil.NULL, tempMemoryBlock.address() + 3 * Integer.BYTES);
-		return tempMemoryBlock.getIntI(3);
+		nglfwGetWindowPos(id, MemoryUtil.NULL, tempMemoryBlock.address()/* + 3 * Integer.BYTES*/);
+		return tempMemoryBlock.getIntI(0);
 	}
 	
 	public void setCursorPos(double x, double y) {
@@ -71,13 +71,13 @@ public class Window {
 	}
 	
 	public double getCursorX() {
-		nglfwGetCursorPos(id, tempMemoryBlock.address() + Integer.BYTES * 4, MemoryUtil.NULL);
-		return tempMemoryBlock.getDouble(Integer.BYTES * 4);
+		nglfwGetCursorPos(id, tempMemoryBlock.address()/* + Integer.BYTES * 4*/, MemoryUtil.NULL);
+		return tempMemoryBlock.getDouble(0);//Integer.BYTES * 4);
 	}
 	
 	public double getCursorY() {
-		nglfwGetCursorPos(id, MemoryUtil.NULL, tempMemoryBlock.address() + Integer.BYTES * 4 + Double.BYTES);
-		return tempMemoryBlock.getDouble(Integer.BYTES * 4 + Double.BYTES);
+		nglfwGetCursorPos(id, MemoryUtil.NULL, tempMemoryBlock.address()/* + Integer.BYTES * 4 + Double.BYTES*/);
+		return tempMemoryBlock.getDouble(0);//Integer.BYTES * 4 + Double.BYTES);
 	}
 	
 	public void setKeyCallback(GLFWKeyCallbackI c) {
@@ -90,6 +90,7 @@ public class Window {
 	
 	public void setFramebufferSizeCallback(GLFWFramebufferSizeCallbackI c) {
 		glfwSetFramebufferSizeCallback(id, c);
+		//c.invoke(id, getWidth(), getHeight());
 	}
 	
 	public void setCursorPosCallback(GLFWCursorPosCallbackI c) {

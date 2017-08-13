@@ -32,7 +32,7 @@ public abstract class GLObject<T> {
 	}
 
 	public boolean isGenerated() {
-		return id != ID_NOT_GENERATED;
+		return getID() != ID_NOT_GENERATED;
 	}
 
 	public abstract boolean isBase();

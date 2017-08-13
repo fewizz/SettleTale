@@ -22,7 +22,7 @@ public class TickTimer {
 		startTimeNano = System.nanoTime();
 	}
 	
-	public void waitAndEndTimer() {
+	public void waitAndRestart() {
 		long timeToSleepNano = waitTimeNano - (System.nanoTime() - startTimeNano);
 		
 		if(timeToSleepNano < 0) {
@@ -35,6 +35,7 @@ public class TickTimer {
 		}
 		
 		end();
+		start();
 	}
 	
 	public void end() {

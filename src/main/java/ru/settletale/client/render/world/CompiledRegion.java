@@ -5,36 +5,36 @@ import java.nio.ByteBuffer;
 
 import org.joml.Vector3f;
 import static org.lwjgl.opengl.GL11.*;
+
+import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.system.MemoryUtil;
 
 import ru.settletale.client.render.Renderer;
-import ru.settletale.client.render.vertex.VertexArrayRendererIndexed;
-import ru.settletale.client.render.vertex.VertexArrayRendererIndexed.GLDrawIndexedFunc;
-import ru.settletale.client.render.vertex.VertexArrayDataBakerIndexed;
-import ru.settletale.client.render.vertex.VertexAttribType;
-import ru.settletale.client.resource.loader.TextureLoader;
+import ru.settletale.client.render.VertexAttribArray;
+import ru.settletale.client.render.util.GLPrimitive;
+import ru.settletale.client.render.util.GLUtils;
+import ru.settletale.client.resource.Textures;
+import ru.settletale.memory.MemoryBlock;
 import ru.settletale.world.biome.BiomeAbstract;
 import ru.settletale.world.region.Region;
+import wrap.gl.ElementArrayBuffer;
 import wrap.gl.GL;
 import wrap.gl.ShaderProgram;
 import wrap.gl.Texture1D;
 import wrap.gl.Texture2D;
-import wrap.gl.GLBuffer.BufferUsage;
+import wrap.gl.VertexArray;
 import ru.settletale.registry.Biomes;
 
 public class CompiledRegion {
-	public static final int POSITION = 0;
-	public static final int NORMAL = 1;
-	public static final VertexArrayDataBakerIndexed SHARED_VERTEX_ARRAY = new VertexArrayDataBakerIndexed((Region.WIDTH + 1) * (Region.WIDTH + 1), Region.WIDTH * Region.WIDTH * 4, false, VertexAttribType.FLOAT_3, VertexAttribType.FLOAT_1);
 	static final Texture1D TEXTURE_BIOMES = new Texture1D(Region.WIDTH * Region.WIDTH);
 	static Texture2D textureGrass;
 	static final ByteBuffer TEMP_BUFFER = MemoryUtil.memAlloc(Region.WIDTH_EXTENDED * Region.WIDTH_EXTENDED * 2);
 	static final ShaderProgram PROGRAM = new ShaderProgram();
 	
-	public boolean compiled = false;
+	public VertexArray vao = new VertexArray();
+	public ElementArrayBuffer eabo = new ElementArrayBuffer();
 	final Region region;
-	VertexArrayRendererIndexed layer;
 	Texture2D textureIDs;
 
 	public CompiledRegion(Region region) {
@@ -42,17 +42,19 @@ public class CompiledRegion {
 	}
 
 	public void compile() {
+		vao.gen();
+		eabo.gen();
 		compileVertexAttributeArrays();
 
 		if (!PROGRAM.isGenerated()) {
 			Renderer.debugGL("CR shader start");
 			
-			Renderer.genAndLinkShadersToProgram(PROGRAM, "shaders/terrain.vs", "shaders/terrain.fs");
+			GLUtils.linkShadersToProgram(PROGRAM, "shaders/terrain.vs", "shaders/terrain.fs");
 			
 			Renderer.debugGL("CR shader end");
 		}
 		if (textureGrass == null) {
-			textureGrass = TextureLoader.TEXTURES.get("textures/grass.png");
+			textureGrass = Textures.getOrLoad("textures/grass.png");
 			textureGrass.parameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 			textureGrass.parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		}
@@ -77,11 +79,6 @@ public class CompiledRegion {
 
 		Renderer.debugGL("CR compile start");
 
-		this.layer = new VertexArrayRendererIndexed();
-		this.layer.compile(SHARED_VERTEX_ARRAY, BufferUsage.STATIC_DRAW);
-		SHARED_VERTEX_ARRAY.clear();
-		this.layer.setShaderProgram(PROGRAM);
-
 		textureIDs = new Texture2D(Region.WIDTH_EXTENDED, Region.WIDTH_EXTENDED).gen().format(GL30.GL_R8).bufferDataFormat(GL_RED).bufferDataType(GL_UNSIGNED_BYTE);
 
 		int byteIndex = 0;
@@ -94,7 +91,6 @@ public class CompiledRegion {
 
 		Renderer.debugGL("CR compile texture");
 		textureIDs.data(TEMP_BUFFER);
-		compiled = true;
 		
 		Renderer.debugGL("CR compile end");
 	}
@@ -108,16 +104,11 @@ public class CompiledRegion {
 
 		Renderer.debugGL("CR bind texture units end");
 
-		this.layer.renderIndexed(GLDrawIndexedFunc.DRAW_ELEMENTS, GL_QUADS);
+		vao.bind();
+		PROGRAM.use();
 		
-		/*Drawer.begin(GL_QUADS);
-		Drawer.COLOR.set(0F, 0F, 1F, 0.5F);
-		Drawer.vertex(region.x * Region.WIDTH, 35, region.z * Region.WIDTH);
-		Drawer.vertex(region.x * Region.WIDTH, 35, (region.z + 1) * Region.WIDTH);
-		Drawer.vertex((region.x + 1) * Region.WIDTH, 35, (region.z + 1) * Region.WIDTH);
-		Drawer.vertex((region.x + 1) * Region.WIDTH, 35, region.z * Region.WIDTH);
-		
-		Drawer.draw();*/
+		eabo.bind();
+		GL11.glDrawElements(GL_QUADS, Region.WIDTH * Region.WIDTH * 4, GL11.GL_UNSIGNED_SHORT, MemoryUtil.NULL);
 		
 		Renderer.debugGL("CR rend end");
 	}
@@ -129,56 +120,61 @@ public class CompiledRegion {
 	static final Vector3f V3_TEMP = new Vector3f();
 
 	private void compileVertexAttributeArrays() {
+		MemoryBlock mbIndex = new MemoryBlock().allocateS(Region.WIDTH * Region.WIDTH * 4);
+		VertexAttribArray attribPos = new VertexAttribArray(GLPrimitive.FLOAT, 3, (Region.WIDTH + 1) * (Region.WIDTH + 1));
+		VertexAttribArray attribNormal = new VertexAttribArray(GLPrimitive.FLOAT, 1, (Region.WIDTH + 1) * (Region.WIDTH + 1));
+		
 		Renderer.debugGL("Fill buffers0");
-		int rendWidth = Region.WIDTH + 1;
+		int rendWidth = Region.WIDTH + Region.EXTENSION;
 
+		int i = 0;
+		
 		for (int x = 0; x < Region.WIDTH; x++) {
-			int i1 = x * rendWidth + 0;
-			int i2 = i1 + 1;
-			int i3 = i2 + rendWidth;
-			int i4 = i1 + rendWidth;
+			short i1 = (short) (x * rendWidth + 0);
+			short i2 = (short) (i1 + 1);
+			short i3 = (short) (i2 + rendWidth);
+			short i4 = (short) (i3 - 1);
 			
 			for (int z = 0; z < Region.WIDTH; z++) {
-				SHARED_VERTEX_ARRAY.index(i1++);
-				SHARED_VERTEX_ARRAY.index(i2++);
-				SHARED_VERTEX_ARRAY.index(i3++);
-				SHARED_VERTEX_ARRAY.index(i4++);
+				mbIndex.putShortS(i++, i1++);
+				mbIndex.putShortS(i++, i2++);
+				mbIndex.putShortS(i++, i3++);
+				mbIndex.putShortS(i++, i4++);
 			}
 		}
 
-		for (int x = 0; x < rendWidth; x++) {
-			float pxf = region.x * Region.WIDTH + x;
-			float pzf = region.z * Region.WIDTH;
-
-			for (int z = 0; z < rendWidth; z++) {
+		i = 0;
+		
+		for (int xLocal = 0; xLocal < rendWidth; xLocal++) {
+			for (int zLocal = 0; zLocal < rendWidth; zLocal++) {
 				NORMAL_TEMP.set(0);
 				TEMP.set(0);
 
-				V1_TEMP.set(x, region.getHeight(x, z), z);
+				V1_TEMP.set(xLocal, region.getHeight(xLocal, zLocal), zLocal);
 
-				V2_TEMP.set(x, region.getHeight(x, z + 1), z + 1F);
-				V3_TEMP.set(x + 1F, region.getHeight(x + 1, z), z);
+				V2_TEMP.set(xLocal, region.getHeight(xLocal, zLocal + 1), zLocal + 1F);
+				V3_TEMP.set(xLocal + 1F, region.getHeight(xLocal + 1, zLocal), zLocal);
 				V2_TEMP.sub(V2_TEMP, V2_TEMP);
 				V1_TEMP.sub(V3_TEMP, V3_TEMP);
 				V2_TEMP.cross(V3_TEMP, TEMP);
 				NORMAL_TEMP.add(TEMP);
 
-				V2_TEMP.set(x + 1F, region.getHeight(x + 1, z), z);
-				V3_TEMP.set(x, region.getHeight(x, z - 1), z - 1F);
+				V2_TEMP.set(xLocal + 1F, region.getHeight(xLocal + 1, zLocal), zLocal);
+				V3_TEMP.set(xLocal, region.getHeight(xLocal, zLocal - 1), zLocal - 1F);
 				V1_TEMP.sub(V2_TEMP, V2_TEMP);
 				V1_TEMP.sub(V3_TEMP, V3_TEMP);
 				V2_TEMP.cross(V3_TEMP, TEMP);
 				NORMAL_TEMP.add(TEMP);
 
-				V2_TEMP.set(x, region.getHeight(x, z - 1), z - 1F);
-				V3_TEMP.set(x - 1F, region.getHeight(x - 1, z), z);
+				V2_TEMP.set(xLocal, region.getHeight(xLocal, zLocal - 1), zLocal - 1F);
+				V3_TEMP.set(xLocal - 1F, region.getHeight(xLocal - 1, zLocal), zLocal);
 				V1_TEMP.sub(V2_TEMP, V2_TEMP);
 				V1_TEMP.sub(V3_TEMP, V3_TEMP);
 				V2_TEMP.cross(V3_TEMP, TEMP);
 				NORMAL_TEMP.add(TEMP);
 
-				V2_TEMP.set(x - 1F, region.getHeight(x - 1, z), z);
-				V3_TEMP.set(x, region.getHeight(x, z + 1), z + 1F);
+				V2_TEMP.set(xLocal - 1F, region.getHeight(xLocal - 1, zLocal), zLocal);
+				V3_TEMP.set(xLocal, region.getHeight(xLocal, zLocal + 1), zLocal + 1F);
 				V1_TEMP.sub(V2_TEMP, V2_TEMP);
 				V1_TEMP.sub(V3_TEMP, V3_TEMP);
 				V2_TEMP.cross(V3_TEMP, TEMP);
@@ -186,14 +182,25 @@ public class CompiledRegion {
 
 				NORMAL_TEMP.normalize();
 
-				SHARED_VERTEX_ARRAY.putFloats(POSITION, pxf, region.getHeight(x, z), pzf);
-				SHARED_VERTEX_ARRAY.putFloat(NORMAL, NORMAL_TEMP.y);
-
-				SHARED_VERTEX_ARRAY.endVertex();
-
-				pzf += 1F;
+				attribPos.putFloatF(i * 3, region.x * Region.WIDTH + xLocal).putFloatF(i * 3 + 1, region.getHeight(xLocal, zLocal)).putFloatF(i * 3 + 2, region.z * Region.WIDTH + zLocal);
+				attribNormal.putFloatF(i, NORMAL_TEMP.y);
+				i++;
 			}
 		}
+		
+		vao.bind();
+		eabo.bind();
+		eabo.data(mbIndex.address(), mbIndex.bytes());
+		
+		attribPos.updateVertexBuffer();
+		attribNormal.updateVertexBuffer();
+		
+		attribPos.pointToVAO(vao, 0, false);
+		attribNormal.pointToVAO(vao, 1, false);
+		
+		mbIndex.free();
+		attribPos.free();
+		attribNormal.free();
 	}
 
 	public void clear() {

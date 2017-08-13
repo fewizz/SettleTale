@@ -6,17 +6,10 @@ import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL45;
 import org.lwjgl.system.MemoryUtil;
 
-import ru.settletale.client.render.vertex.VertexAttribType;
-
 public class VertexArray extends GLBindableObject<VertexArray> {
 	public static final VertexArray DEFAULT = new VertexArray() {
 		@Override
 		public VertexArray gen() {
-			throw new Error();
-		}
-		
-		@Override
-		public void delete() {
 			throw new Error();
 		}
 		
@@ -26,8 +19,8 @@ public class VertexArray extends GLBindableObject<VertexArray> {
 		}
 		
 		@Override
-		public boolean isGenerated() {
-			return true;
+		public void delete() {
+			throw new Error();
 		}
 	};
 	
@@ -39,10 +32,6 @@ public class VertexArray extends GLBindableObject<VertexArray> {
 	@Override
 	public boolean isBase() {
 		return true;
-	}
-	
-	public void vertexAttribPointer(GLBuffer<?> buffer, int index, int size) {
-		vertexAttribPointer(buffer, index, size, GL11.GL_FLOAT, false, 0);
 	}
 	
 	public void vertexAttribPointer(GLBuffer<?> buffer, int index, int size, int type) {
@@ -59,24 +48,15 @@ public class VertexArray extends GLBindableObject<VertexArray> {
 		GL20.glVertexAttribPointer(index, size, type, normalized, stride, MemoryUtil.NULL);
 	}
 	
-	public void vertexAttribIntPointer(GLBuffer<?> buffer, int index, int size) {
-		vertexAttribIntPointer(buffer, index, size, GL11.GL_INT, 0);
+	public void vertexAttribIPointer(GLBuffer<?> buffer, int index, int size) {
+		vertexAttribIPointer(buffer, index, size, GL11.GL_INT, 0);
 	}
 	
-	public void vertexAttribIntPointer(GLBuffer<?> buffer, int index, int size, int type) {
-		vertexAttribIntPointer(buffer, index, size, type, 0);
+	public void vertexAttribIPointer(GLBuffer<?> buffer, int index, int size, int type) {
+		vertexAttribIPointer(buffer, index, size, type, 0);
 	}
 	
-	public void bindAttribPointer(GLBuffer<?> buffer, int index, VertexAttribType type) {
-		if (type.serverDataType.isIntegral)
-			vertexAttribIntPointer(buffer, index, type.componentCount, GL.getGLPrimitiveType(type.clientDataType));
-		else
-			vertexAttribPointer(buffer, index, type.componentCount, GL.getGLPrimitiveType(type.clientDataType), type.isNormalised);
-		
-		enableVertexAttribArray(index);
-	}
-	
-	public void vertexAttribIntPointer(GLBuffer<?> buffer, int index, int size, int type, int stride) {
+	public void vertexAttribIPointer(GLBuffer<?> buffer, int index, int size, int type, int stride) {
 		bind();
 		buffer.bind();
 		GL30.glVertexAttribIPointer(index, size, type, stride, MemoryUtil.NULL);
