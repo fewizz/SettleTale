@@ -1,19 +1,15 @@
-package wrap.gl;
+package ru.settletale.client.gl;
 
 import java.nio.IntBuffer;
 
 import org.lwjgl.opengl.GL15;
 
 public class Query extends GLObject<Query> {
-	int type = -1;
-
-	public Query(int type) {
-		this.type = type;
-	}
+	int target = -1;
 	
-	@Override
-	public boolean isBase() {
-		return true;
+	public Query gen(int target) {
+		this.target = target;
+		return super.gen();
 	}
 
 	@Override
@@ -22,11 +18,11 @@ public class Query extends GLObject<Query> {
 	}
 
 	public void begin() {
-		GL15.glBeginQuery(type, getID());
+		GL15.glBeginQuery(target, getID());
 	}
 	
 	public void end() {
-		GL15.glEndQuery(type);
+		GL15.glEndQuery(target);
 	}
 	
 	public void getResult(int type, IntBuffer buffer) {

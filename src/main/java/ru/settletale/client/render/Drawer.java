@@ -5,19 +5,19 @@ import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 
+import ru.settletale.client.gl.GL;
+import ru.settletale.client.gl.ShaderProgram;
+import ru.settletale.client.gl.Texture2D;
+import ru.settletale.client.gl.VertexArray;
 import ru.settletale.client.render.util.GLPrimitive;
 import ru.settletale.client.render.util.GLUtils;
 import ru.settletale.memory.MemoryBlock;
-import wrap.gl.GL;
-import wrap.gl.ShaderProgram;
-import wrap.gl.Texture2D;
-import wrap.gl.VertexArray;
 
 public class Drawer {
-	static final VertexAttribArray ATTRIB_POS = new VertexAttribArray(GLPrimitive.FLOAT, 3, 1024);
-	static final VertexAttribArray ATTRIB_COLOR = new VertexAttribArray(GLPrimitive.UBYTE, 4, 1024);
-	static final VertexAttribArray ATTRIB_UV = new VertexAttribArray(GLPrimitive.FLOAT, 2, 1024);
-	static final VertexAttribArray ATTRIC_TEX = new VertexAttribArray(GLPrimitive.USHORT, 1, 1024);
+	static final VertexAttribArray ATTRIB_POS = new VertexAttribArray(Attrib.floatType(0, GLPrimitive.FLOAT, 3, false), 1024);
+	static final VertexAttribArray ATTRIB_COLOR = new VertexAttribArray(Attrib.floatType(1, GLPrimitive.UBYTE, 4, true), 1024);
+	static final VertexAttribArray ATTRIB_UV = new VertexAttribArray(Attrib.floatType(2, GLPrimitive.FLOAT, 2, false), 1024);
+	static final VertexAttribArray ATTRIB_TEX = new VertexAttribArray(Attrib.intType(4, GLPrimitive.USHORT, 1), 1024);
 	static final VertexArray VAO = new VertexArray();
 	
 	static Texture2D[] textures; 
@@ -34,21 +34,12 @@ public class Drawer {
 	private static int vertex;
 	
 	public static final ITexBinder TEX_BINDER_MULTI = program -> {
-		/*TEXTURES.forEachIndexed((int index, Texture2D tex) -> {
-			GL.bindTextureUnit(index, tex);
-		});*/
 		MemoryBlock mb = new MemoryBlock().allocateI(texturesCount);
 		
 		for(int t = 0; t < texturesCount; t++) {
 			GL.bindTextureUnit(t, textures[t]);
 			mb.putIntI(t, t);
 		}
-
-		//MemoryBlock mb = new MemoryBlock().allocateI(TEXTURES.size());
-		
-		/*for(int i = 0; i < TEXTURES.size(); i++) {
-			mb.putIntI(i, i);
-		}*/
 		
 		program.setUniformIntArray(0, mb);
 
@@ -63,10 +54,15 @@ public class Drawer {
 		
 		VAO.gen().bind();
 		
-		ATTRIB_POS.pointToVAO(VAO, 0, false);
-		ATTRIB_COLOR.pointToVAO(VAO, 1, true);
-		ATTRIB_UV.pointToVAO(VAO, 2, false);
-		ATTRIC_TEX.pointToVAOI(VAO, 3);
+		/*ATTRIB_POS.begin(1024);
+		ATTRIB_COLOR.begin(1024);
+		ATTRIB_UV.begin(1024);
+		ATTRIB_TEX.begin(1024);*/
+		
+		VAO.vertexAttribPointer(ATTRIB_POS);
+		VAO.vertexAttribPointer(ATTRIB_COLOR);
+		VAO.vertexAttribPointer(ATTRIB_UV);
+		VAO.vertexAttribPointer(ATTRIB_TEX);
 	}
 
 	public static void begin(int mode) {
@@ -76,8 +72,6 @@ public class Drawer {
 	}
 
 	public static void draw() {
-		//int textureCount = textures.size();
-
 		if (texturesCount == 0) {
 			draw(PROGRAM, null);
 		} else if (texturesCount == 1) {
@@ -92,12 +86,12 @@ public class Drawer {
 	public static void draw(ShaderProgram program, ITexBinder texBinder) {
 		Renderer.debugGL("Drawer start", true);
 
-		ATTRIB_POS.updateVertexBuffer();
-		ATTRIB_COLOR.updateVertexBuffer();
+		ATTRIB_POS.updateServerData();
+		ATTRIB_COLOR.updateServerData();
 		
 		if(texturesCount > 0) {
-			ATTRIB_UV.updateVertexBuffer();
-			ATTRIC_TEX.updateVertexBuffer();
+			ATTRIB_UV.updateServerData();
+			ATTRIB_TEX.updateServerData();
 		}
 
 		Renderer.debugGL("Drawer pre vao bind");
@@ -112,7 +106,6 @@ public class Drawer {
 	}
 
 	public static void texture(Texture2D tex) {
-		//textures.add(tex);
 		textures[texturesCount++] = tex;
 	}
 
@@ -126,7 +119,7 @@ public class Drawer {
 		
 		if(texturesCount > 0) {
 			ATTRIB_UV.putFloatF(vertex * 2, UV.x).putFloatF(vertex * 2 + 1, UV.y);
-			ATTRIC_TEX.putShortS(vertex, (short) (texturesCount - 1));
+			ATTRIB_TEX.putShortS(vertex, (short) (texturesCount - 1));
 		}
 		
 		vertex++;

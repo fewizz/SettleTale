@@ -15,6 +15,8 @@ import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 import ru.settletale.client.Client;
+import ru.settletale.client.gl.GL;
+import ru.settletale.client.gl.UniformBuffer;
 import ru.settletale.client.render.ColladaModelRenderer;
 import ru.settletale.client.render.ColladaModelRenderer.ColladaGeometryRenderer;
 import ru.settletale.client.render.GlobalUniforms;
@@ -25,8 +27,6 @@ import ru.settletale.client.resource.collada.Polylist;
 import ru.settletale.client.resource.collada.Source;
 import ru.settletale.client.resource.collada.TransformationElement;
 import ru.settletale.memory.MemoryBlock;
-import wrap.gl.GL;
-import wrap.gl.UniformBuffer;
 import ru.settletale.client.resource.collada.Input.Semantic;
 import ru.settletale.client.resource.collada.Material;
 import ru.settletale.client.resource.collada.Matrix;

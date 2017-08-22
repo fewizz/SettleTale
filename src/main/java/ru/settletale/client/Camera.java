@@ -2,7 +2,6 @@ package ru.settletale.client;
 
 import org.joml.Vector3f;
 
-import ru.settletale.SettleTale;
 import ru.settletale.entity.EntityPlayer;
 import ru.settletale.util.MathUtils;
 import ru.settletale.util.TickTimer;
@@ -16,7 +15,7 @@ public class Camera {
 	public static void update() {
 		EntityPlayer player = Client.player;
 		
-		TickTimer t = SettleTale.getWorld().updateThread.timer;
+		TickTimer t = Client.world.tickTimer;
 		long timeNano = System.nanoTime();
 		
 		float d = (float)(timeNano - t.startTimeNano) / (float)(t.lastSpendTimeNano);

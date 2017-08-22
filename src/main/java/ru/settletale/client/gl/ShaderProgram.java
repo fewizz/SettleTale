@@ -1,4 +1,4 @@
-package wrap.gl;
+package ru.settletale.client.gl;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -11,15 +11,19 @@ import org.lwjgl.system.MemoryStack;
 import ru.settletale.memory.MemoryBlock;
 
 public class ShaderProgram extends GLBindableObject<ShaderProgram> {
-
+	
+	public ShaderProgram() {
+		super(ShaderProgram.class);
+	}
+	
+	@Override
+	public ShaderProgram gen() { // visibility++
+		return super.gen();
+	}
+	
 	@Override
 	public int genInternal() {
 		return GL20.glCreateProgram();
-	}
-
-	@Override
-	public boolean isBase() {
-		return true;
 	}
 
 	public void attachShader(Shader shader) {

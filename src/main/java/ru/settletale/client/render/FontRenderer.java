@@ -3,10 +3,10 @@ package ru.settletale.client.render;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
 
+import ru.settletale.client.gl.ShaderProgram;
+import ru.settletale.client.gl.Texture2D;
 import ru.settletale.client.render.util.GLUtils;
 import ru.settletale.client.resource.ResourceManager;
-import wrap.gl.ShaderProgram;
-import wrap.gl.Texture2D;
 
 public class FontRenderer {
 	static final Vector3f POSITION = new Vector3f(0);
@@ -81,10 +81,10 @@ public class FontRenderer {
 			if (fch == null)
 				continue;
 
-			float tu = fch.x / (float) fch.page.texture.width;
-			float tw = fch.width / (float) fch.page.texture.width;
-			float tv = fch.y / (float) fch.page.texture.height;
-			float th = fch.height / (float) fch.page.texture.height;
+			float tu = fch.x / (float) fch.page.texture.width();
+			float tw = fch.width / (float) fch.page.texture.width();
+			float tv = fch.y / (float) fch.page.texture.height();
+			float th = fch.height / (float) fch.page.texture.height();
 			float xOffset = fch.xOffset * scale;
 			float yOffset = fch.yOffset * scale;
 			float base = font.base * scale;

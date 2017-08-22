@@ -7,15 +7,15 @@ import java.util.Map;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
 
+import ru.settletale.client.gl.Shader;
+import ru.settletale.client.gl.ShaderProgram;
+import ru.settletale.client.gl.GLBuffer.BufferUsage;
+import ru.settletale.client.gl.Shader.ShaderType;
 import ru.settletale.client.render.vertex.VertexArrayDataBaker;
 import ru.settletale.client.render.vertex.VertexArrayRenderer;
 import ru.settletale.client.render.vertex.VertexArrayRenderer.GLDrawFunc;
 import ru.settletale.client.resource.collada.Asset.UpAxis;
 import ru.settletale.client.resource.loader.ShaderSourceLoader;
-import wrap.gl.Shader;
-import wrap.gl.ShaderProgram;
-import wrap.gl.GLBuffer.BufferUsage;
-import wrap.gl.Shader.ShaderType;
 
 public class ColladaModelRenderer {
 	static final ShaderProgram PROGRAM = new ShaderProgram();

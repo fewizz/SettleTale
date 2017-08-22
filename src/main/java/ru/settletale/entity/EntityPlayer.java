@@ -17,9 +17,14 @@ import ru.settletale.math.Plane;
 import ru.settletale.math.Segment;
 import ru.settletale.util.MathUtils;
 import ru.settletale.util.Vector3dp;
-import ru.settletale.world.region.Region;
+import ru.settletale.world.World;
+import ru.settletale.world.region.Chunk;
 
 public class EntityPlayer extends Entity {
+
+	public EntityPlayer(World w) {
+		super(w);
+	}
 
 	Vector3f a = new Vector3f(0, -9.8F, 0);
 	Vector3f V = new Vector3f();
@@ -145,13 +150,13 @@ public class EntityPlayer extends Entity {
 			double offX = (float) pixelOffset.x;
 			double offZ = (float) pixelOffset.y;
 
-			Region r = SettleTale.getWorld().getRegion(MathUtils.floor(offX / Region.WIDTH_F), MathUtils.floor(offZ / Region.WIDTH_F));
+			Chunk r = world.getRegion(MathUtils.floor(offX / Chunk.WIDTH_F), MathUtils.floor(offZ / Chunk.WIDTH_F));
 			if (r == null) {
 				continue;
 			}
 
-			int xi = MathUtils.floor(MathUtils.fract(offX / Region.WIDTH_F) * Region.WIDTH_F);
-			int zi = MathUtils.floor(MathUtils.fract(offZ / Region.WIDTH_F) * Region.WIDTH_F);
+			int xi = MathUtils.floor(MathUtils.fract(offX / Chunk.WIDTH_F) * Chunk.WIDTH_F);
+			int zi = MathUtils.floor(MathUtils.fract(offZ / Chunk.WIDTH_F) * Chunk.WIDTH_F);
 
 			double h1 = r.getHeight(xi, zi);
 			double h2 = r.getHeight(xi, zi + 1);

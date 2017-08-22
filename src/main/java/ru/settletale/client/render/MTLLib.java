@@ -3,7 +3,7 @@ package ru.settletale.client.render;
 import java.util.HashMap;
 import java.util.Map;
 
-import wrap.gl.Texture;
+import ru.settletale.client.gl.Texture;
 
 public class MTLLib {
 	private final Map<String, Material> materials = new HashMap<>();

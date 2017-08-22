@@ -1,26 +1,29 @@
 package ru.settletale.client.render;
 
-import ru.settletale.client.render.util.GLPrimitive;
+import org.lwjgl.system.MemoryUtil;
+
+import ru.settletale.client.gl.VertexBuffer;
 import ru.settletale.memory.MemoryBlock;
-import wrap.gl.VertexArray;
-import wrap.gl.VertexBuffer;
 
 public class VertexAttribArray extends MemoryBlock {
 	private final VertexBuffer vertexBuffer = new VertexBuffer();
-	public final int components;
-	public final GLPrimitive type;
-	int maxVertexNumber;
+	public final Attrib attribInfo;
 	
-	public VertexAttribArray(GLPrimitive type, int components, int vertexNumber) {
-		this.components = components;
-		this.type = type;
-		this.maxVertexNumber = vertexNumber;
-		allocate(type.bytes * components * vertexNumber);
+	public VertexAttribArray(Attrib atrtib, int vertexNumber) {
+		this.attribInfo = atrtib;
+		allocate(atrtib.componentsBytes * vertexNumber);
 	}
 	
-	public VertexAttribArray(int typeCode, int components, int vertexNumber) {
-		this(GLPrimitive.getFromCode(typeCode), components, vertexNumber);
+	/*public VertexAttribArray begin(int vertexNumber) {
+		allocate(attribInfo.components * vertexNumber * attribInfo.clientDataType.bytes);
+		return this;
 	}
+	
+	public VertexBuffer end() {
+		updateVertexBuffer();
+		free();
+		return getVertexBuffer();
+	}*/
 	
 	public VertexBuffer getVertexBuffer() {
 		if(!vertexBuffer.isGenerated()) {
@@ -29,17 +32,24 @@ public class VertexAttribArray extends MemoryBlock {
 		return vertexBuffer;
 	}
 	
-	public void updateVertexBuffer() {
+	public void freeClientData() {
+		free();
+	}
+	
+	@Deprecated
+	@Override
+	public void free() {
+		super.free();
+	}
+	
+	public void updateServerData() {
+		updateVertexBuffer();
+	}
+	
+	private void updateVertexBuffer() {
+		if(address == MemoryUtil.NULL) {
+			throw new Error("You haven't even 'begin'");
+		}
 		getVertexBuffer().dataOrSubData(address(), bytes());
-	}
-	
-	public void pointToVAO(VertexArray vao, int index, boolean normalize) {
-		vao.vertexAttribPointer(getVertexBuffer(), index, components, type.code, normalize);
-		vao.enableVertexAttribArray(index);
-	}
-	
-	public void pointToVAOI(VertexArray vao, int index) {
-		vao.vertexAttribIPointer(getVertexBuffer(), index, components, type.code);
-		vao.enableVertexAttribArray(index);
 	}
 }

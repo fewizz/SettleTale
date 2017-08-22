@@ -3,7 +3,7 @@ package ru.settletale.client.resource;
 import java.util.HashMap;
 import java.util.Map;
 
-import wrap.gl.Texture2D;
+import ru.settletale.client.gl.Texture2D;
 
 public class Textures {
 	public static final Map<String, Texture2D> MAP = new HashMap<>();

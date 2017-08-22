@@ -8,8 +8,8 @@ import ru.settletale.registry.Biomes;
 import ru.settletale.util.MathUtils;
 import ru.settletale.world.biome.BiomeAbstract;
 
-public class Region {
-	static final Queue<Region> FREE_REGION_CACHE = new ConcurrentLinkedQueue<Region>();
+public class Chunk {
+	static final Queue<Chunk> FREE_CHUNK_CACHE = new ConcurrentLinkedQueue<Chunk>();
 	public static final int WIDTH = 32;
 	public static final int EXTENSION = 1;
 	public static final int WIDTH_F = WIDTH;
@@ -23,13 +23,13 @@ public class Region {
 	public int hash;
 	private AtomicInteger threadUsages = new AtomicInteger(0);
 
-	private Region() {
+	private Chunk() {
 	}
 
-	public static Region getFreeRegion(int x, int z) {
-		Region r = FREE_REGION_CACHE.peek();
+	public static Chunk getFreeChunk(int x, int z) {
+		Chunk r = FREE_CHUNK_CACHE.peek();
 		if (r == null) {
-			r = new Region();
+			r = new Chunk();
 		}
 		if (r.threadUsages.get() != 0) {
 			throw new Error("Is already uses");
@@ -41,8 +41,8 @@ public class Region {
 	}
 
 	public void increaseThreadUsage() {
-		if(threadUsages.get() == 0 && FREE_REGION_CACHE.contains(this)) {
-			FREE_REGION_CACHE.remove(this);
+		if(threadUsages.get() == 0 && FREE_CHUNK_CACHE.contains(this)) {
+			FREE_CHUNK_CACHE.remove(this);
 		}
 		threadUsages.incrementAndGet();
 	}
@@ -54,7 +54,7 @@ public class Region {
 			throw new Error("Too many region thread usage decreases");
 		}
 		if (val == 0) {
-			FREE_REGION_CACHE.add(this);
+			FREE_CHUNK_CACHE.add(this);
 		}
 	}
 
@@ -103,7 +103,7 @@ public class Region {
 			return true;
 		}
 		
-		Region r = (Region) obj;
+		Chunk r = (Chunk) obj;
 		
 		return r.x == this.x && r.z == this.z;
 	}

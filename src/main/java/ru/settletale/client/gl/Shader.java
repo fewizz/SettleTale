@@ -1,4 +1,4 @@
-package wrap.gl;
+package ru.settletale.client.gl;
 
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
@@ -14,20 +14,14 @@ public class Shader extends GLObject<Shader> {
 		return this;
 	}
 	
-	@Deprecated
 	@Override
-	public Shader gen() {
+	protected Shader gen() {
 		return super.gen();
 	}
 	
 	@Override
 	public void deleteInternal() {
 		GL20.glDeleteShader(getID());
-	}
-
-	@Override
-	public boolean isBase() {
-		return true;
 	}
 
 	public Shader source(String source) {

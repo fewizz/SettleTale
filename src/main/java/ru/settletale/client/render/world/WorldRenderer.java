@@ -7,24 +7,25 @@ import com.koloboke.collect.map.hash.HashLongObjMaps;
 
 import ru.settletale.client.Camera;
 import ru.settletale.client.Client;
+import ru.settletale.client.gl.ShaderProgram;
+import ru.settletale.client.gl.Texture2D;
+import ru.settletale.client.gl.VertexArray;
 import ru.settletale.client.render.Color;
 import ru.settletale.client.render.Drawer;
 import ru.settletale.client.render.FontRenderer;
 import ru.settletale.client.render.Renderer;
 import ru.settletale.client.render.util.GLUtils;
 import ru.settletale.client.resource.Textures;
-import ru.settletale.world.region.IRegionManagerListener;
-import ru.settletale.world.region.Region;
-import wrap.gl.ShaderProgram;
-import wrap.gl.Texture2D;
-import wrap.gl.VertexArray;
+import ru.settletale.world.region.IChunkManagerListener;
+import ru.settletale.world.region.Chunk;
 
-public class WorldRenderer implements IRegionManagerListener {
+public class WorldRenderer implements IChunkManagerListener {
 	public static final WorldRenderer INSTANCE = new WorldRenderer();
 	public static final HashLongObjMap<CompiledRegion> REGIONS_TO_RENDER = HashLongObjMaps.newMutableMap();
 	static final ShaderProgram PROGRAM_SKY = new ShaderProgram();
 	static Texture2D textureGrass;
 	static Texture2D textureTom;
+	//static TextureAtlas atlas;
 
 	public static void init() {
 		glColor4f(1, 1, 1, 1);
@@ -37,6 +38,10 @@ public class WorldRenderer implements IRegionManagerListener {
 		
 		textureGrass = Textures.getOrLoad("textures/grass.png");
 		textureTom = Textures.getOrLoad("textures/tom.png");
+		/*atlas = new TextureAtlas(1024, 1024);
+		atlas.gen();
+		atlas.append(textureGrass);
+		//atlas.append(textureTom);*/
 	}
 
 	public static void render() {
@@ -106,9 +111,9 @@ public class WorldRenderer implements IRegionManagerListener {
 		Drawer.UV.set(0, 0);
 		Drawer.vertex(50, 100, 0);
 		Drawer.UV.set(1, 0);
-		Drawer.vertex(150, 100, 0);
+		Drawer.vertex(100, 100, 0);
 		Drawer.UV.set(1, 1);
-		Drawer.vertex(150, 50, 0);
+		Drawer.vertex(100, 50, 0);
 		Drawer.draw();
 
 		Drawer.begin(GL_LINES);
@@ -136,7 +141,7 @@ public class WorldRenderer implements IRegionManagerListener {
 	}
 
 	@Override
-	public void onRegionAdded(Region r) {
+	public void onChunkAdded(Chunk r) {
 		r.increaseThreadUsage();
 		
 		Client.GL_THREAD.addTask(() -> {
@@ -150,7 +155,7 @@ public class WorldRenderer implements IRegionManagerListener {
 	}
 
 	@Override
-	public void onRegionRemoved(Region r) {
+	public void onChunkRemoved(Chunk r) {
 		Client.GL_THREAD.addTask(() -> {
 			if (REGIONS_TO_RENDER.containsKey(r.coordClamped)) {
 				REGIONS_TO_RENDER.get(r.coordClamped).clear();

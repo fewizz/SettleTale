@@ -21,7 +21,7 @@ public enum GLPrimitive {
 		this.isIntegral = isIntegral;
 	}
 	
-	public static GLPrimitive getFromCode(int code) {
+	public static GLPrimitive getFromGLCode(int code) {
 		for(GLPrimitive p : GLPrimitive.values()) {
 			if(code == p.code) 
 				return p;

@@ -5,11 +5,11 @@ import static org.lwjgl.opengl.GL11.*;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL45;
 
+import ru.settletale.client.gl.Shader;
+import ru.settletale.client.gl.ShaderProgram;
+import ru.settletale.client.gl.Shader.ShaderType;
 import ru.settletale.client.resource.ResourceManager;
 import ru.settletale.client.resource.loader.ShaderSourceLoader;
-import wrap.gl.Shader;
-import wrap.gl.ShaderProgram;
-import wrap.gl.Shader.ShaderType;
 
 public class GLUtils {
 	public static String getErrorNameFromHex(int hex) {

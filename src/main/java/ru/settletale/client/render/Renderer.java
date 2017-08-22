@@ -7,18 +7,18 @@ import static org.lwjgl.opengl.GL11.glGetError;
 import org.lwjgl.system.MemoryStack;
 
 import ru.settletale.client.Client;
+import ru.settletale.client.gl.GL;
+import ru.settletale.client.gl.UniformBuffer;
+import ru.settletale.client.gl.GLBuffer.BufferUsage;
 import ru.settletale.client.render.util.GLUtils;
 import ru.settletale.client.render.world.WorldRenderer;
 import ru.settletale.util.Matrix4fs;
 import ru.settletale.util.TickTimer;
-import wrap.gl.GL;
-import wrap.gl.UniformBuffer;
-import wrap.gl.GLBuffer.BufferUsage;
 
 public class Renderer {
 	public static final boolean DEBUG = true;
 	public static final boolean DEBUG_GL = true;
-	public static final boolean SHOW_ALL_MESSAEGES = false;
+	public static final boolean SHOW_ALL_MESSAGES = false;
 	private static final Matrix4fs VIEW_MATRIX_INVERSED = new Matrix4fs();
 	private static final Matrix4fs MATRIX_COMBINED = new Matrix4fs();
 	private static final Matrix4fs PROJ_MATRIX_INVERSED = new Matrix4fs();
@@ -30,7 +30,7 @@ public class Renderer {
 	public static final Matrix4fs VIEW_MATRIX = new Matrix4fs();
 	private static String previousGLDebugMessage = "";
 	
-	public static final TickTimer FRAMERATE_TICKER = new TickTimer(100F);
+	public static final TickTimer FRAMERATE_TICK_TIMER = new TickTimer(100F);
 	static int frames = 0;
 	static long start = System.nanoTime();
 	public static int lastFPS;
@@ -52,7 +52,7 @@ public class Renderer {
 	}
 
 	public static void render() {
-		FRAMERATE_TICKER.start();
+		FRAMERATE_TICK_TIMER.start();
 
 		WorldRenderer.render();
 
@@ -74,10 +74,6 @@ public class Renderer {
 		}
 
 		//FRAMERATE_TICKER.waitAndEndTimer();
-	}
-	
-	public static void waitTicker() {
-		FRAMERATE_TICKER.waitAndRestart();
 	}
 	
 	public static void updateMatriciesUniformBlock() {
@@ -131,7 +127,7 @@ public class Renderer {
 
 				throw new Error("OpenGL Error 0x" + Integer.toHexString(errorHex) + " \"" + errorName + "\"" + ": " + s + (printParent ? " | Previous: " + previousGLDebugMessage : ""));
 			}
-			if(SHOW_ALL_MESSAEGES) {
+			if(SHOW_ALL_MESSAGES) {
 				System.out.println(s);
 			}
 

@@ -2,17 +2,16 @@ package ru.settletale.client.resource.loader;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 
 import javax.imageio.ImageIO;
 
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.system.MemoryUtil;
 
 import ru.settletale.client.Client;
+import ru.settletale.client.gl.Texture2D;
 import ru.settletale.client.render.Renderer;
 import ru.settletale.client.resource.ResourceFile;
-import wrap.gl.Texture2D;
+import ru.settletale.memory.MemoryBlock;
 
 public class TextureLoader extends ResourceLoaderAbstract<Texture2D> {
 
@@ -32,22 +31,23 @@ public class TextureLoader extends ResourceLoaderAbstract<Texture2D> {
 		int width = image.getWidth();
 		int height = image.getHeight();
 		int size = width * height;
-		ByteBuffer buffer = MemoryUtil.memAlloc(size * 4);
+		
+		MemoryBlock buffer = new MemoryBlock(size * 4);
 
+		int index = 0;
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
 				int color = image.getRGB(x, y);
-				buffer.putInt((color & 0xFF000000) | ((color << 16) & 0x00FF0000) | (color & 0x0000FF00) | ((color >>> 16) & 0xFF));
+				buffer.putIntI(index++, -1);///);(color & 0xFF000000) | ((color << 16) & 0x00FF0000) | (color & 0x0000FF00) | ((color >>> 16) & 0xFF));
 			}
 		}
-		buffer.flip();
 
-		Texture2D tex = new Texture2D(width, height);
+		Texture2D tex = new Texture2D();
 
 		Runnable run = () -> {
-			tex.gen().setDefaultParams().bufferDataFormat(GL11.GL_RGBA).bufferDataType(GL11.GL_UNSIGNED_BYTE).data(buffer);
+			tex.gen().data2D(buffer, 0, GL11.GL_RGBA, width, height, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE);
 			Renderer.debugGL("Load texture: " + resourceFile.key);
-			MemoryUtil.memFree(buffer);
+			buffer.free();
 		};
 		
 		if(Thread.currentThread() != Client.GL_THREAD) {

@@ -1,35 +1,68 @@
 package ru.settletale.util;
 
-import java.util.Deque;
-import java.util.Objects;
-import java.util.concurrent.ConcurrentLinkedDeque;
-import java.util.concurrent.Semaphore;
-
 public class ThreadWithTasks extends Thread {
-	private final Deque<ThreadTask> taskQueue = new ConcurrentLinkedDeque<ThreadTask>();
-	private final Semaphore semaphore = new Semaphore(0);
+	public final ThreadTasks tasks = new ThreadTasks();
+	public static final ThreadBehavior DEFAULT_THREAD_BEHAVIOR = thread -> {
+		for (;;) {
+			try {
+				thread.tasks.waitAndExecute();
+			} catch (InterruptedException e) {
+				interrupted();
+				break;
+			}
+		}
+	};
+	
+	private volatile ThreadBehavior behavior = DEFAULT_THREAD_BEHAVIOR;
 
 	public ThreadWithTasks(String name) {
 		super(name);
 	}
 
 	@Override
-	public final void run() {
-		for (;;) {
-			try {
-				semaphore.acquire();
-				taskQueue.poll().run();
-			} catch (InterruptedException e) {
-				break;
-			}
+	public void run() {
+		while(behavior != null && !isInterrupted()) {
+			ThreadBehavior tb = behavior;
+			behavior = null;
+			tb.run(this);
 		}
 	}
+	
+	public void setBehavior(ThreadBehavior behavior) {
+		this.behavior = behavior;
+		interrupt();
+	}
+	
+	public ThreadTask addTask(Runnable run) {
+		return tasks.add(run);
+	}
+	
+	public ThreadTask addAheadTask(Runnable run) {
+		return tasks.addAhead(run);
+	}
 
-	public ThreadTask addTask(Runnable runnable) {
-		Objects.requireNonNull(runnable);
-		ThreadTask task = new ThreadTask(runnable);
-		taskQueue.add(task);
-		semaphore.release();
-		return task;
+	public void waitAndExecuteTask(long maxWaitTimeNano) throws InterruptedException {
+		tasks.waitAndExecute(maxWaitTimeNano);
+	}
+
+	public void waitAndExecuteTask() throws InterruptedException {
+		tasks.waitAndExecute();
+	}
+	
+	public void executeAvailableTasks() {
+		tasks.executeAvailable();
+	}
+
+	public ThreadTask lastTask() {
+		return tasks.last();
+	}
+	
+	public boolean isHaveTasks() {
+		return !tasks.isEmpty();
+	}
+	
+	@FunctionalInterface
+	public static interface ThreadBehavior {
+		public void run(ThreadWithTasks thread);
 	}
 }

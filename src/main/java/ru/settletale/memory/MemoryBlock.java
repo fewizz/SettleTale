@@ -8,11 +8,25 @@ import org.lwjgl.system.MemoryUtil;
 public class MemoryBlock {
 	static final boolean DEBUG = true;
 	private static long allocatedTotal = 0;
+	StackTraceElement[] allocStackTrace;
 	protected long address = MemoryUtil.NULL;
 	protected int bytes = 0;
-	protected int position = 0;
 
 	public MemoryBlock() {
+	}
+	
+	public MemoryBlock(int bytes) {
+		allocate(bytes);
+	}
+	
+	@Override
+	protected void finalize() throws Throwable {
+		if(allocStackTrace != null) {
+			System.err.println("Memory block allocated is not free'ed:");
+			for(StackTraceElement s : allocStackTrace) {
+				System.err.println(s);
+			}
+		}
 	}
 	
 	public static long getAllocatedTotal() {
@@ -22,6 +36,10 @@ public class MemoryBlock {
 	public MemoryBlock allocate(int bytes) {
 		if(address != MemoryUtil.NULL) {
 			throw new RuntimeException();
+		}
+		
+		if(DEBUG) {
+			allocStackTrace = Thread.currentThread().getStackTrace();
 		}
 		
 		address = MemoryUtil.nmemAlloc(bytes);
@@ -38,6 +56,10 @@ public class MemoryBlock {
 	}
 
 	public void reallocate(int bytes) {
+		if(DEBUG) {
+			allocStackTrace = Thread.currentThread().getStackTrace();
+		}
+		
 		address = MemoryUtil.nmemRealloc(address, bytes);
 		setBytes(bytes);
 	}
@@ -55,11 +77,11 @@ public class MemoryBlock {
 	}
 
 	// Byte
-	public byte getByte(int pos) {
+	public byte get(int pos) {
 		return MemoryUtil.memGetByte(address + pos);
 	}
 
-	public MemoryBlock putByte(int pos, byte value) {
+	public MemoryBlock put(int pos, byte value) {
 		if(DEBUG) if(pos < 0 || pos >= address) throw new Error();
 		MemoryUtil.memPutByte(address + pos, value);
 		return this;
@@ -96,9 +118,9 @@ public class MemoryBlock {
 		return this;
 	}
 	
-	public MemoryBlock putFloatF(float value) {
+	/*public MemoryBlock putFloatF(float value) {
 		return putFloatF(position, value).position(position + Float.BYTES);
-	}
+	}*/
 	
 	// Int
 	public int getInt(int pos) {
@@ -107,6 +129,11 @@ public class MemoryBlock {
 
 	public int getIntI(int pos) {
 		return MemoryUtil.memGetInt(address + pos * Integer.BYTES);
+	}
+	
+	public void putInt(int pos, int value) {
+		if(DEBUG) if(pos < 0 || pos >= address) throw new Error();
+		MemoryUtil.memPutInt(address + pos, value);
 	}
 
 	public void putIntI(int pos, int value) {
@@ -154,9 +181,13 @@ public class MemoryBlock {
 			throw new RuntimeException();
 		}
 		
+		allocStackTrace = null;
+		
+		
 		MemoryUtil.nmemFree(address);
 		address = MemoryUtil.NULL;
 		setBytes(0);
+		//limit(0);
 	}
 
 	public void copyTo(long adrressDest, int src, int bytes) {
@@ -174,6 +205,8 @@ public class MemoryBlock {
 	private void setBytes(int bytes) {
 		allocatedTotal -= this.bytes;
 		this.bytes = bytes;
+		//limit(bytes);
+		//position(0);
 		allocatedTotal += this.bytes;
 	}
 
@@ -185,6 +218,15 @@ public class MemoryBlock {
 		return bytes / Integer.BYTES;
 	}
 	
+	/*public int limit() {
+		return this.limit;
+	}
+	
+	public MemoryBlock limit(int limit) {
+		this.limit = limit;
+		return this;
+	}
+	
 	public int position() {
 		return this.position;
 	}
@@ -193,6 +235,10 @@ public class MemoryBlock {
 		this.position = pos;
 		return this;
 	}
+	
+	public int remaining() {
+		return limit - position;
+	}*/
 
 	public ByteBuffer getAsByteBuffer(int capacity) {
 		return MemoryUtil.memByteBuffer(address, capacity);

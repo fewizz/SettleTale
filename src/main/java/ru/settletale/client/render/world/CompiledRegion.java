@@ -1,7 +1,6 @@
 package ru.settletale.client.render.world;
 
 import java.awt.Color;
-import java.nio.ByteBuffer;
 
 import org.joml.Vector3f;
 import static org.lwjgl.opengl.GL11.*;
@@ -10,34 +9,36 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.system.MemoryUtil;
 
+import ru.settletale.client.gl.ElementArrayBuffer;
+import ru.settletale.client.gl.GL;
+import ru.settletale.client.gl.ShaderProgram;
+import ru.settletale.client.gl.Texture1D;
+import ru.settletale.client.gl.Texture2D;
+import ru.settletale.client.gl.VertexArray;
+import ru.settletale.client.render.Attrib;
 import ru.settletale.client.render.Renderer;
+import ru.settletale.client.render.VertexArrayBuilder;
 import ru.settletale.client.render.VertexAttribArray;
 import ru.settletale.client.render.util.GLPrimitive;
 import ru.settletale.client.render.util.GLUtils;
 import ru.settletale.client.resource.Textures;
 import ru.settletale.memory.MemoryBlock;
 import ru.settletale.world.biome.BiomeAbstract;
-import ru.settletale.world.region.Region;
-import wrap.gl.ElementArrayBuffer;
-import wrap.gl.GL;
-import wrap.gl.ShaderProgram;
-import wrap.gl.Texture1D;
-import wrap.gl.Texture2D;
-import wrap.gl.VertexArray;
+import ru.settletale.world.region.Chunk;
 import ru.settletale.registry.Biomes;
 
 public class CompiledRegion {
-	static final Texture1D TEXTURE_BIOMES = new Texture1D(Region.WIDTH * Region.WIDTH);
+	static final Texture1D TEXTURE_BIOMES = new Texture1D(/*Chunk.WIDTH * Chunk.WIDTH*/);
 	static Texture2D textureGrass;
-	static final ByteBuffer TEMP_BUFFER = MemoryUtil.memAlloc(Region.WIDTH_EXTENDED * Region.WIDTH_EXTENDED * 2);
+	//static final ByteBuffer TEMP_BUFFER = MemoryUtil.memAlloc(Chunk.WIDTH_EXTENDED * Chunk.WIDTH_EXTENDED * 2);
 	static final ShaderProgram PROGRAM = new ShaderProgram();
 	
-	public VertexArray vao = new VertexArray();
-	public ElementArrayBuffer eabo = new ElementArrayBuffer();
-	final Region region;
+	final VertexArray vao = new VertexArray();
+	ElementArrayBuffer eabo = new ElementArrayBuffer();
+	final Chunk region;
 	Texture2D textureIDs;
 
-	public CompiledRegion(Region region) {
+	public CompiledRegion(Chunk region) {
 		this.region = region;
 	}
 
@@ -59,9 +60,9 @@ public class CompiledRegion {
 			textureGrass.parameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		}
 		if (!TEXTURE_BIOMES.isGenerated()) {
-			TEXTURE_BIOMES.gen().format(GL_RGB8).bufferDataFormat(GL_RGB).bufferDataType(GL_UNSIGNED_BYTE);
+			TEXTURE_BIOMES.gen();
 
-			ByteBuffer buff = MemoryUtil.memAlloc(256 * 3);
+			MemoryBlock buff = new MemoryBlock(256 * 3);
 
 			for (BiomeAbstract b : Biomes.BIOMES) {
 				if (b == null) {
@@ -74,23 +75,27 @@ public class CompiledRegion {
 				buff.put(b.getBiomeID() * 3 + 2, (byte) c.getBlue());
 			}
 
-			TEXTURE_BIOMES.data(buff);
+			TEXTURE_BIOMES.data1D(buff, GL_RGB8, 256 * 3, GL_RGB, GL_UNSIGNED_BYTE);
+			buff.free();
 		}
 
 		Renderer.debugGL("CR compile start");
 
-		textureIDs = new Texture2D(Region.WIDTH_EXTENDED, Region.WIDTH_EXTENDED).gen().format(GL30.GL_R8).bufferDataFormat(GL_RED).bufferDataType(GL_UNSIGNED_BYTE);
+		textureIDs = new Texture2D().gen();
+		
+		MemoryBlock mb = new MemoryBlock(Chunk.WIDTH_EXTENDED * (Chunk.WIDTH_EXTENDED + 2));
 
 		int byteIndex = 0;
-		for (int z = -Region.EXTENSION; z < Region.WIDTH + Region.EXTENSION; z++) {
-			for (int x = -Region.EXTENSION; x < Region.WIDTH + Region.EXTENSION; x++) {
-				TEMP_BUFFER.put(byteIndex++, (byte) region.getBiome(x, z).getBiomeID());
+		for (int z = -Chunk.EXTENSION; z < Chunk.WIDTH + Chunk.EXTENSION; z++) {
+			for (int x = -Chunk.EXTENSION; x < Chunk.WIDTH + Chunk.EXTENSION; x++) {
+				mb.put(byteIndex++, (byte) region.getBiome(x, z).getBiomeID());
 			}
-			byteIndex += 2; // WTF? It's not RGB, but neeeds 3 bytes...
+			byteIndex += 2; // WTF? It's not RGB, but needs 3 bytes...
 		}
 
 		Renderer.debugGL("CR compile texture");
-		textureIDs.data(TEMP_BUFFER);
+		textureIDs.data2D(mb, 0, GL30.GL_R8, Chunk.WIDTH_EXTENDED, Chunk.WIDTH_EXTENDED, GL_RED, GL_UNSIGNED_BYTE);
+		mb.free();
 		
 		Renderer.debugGL("CR compile end");
 	}
@@ -108,7 +113,7 @@ public class CompiledRegion {
 		PROGRAM.use();
 		
 		eabo.bind();
-		GL11.glDrawElements(GL_QUADS, Region.WIDTH * Region.WIDTH * 4, GL11.GL_UNSIGNED_SHORT, MemoryUtil.NULL);
+		GL11.glDrawElements(GL_QUADS, Chunk.WIDTH * Chunk.WIDTH * 4, GL11.GL_UNSIGNED_SHORT, MemoryUtil.NULL);
 		
 		Renderer.debugGL("CR rend end");
 	}
@@ -120,22 +125,23 @@ public class CompiledRegion {
 	static final Vector3f V3_TEMP = new Vector3f();
 
 	private void compileVertexAttributeArrays() {
-		MemoryBlock mbIndex = new MemoryBlock().allocateS(Region.WIDTH * Region.WIDTH * 4);
-		VertexAttribArray attribPos = new VertexAttribArray(GLPrimitive.FLOAT, 3, (Region.WIDTH + 1) * (Region.WIDTH + 1));
-		VertexAttribArray attribNormal = new VertexAttribArray(GLPrimitive.FLOAT, 1, (Region.WIDTH + 1) * (Region.WIDTH + 1));
+		MemoryBlock mbIndex = new MemoryBlock().allocateS(Chunk.WIDTH * Chunk.WIDTH * 4);
+		VertexArrayBuilder vaoBuilder = new VertexArrayBuilder((Chunk.WIDTH + 1) * (Chunk.WIDTH + 1), Attrib.floatType(0, GLPrimitive.FLOAT, 3, false), Attrib.floatType(1, GLPrimitive.FLOAT, 1, false));
+		//VertexAttribArrayBuilder attribPos = new VertexAttribArrayBuilder(GLPrimitive.FLOAT, 3, (Chunk.WIDTH + 1) * (Chunk.WIDTH + 1));
+		//VertexAttribArrayBuilder attribNormal = new VertexAttribArrayBuilder(GLPrimitive.FLOAT, 1, (Chunk.WIDTH + 1) * (Chunk.WIDTH + 1));
 		
 		Renderer.debugGL("Fill buffers0");
-		int rendWidth = Region.WIDTH + Region.EXTENSION;
+		int rendWidth = Chunk.WIDTH + Chunk.EXTENSION;
 
 		int i = 0;
 		
-		for (int x = 0; x < Region.WIDTH; x++) {
+		for (int x = 0; x < Chunk.WIDTH; x++) {
 			short i1 = (short) (x * rendWidth + 0);
 			short i2 = (short) (i1 + 1);
 			short i3 = (short) (i2 + rendWidth);
 			short i4 = (short) (i3 - 1);
 			
-			for (int z = 0; z < Region.WIDTH; z++) {
+			for (int z = 0; z < Chunk.WIDTH; z++) {
 				mbIndex.putShortS(i++, i1++);
 				mbIndex.putShortS(i++, i2++);
 				mbIndex.putShortS(i++, i3++);
@@ -144,6 +150,7 @@ public class CompiledRegion {
 		}
 
 		i = 0;
+		Renderer.debugGL("end indexes");
 		
 		for (int xLocal = 0; xLocal < rendWidth; xLocal++) {
 			for (int zLocal = 0; zLocal < rendWidth; zLocal++) {
@@ -182,25 +189,36 @@ public class CompiledRegion {
 
 				NORMAL_TEMP.normalize();
 
-				attribPos.putFloatF(i * 3, region.x * Region.WIDTH + xLocal).putFloatF(i * 3 + 1, region.getHeight(xLocal, zLocal)).putFloatF(i * 3 + 2, region.z * Region.WIDTH + zLocal);
-				attribNormal.putFloatF(i, NORMAL_TEMP.y);
+				vaoBuilder.float3(0, region.x * Chunk.WIDTH + xLocal, region.getHeight(xLocal, zLocal), region.z * Chunk.WIDTH + zLocal);
+				vaoBuilder.float1(1, NORMAL_TEMP.y);
+				vaoBuilder.endVertex();
+				//attribPos.putFloatF(i * 3, region.x * Chunk.WIDTH + xLocal).putFloatF(i * 3 + 1, region.getHeight(xLocal, zLocal)).putFloatF(i * 3 + 2, region.z * Chunk.WIDTH + zLocal);
+				//attribNormal.putFloatF(i, NORMAL_TEMP.y);
 				i++;
+				//System.out.println(i);
 			}
 		}
+		
+		Renderer.debugGL("post compile");
 		
 		vao.bind();
 		eabo.bind();
 		eabo.data(mbIndex.address(), mbIndex.bytes());
+		mbIndex.free();
 		
-		attribPos.updateVertexBuffer();
+		Renderer.debugGL("CR preVaoBuild");
+		
+		vaoBuilder.build(vao);
+		
+		/*attribPos.updateVertexBuffer();
 		attribNormal.updateVertexBuffer();
 		
-		attribPos.pointToVAO(vao, 0, false);
-		attribNormal.pointToVAO(vao, 1, false);
+		vao.vertexAttribPointer(attribPos, 0, false);
+		vao.vertexAttribPointer(attribNormal, 1, false);
 		
 		mbIndex.free();
 		attribPos.free();
-		attribNormal.free();
+		attribNormal.free();*/
 	}
 
 	public void clear() {

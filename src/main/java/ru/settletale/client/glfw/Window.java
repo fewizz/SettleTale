@@ -1,4 +1,4 @@
-package wrap.glfw;
+package ru.settletale.client.glfw;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -23,7 +23,7 @@ public class Window {
 		if (id == MemoryUtil.NULL)
 			throw new RuntimeException("Failed to create the GLFW window");
 		
-		GLFW.onWindowCreated(this);
+		//GLFW.onWindowCreated(this);
 	}
 	
 	public void show() {

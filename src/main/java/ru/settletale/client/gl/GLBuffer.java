@@ -1,4 +1,4 @@
-package wrap.gl;
+package ru.settletale.client.gl;
 
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
@@ -8,21 +8,21 @@ import org.lwjgl.opengl.GL44;
 import org.lwjgl.opengl.GL45;
 import org.lwjgl.system.MemoryUtil;
 
-public class GLBuffer<T> extends GLBindableObject<T> {
-	protected final int type;
+public class GLBuffer<SELF> extends GLBindableObject<SELF> {
+	protected int type;
 	private int loadedSize = 0;
 	private BufferUsage usage;
 	private int offset = 0;
 	private int storageFlags = GL44.GL_DYNAMIC_STORAGE_BIT;
 	
-	public GLBuffer(int type) {
-		this.type = type;
+	public GLBuffer() {
+		super(GLBuffer.class);
 		usage = BufferUsage.STATIC_DRAW;
 	}
 	
-	@Override
-	public boolean isBase() {
-		return true;
+	public SELF gen(int target) {
+		this.type = target;
+		return super.gen();
 	}
 	
 	@Override
@@ -30,12 +30,12 @@ public class GLBuffer<T> extends GLBindableObject<T> {
 		return GL.version >= 45 ? GL45.glCreateBuffers() : GL15.glGenBuffers();
 	}
 	
-	public T usage(BufferUsage usage) {
+	public SELF usage(BufferUsage usage) {
 		this.usage = usage;
 		return getThis();
 	}
 	
-	public T offset(int offset) {
+	public SELF offset(int offset) {
 		this.offset = offset;
 		return getThis();
 	}
@@ -99,7 +99,7 @@ public class GLBuffer<T> extends GLBindableObject<T> {
 		this.subData(MemoryUtil.memAddress(buffer), buffer.remaining() * Float.BYTES);
 	}
 	
-	public T dataOrSubData(long address, int size) {
+	public SELF dataOrSubData(long address, int size) {
 		if(size <= loadedSize) {
 			subData(address, size);
 		}
@@ -110,7 +110,7 @@ public class GLBuffer<T> extends GLBindableObject<T> {
 		return getThis();
 	}
 	
-	public T dataOrSubData(ByteBuffer buffer) {
+	public SELF dataOrSubData(ByteBuffer buffer) {
 		return dataOrSubData(MemoryUtil.memAddress(buffer), buffer.remaining());
 	}
 	

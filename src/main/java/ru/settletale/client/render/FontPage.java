@@ -3,7 +3,7 @@ package ru.settletale.client.render;
 import com.koloboke.collect.map.hash.HashCharObjMap;
 import com.koloboke.collect.map.hash.HashCharObjMaps;
 
-import wrap.gl.Texture2D;
+import ru.settletale.client.gl.Texture2D;
 
 public class FontPage {
 	public int id;

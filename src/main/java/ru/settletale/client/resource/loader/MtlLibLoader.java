@@ -10,9 +10,9 @@ import ru.settletale.client.render.Material;
 import ru.settletale.client.resource.ResourceFile;
 import ru.settletale.client.resource.ResourceManager;
 import ru.settletale.client.Client;
+import ru.settletale.client.gl.Texture;
 import ru.settletale.client.render.MTLLib;
 import ru.settletale.util.FileUtils;
-import wrap.gl.Texture;
 
 public class MtlLibLoader extends ResourceLoaderAbstract {
 	public static final Map<String, MTLLib> MTLS = new HashMap<>();
