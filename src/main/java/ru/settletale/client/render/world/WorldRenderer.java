@@ -111,9 +111,9 @@ public class WorldRenderer implements IChunkManagerListener {
 		Drawer.UV.set(0, 0);
 		Drawer.vertex(50, 100, 0);
 		Drawer.UV.set(1, 0);
-		Drawer.vertex(100, 100, 0);
+		Drawer.vertex(150, 100, 0);
 		Drawer.UV.set(1, 1);
-		Drawer.vertex(100, 50, 0);
+		Drawer.vertex(150, 50, 0);
 		Drawer.draw();
 
 		Drawer.begin(GL_LINES);

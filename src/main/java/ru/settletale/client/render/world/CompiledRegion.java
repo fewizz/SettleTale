@@ -1,9 +1,9 @@
 package ru.settletale.client.render.world;
 
-import java.awt.Color;
-
 import org.joml.Vector3f;
 import static org.lwjgl.opengl.GL11.*;
+
+import java.awt.Color;
 
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
@@ -18,7 +18,6 @@ import ru.settletale.client.gl.VertexArray;
 import ru.settletale.client.render.Attrib;
 import ru.settletale.client.render.Renderer;
 import ru.settletale.client.render.VertexArrayBuilder;
-import ru.settletale.client.render.VertexAttribArray;
 import ru.settletale.client.render.util.GLPrimitive;
 import ru.settletale.client.render.util.GLUtils;
 import ru.settletale.client.resource.Textures;
@@ -127,8 +126,6 @@ public class CompiledRegion {
 	private void compileVertexAttributeArrays() {
 		MemoryBlock mbIndex = new MemoryBlock().allocateS(Chunk.WIDTH * Chunk.WIDTH * 4);
 		VertexArrayBuilder vaoBuilder = new VertexArrayBuilder((Chunk.WIDTH + 1) * (Chunk.WIDTH + 1), Attrib.floatType(0, GLPrimitive.FLOAT, 3, false), Attrib.floatType(1, GLPrimitive.FLOAT, 1, false));
-		//VertexAttribArrayBuilder attribPos = new VertexAttribArrayBuilder(GLPrimitive.FLOAT, 3, (Chunk.WIDTH + 1) * (Chunk.WIDTH + 1));
-		//VertexAttribArrayBuilder attribNormal = new VertexAttribArrayBuilder(GLPrimitive.FLOAT, 1, (Chunk.WIDTH + 1) * (Chunk.WIDTH + 1));
 		
 		Renderer.debugGL("Fill buffers0");
 		int rendWidth = Chunk.WIDTH + Chunk.EXTENSION;

@@ -74,6 +74,7 @@ public class VertexArray extends GLBindableObject<VertexArray> {
 			vertexAttribIPointer(attribArray.getVertexBuffer(), attribArray.attribInfo.location, attribArray.attribInfo.components, attribArray.attribInfo.clientDataType.code, 0);
 		else
 			vertexAttribPointer(attribArray.getVertexBuffer(), attribArray.attribInfo.location, attribArray.attribInfo.components, attribArray.attribInfo.clientDataType.code, attribArray.attribInfo.normalize, 0);
+		
 		enableVertexAttribArray(attribArray.attribInfo.location);
 	}
 	

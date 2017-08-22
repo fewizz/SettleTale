@@ -61,10 +61,6 @@ public class VertexArrayBuilder {
 	
 	public VertexArrayBuilder float3(int location, float f1, float f2, float f3) {
 		MemoryBlock mb = memoyBlocks.get(location);
-		//VertexAttribArray vaa = attribArrays.get(location);
-		
-		//int step = vaa.attribInfo.componentsBytes;
-		//int start = vertex * step;
 		
 		mb.putFloatF(0, f1);
 		mb.putFloatF(1, f2);
@@ -74,12 +70,8 @@ public class VertexArrayBuilder {
 	
 	public VertexArrayBuilder float1(int location, float f) {
 		MemoryBlock mb = memoyBlocks.get(location);
-		//VertexAttribArray vaa = attribArrays.get(location);
 		
-		//int step = vaa.attribInfo.componentsBytes;
-		//int start = vertex * step;
-		
-		mb.putFloatF(1, f);
+		mb.putFloatF(0, f);
 		return this;
 	}
 }

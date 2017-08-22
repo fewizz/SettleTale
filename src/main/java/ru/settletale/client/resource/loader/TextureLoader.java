@@ -38,10 +38,10 @@ public class TextureLoader extends ResourceLoaderAbstract<Texture2D> {
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
 				int color = image.getRGB(x, y);
-				buffer.putIntI(index++, -1);///);(color & 0xFF000000) | ((color << 16) & 0x00FF0000) | (color & 0x0000FF00) | ((color >>> 16) & 0xFF));
+				buffer.putIntI(index++, (color & 0xFF000000) | ((color << 16) & 0x00FF0000) | (color & 0x0000FF00) | ((color >>> 16) & 0xFF));
 			}
 		}
-
+		
 		Texture2D tex = new Texture2D();
 
 		Runnable run = () -> {

@@ -17,7 +17,7 @@ public class Drawer {
 	static final VertexAttribArray ATTRIB_POS = new VertexAttribArray(Attrib.floatType(0, GLPrimitive.FLOAT, 3, false), 1024);
 	static final VertexAttribArray ATTRIB_COLOR = new VertexAttribArray(Attrib.floatType(1, GLPrimitive.UBYTE, 4, true), 1024);
 	static final VertexAttribArray ATTRIB_UV = new VertexAttribArray(Attrib.floatType(2, GLPrimitive.FLOAT, 2, false), 1024);
-	static final VertexAttribArray ATTRIB_TEX = new VertexAttribArray(Attrib.intType(4, GLPrimitive.USHORT, 1), 1024);
+	static final VertexAttribArray ATTRIB_TEX = new VertexAttribArray(Attrib.intType(3, GLPrimitive.USHORT, 1), 1024);
 	static final VertexArray VAO = new VertexArray();
 	
 	static Texture2D[] textures; 
@@ -53,11 +53,6 @@ public class Drawer {
 		GLUtils.linkShadersToProgram(PROGRAM_MULTITEX, "shaders/drawer_multitex.vs", "shaders/drawer_multitex.fs");
 		
 		VAO.gen().bind();
-		
-		/*ATTRIB_POS.begin(1024);
-		ATTRIB_COLOR.begin(1024);
-		ATTRIB_UV.begin(1024);
-		ATTRIB_TEX.begin(1024);*/
 		
 		VAO.vertexAttribPointer(ATTRIB_POS);
 		VAO.vertexAttribPointer(ATTRIB_COLOR);

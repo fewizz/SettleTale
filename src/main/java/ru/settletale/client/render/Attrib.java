@@ -20,7 +20,7 @@ public class Attrib {
 	}
 	
 	public static Attrib intType(int location, GLPrimitive clientDataType, int components) {
-		return new Attrib(location, clientDataType, GLPrimitive.FLOAT, components, false);
+		return new Attrib(location, clientDataType, GLPrimitive.INT, components, false);
 	}
 	
 	public static Attrib floatType(int location, GLPrimitive clientDataType, int components, boolean normalize) {
